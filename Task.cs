@@ -10,14 +10,14 @@ namespace ToDoLy
     {
         public string Details {  get; set; }
         public string Project { get; set; }
-        public DateTime DateTime { get; set; }
+        public DateTime DueDate { get; set; }
         public bool IsCompleted { get; set; }
 
         public Task(string detalis, string project, DateTime dt, bool complete = false) 
         {
             Details = detalis;
             Project = project;
-            DateTime = dt;
+            DueDate = dt;
             IsCompleted = complete;
         }
     }

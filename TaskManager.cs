@@ -45,17 +45,31 @@ namespace ToDoLy
 
             foreach (Task task in tasks)
             {
-                sw.WriteLine($"" +
+                sw.WriteLine(
                     $"{task.Details}," +
                     $"{task.Project}," +
-                    $"{task.DateTime:d}," +
+                    $"{task.DueDate:d}," +
                     $"{(task.IsCompleted ? "Completed" : "Pending")}");
             }
         }
 
         public void PrintList()
         {
-            //Add stuff
+            if (tasks.Count == 0)
+            {
+                Console.WriteLine("No tasks to show. Try adding a new task first.");
+                return;
+            }
+
+            for (int i = 0; i < tasks.Count; i++)
+            {
+                Task task = tasks[i];
+                Console.WriteLine(
+                    $"{i + 1}. {task.Details} - " +
+                    $"Project: {task.Project}, " +
+                    $"Due: {task.DueDate.ToShortDateString()}, " +
+                    $"Status: {(task.IsCompleted ? "Completed" : "Pending")}");
+            }
         }
 
         public void SearchTask(string input)

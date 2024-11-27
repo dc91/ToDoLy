@@ -39,6 +39,7 @@ namespace ToDoLy
 
             Task task = new Task(details, project, dueDate, false);
             tasks.Add(task);
+            SaveFile("tasks.csv");
             Console.Clear();
             PrintHeader("Welcome to ToDoLy");
             Console.ForegroundColor = ConsoleColor.Green;
@@ -114,16 +115,26 @@ namespace ToDoLy
                     if (!string.IsNullOrEmpty(dateInput) && DateTime.TryParse(dateInput, out DateTime newDate))
                         task.DueDate = newDate;
 
-                    Console.Write("\nMark as Completed? (y/n):");
-                    string newStatus = Console.ReadLine();
-                    if (newStatus.Equals("y", StringComparison.CurrentCultureIgnoreCase))
+                    while (true)
                     {
-                        task.IsCompleted = true;
+                        Console.Write("\nMark as Completed? (y/n):");
+                        string newStatus = Console.ReadLine().Trim().ToLower();
+                        if (newStatus == "y")
+                        {
+                            task.IsCompleted = true;
+                            break;
+                        }
+                        else if (newStatus == "n")
+                        {
+                            task.IsCompleted = false;
+                            break;
+                        }
+                        else
+                        {
+                            Console.WriteLine("Invalid input. Please enter \'y\' for yes and \'n\' for no.");
+                        }
                     }
-                    else if (newStatus.Equals("n", StringComparison.CurrentCultureIgnoreCase))
-                    {
-                        task.IsCompleted = false;
-                    }
+                    
                     SaveFile("tasks.csv");
                     Console.WriteLine("Task updated successfully!");
                     break;

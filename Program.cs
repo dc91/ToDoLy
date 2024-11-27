@@ -36,7 +36,6 @@ while (true)
             tManager.UpdateTask();
             break;
         case "4":
-            tManager.SaveFile(filePath);
             Console.WriteLine("Quitting, Goodbye");
             goto EndLoop;
         default:

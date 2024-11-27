@@ -12,5 +12,13 @@ namespace ToDoLy
         string Project { get; set; }
         DateTime DateTime { get; set; }
         bool IsCompleted { get; set; }
+
+        public Task(string detalis, string project, DateTime dt, bool complete = false) 
+        {
+            Details = detalis;
+            Project = project;
+            DateTime = dt;
+            IsCompleted = complete;
+        }
     }
 }

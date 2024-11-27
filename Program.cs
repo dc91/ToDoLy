@@ -1,21 +1,25 @@
 ﻿using ToDoLy;
+using System;
+using System.IO;
 
 TaskManager tManager = new TaskManager();
+string filePath = "tasks.csv";
+
+if (!File.Exists(filePath))
+{
+    using StreamWriter sw = new(filePath);
+    sw.WriteLine("Task Name, Project, Due Date, Status");
+}
 
 int tasksTodo = 0;
 int tasksDone = 0;
 
 Console.WriteLine("Welcome to ToDoLy");
 Console.WriteLine($"You have {tasksTodo} tasks todo and {tasksDone} tasks are done!");
-Console.WriteLine("Pick an option:");
-Console.WriteLine("(1) Show Task List (by date or project)");
-Console.WriteLine("(2) Add New Task");
-Console.WriteLine("(3) Edit Task (update, mark as done, remove)");
-Console.WriteLine("(4) Quit");
-
 
 while (true)
 {
+    PrintOptions();
     string input = Console.ReadLine();
     switch (input)
     {
@@ -29,7 +33,7 @@ while (true)
             tManager.UpdateTask();
             break;
         case "4":
-            Console.WriteLine("quit");
+            Console.WriteLine("Quitting, Goodbye");
             goto EndLoop;
         default:
             Console.WriteLine("input not recognized, try again");
@@ -38,3 +42,14 @@ while (true)
 } EndLoop:;
 
 
+
+
+
+static void PrintOptions()
+{
+    Console.WriteLine("Pick an option:");
+    Console.WriteLine("(1) Show Task List (by date or project)");
+    Console.WriteLine("(2) Add New Task");
+    Console.WriteLine("(3) Edit Task (update, mark as done, remove)");
+    Console.WriteLine("(4) Quit");
+}

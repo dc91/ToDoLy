@@ -9,15 +9,25 @@ namespace ToDoLy
 {
     internal class TaskManager
     {
-        private string filePath = "tasks.csv";
-        
+        private List<Task> tasks = new();
 
         public void AddTask()
         {
-            while (true)
-            {
-                //Add stuff
-            }
+            Console.WriteLine("Enter Task Detils:");
+            string details = Console.ReadLine();
+
+            Console.WriteLine("Enter Project Name:");
+            string project = Console.ReadLine();
+
+            Console.WriteLine("Enter Due Date (yyyy-mm-dd):");
+            DateTime dueDate;
+
+            while (!DateTime.TryParse(Console.ReadLine(), out dueDate))
+                Console.WriteLine("Invalid date format. Example (2024-12-25)");
+
+            Task task = new Task(details, project, dueDate, false);
+            tasks.Add(task);
+            Console.WriteLine("Task added successfully");
         }
 
         public void UpdateTask()

@@ -38,8 +38,8 @@ namespace ToDoLy
             while (!sr.EndOfStream)
             {
                 string line = sr.ReadLine();
-                string[] parts = line.Split(',');//users cant use comma, or it might crash.
-                //add something for runtime safety
+                string[] parts = line.Split('|');//use pipe so users can type comma
+
                 string details = parts[0];
                 string project = parts[1];
                 DateTime dueDate = DateTime.Parse(parts[2]);
@@ -51,14 +51,14 @@ namespace ToDoLy
         public void SaveFile(string filePath)
         {
             using StreamWriter sw = new (filePath);
-            sw.WriteLine("Task Name,Project,Due Date,Status");
+            sw.WriteLine("Task Name|Project|Due Date|Status");
 
             foreach (Task task in tasks)
             {
                 sw.WriteLine(
-                    $"{task.Details}," +
-                    $"{task.Project}," +
-                    $"{task.DueDate:d}," +
+                    $"{task.Details}|" +
+                    $"{task.Project}|" +
+                    $"{task.DueDate:d}|" +
                     $"{(task.IsCompleted ? "Completed" : "Pending")}");
             }
         }

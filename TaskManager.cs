@@ -17,11 +17,11 @@ namespace ToDoLy
             PrintHeader("Add a New Task");
             PrintAddTaskInfo();
 
-            Console.WriteLine("\n\nEnter Task Detils:");
+            Console.Write("\n\nEnter Task Detils: ");
             string details = ReadInput();
             if (details == null) return;
 
-            Console.WriteLine("Enter Project Name:");
+            Console.Write("\nEnter Project Name: ");
             string project = ReadInput();
             if (project == null) return;
 
@@ -30,7 +30,7 @@ namespace ToDoLy
 
             while (true)
             {
-                Console.WriteLine("Enter Due Date (yyyy-mm-dd):");
+                Console.Write("\nEnter Due Date (yyyy-mm-dd): ");
                 dueDateInput = ReadInput();
                 if (dueDateInput == null) return;//esc pressed
                 if (DateTime.TryParse(dueDateInput, out dueDate)) break;
@@ -144,6 +144,43 @@ namespace ToDoLy
                     Console.WriteLine("Update cancelled.");
                     break;
                 }
+                else if (key == ConsoleKey.Delete)
+                {
+                    Console.Clear();
+                    PrintHeader($"Delete Task: {tasks[selectedIndex].Details}");
+
+                    Console.Write("\nAre you sure you want to ");
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.Write("DELETE");
+                    Console.ResetColor();
+                    Console.WriteLine(" this task?\n");
+
+                    Console.WriteLine(
+                        "Task: " +
+                        $"{tasks[selectedIndex].Details}\n" +
+                        $"Project: {tasks[selectedIndex].Project}\n" +
+                        $"Due: {tasks[selectedIndex].DueDate.ToShortDateString()}\n" +
+                        $"Status: {(tasks[selectedIndex].IsCompleted ? "Completed" : "Pending")}\n");
+                    Console.WriteLine(new string('-', 50));
+                    Console.Write("\nPress 'y' to confirm, or any other key to cancel: ");
+                    
+
+                    ConsoleKey confirmDelete = Console.ReadKey(true).Key;
+                    if (confirmDelete == ConsoleKey.Y)
+                    {
+                        tasks.RemoveAt(selectedIndex);
+                        Console.ForegroundColor = ConsoleColor.Green;
+                        Console.WriteLine("Task removed successfully!");
+                        Console.ResetColor();
+                    }
+                    else
+                    {
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine("Task was not removed.");
+                        Console.ResetColor();
+                    }
+                    break;
+                }
             }
         }
 
@@ -188,7 +225,7 @@ namespace ToDoLy
                 {
                     Console.ForegroundColor = ConsoleColor.Green; // Highlight the selected task
                     Console.WriteLine(
-                        $"> {tasks[i].Details} - " +
+                        $"> Task: {tasks[i].Details} - " +
                         $"Project: {tasks[i].Project}, " +
                         $"Due: {tasks[i].DueDate.ToShortDateString()}, " +
                         $"Status: {(tasks[i].IsCompleted ? "Completed" : "Pending")}");
@@ -197,7 +234,7 @@ namespace ToDoLy
                 else
                 {
                     Console.WriteLine(
-                        $"  {tasks[i].Details} - " +
+                        $"  Task: {tasks[i].Details} - " +
                         $"Project: {tasks[i].Project}, " +
                         $"Due: {tasks[i].DueDate.ToShortDateString()}, " +
                         $"Status: {(tasks[i].IsCompleted ? "Completed" : "Pending")}");
@@ -258,7 +295,8 @@ namespace ToDoLy
             Console.ForegroundColor = ConsoleColor.Cyan;
             Console.WriteLine(
                 "Use the UP and DOWN arrow keys to select a task.\n" +
-                "Press ENTER to select.\n" +
+                "Press ENTER to update or change a task.\n" +
+                "Press DEL to DELETE a task.\n" +
                 "Press ESC to cancel.\n");
             Console.ResetColor();
             Console.WriteLine();

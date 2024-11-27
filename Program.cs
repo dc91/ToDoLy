@@ -34,7 +34,7 @@ while (true)
             tManager.AddTask();
             break;
         case "3":
-            //tManager.UpdateTask();
+            tManager.UpdateTask();
             break;
         case "4":
             tManager.SaveFile(filePath);

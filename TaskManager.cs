@@ -48,6 +48,79 @@ namespace ToDoLy
             }
         }
 
+        public void UpdateTask()
+        {
+            if (tasks.Count == 0)
+            {
+                Console.WriteLine("No tasks to update. Try adding a new task first.");
+                return;
+            }
+
+            int selectedIndex = 0;
+            //Print list and highlight selectedIndex
+            Console.Clear();
+            Console.WriteLine("Use the UP and DOWN arrow keys to select a task. " +
+                "Press ENTER to select. Press ESC to cancel.\n");
+            PrintTaskList(selectedIndex);
+
+            while (true)
+            {
+                ConsoleKey key = Console.ReadKey(true).Key;
+
+                if (key == ConsoleKey.DownArrow && selectedIndex < tasks.Count - 1)
+                {
+                    selectedIndex++;
+                    PrintTaskList(selectedIndex);
+                }
+                else if (key == ConsoleKey.UpArrow && selectedIndex > 0)
+                {
+                    selectedIndex--;
+                    PrintTaskList(selectedIndex);
+                }
+                else if (key == ConsoleKey.Enter)//Select task
+                {
+                    Task task = tasks[selectedIndex];
+
+                    Console.Clear();
+                    Console.WriteLine($"Updating Task: {task.Details}");
+
+                    Console.WriteLine("Enter New Details (leave empty to keep current):");
+                    string newDetails = Console.ReadLine();
+                    if (!string.IsNullOrEmpty(newDetails))
+                        task.Details = newDetails;
+
+                    Console.WriteLine("Enter New Project (leave empty to keep current):");
+                    string newProject = Console.ReadLine();
+                    if (!string.IsNullOrEmpty(newProject))
+                        task.Project = newProject;
+
+                    Console.WriteLine("Enter New Due Date (yyyy-MM-dd, leave empty to keep current):");
+                    string dateInput = Console.ReadLine();
+                    if (!string.IsNullOrEmpty(dateInput) && DateTime.TryParse(dateInput, out DateTime newDate))
+                        task.DueDate = newDate;
+
+                    Console.WriteLine("Mark as Completed? (y/n):");
+                    string newStatus = Console.ReadLine();
+                    if (newStatus.ToLower() == "y")
+                    {
+                        task.IsCompleted = true;
+                    }
+                    else if (newStatus.ToLower() == "n")
+                    {
+                        task.IsCompleted = false;
+                    }
+
+                    Console.WriteLine("Task updated successfully!");
+                    break;
+                }
+                else if (key == ConsoleKey.Escape)//cancel changes
+                {
+                    Console.WriteLine("Update cancelled.");
+                    break;
+                }
+            }
+        }
+
         public void SaveFile(string filePath)
         {
             using StreamWriter sw = new (filePath);
@@ -81,7 +154,38 @@ namespace ToDoLy
                     $"Status: {(task.IsCompleted ? "Completed" : "Pending")}");
             }
         }
+        private void PrintTaskList(int selectedIndex)
+        {
+            Console.SetCursorPosition(0, 2); // Move cursor below the header
+            for (int i = 0; i < tasks.Count; i++)
+            {
+                if (i == selectedIndex)
+                {
+                    Console.ForegroundColor = ConsoleColor.Green; // Highlight the selected task
+                    Console.WriteLine(
+                        $"> {tasks[i].Details} - " +
+                        $"Project: {tasks[i].Project}, " +
+                        $"Due: {tasks[i].DueDate.ToShortDateString()}, " +
+                        $"Status: {(tasks[i].IsCompleted ? "Completed" : "Pending")}");
+                    Console.ResetColor();
+                }
+                else
+                {
+                    Console.WriteLine(
+                        $"  {tasks[i].Details} - " +
+                        $"Project: {tasks[i].Project}, " +
+                        $"Due: {tasks[i].DueDate.ToShortDateString()}, " +
+                        $"Status: {(tasks[i].IsCompleted ? "Completed" : "Pending")}");
+                }
+            }
+            // Clear any leftover lines
+            for (int i = tasks.Count; i < Console.WindowHeight; i++)
+            {
+                Console.WriteLine(new string(' ', Console.WindowWidth));
+            }
+        }
 
+       
         public int PendingTasksCount()
         {
             return tasks.Count(t => !t.IsCompleted);

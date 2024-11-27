@@ -17,13 +17,27 @@ namespace ToDoLy
             PrintHeader("Add a New Task");
             PrintAddTaskInfo();
 
-            Console.Write("\n\nEnter Task Detils: ");
-            string details = ReadInput();
-            if (details == null) return;
+            string details = null;
+            while (string.IsNullOrWhiteSpace(details))
+            {
+                Console.Write("\n\nEnter Task Detils: ");
+                details = ReadInput();
+                if (details == null) return;
 
-            Console.Write("\nEnter Project Name: ");
-            string project = ReadInput();
-            if (project == null) return;
+                if (string.IsNullOrWhiteSpace(details))
+                    Console.WriteLine("Cannot have an empty task. Please try again.");
+            }
+
+            string project = null;
+            while (string.IsNullOrWhiteSpace(project))
+            {
+                Console.Write("\nEnter Project Name: ");
+                project = ReadInput();
+                if (project == null) return;
+
+                if (string.IsNullOrWhiteSpace(project))
+                    Console.WriteLine("Cannot have an empty project name. Please try again.");
+            }
 
             DateTime dueDate;
             string dueDateInput;
@@ -141,7 +155,9 @@ namespace ToDoLy
                 }
                 else if (key == ConsoleKey.Escape)//cancel changes
                 {
-                    Console.WriteLine("Update cancelled.");
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("\nUpdate cancelled.");
+                    Console.ResetColor();
                     break;
                 }
                 else if (key == ConsoleKey.Delete)
@@ -169,6 +185,7 @@ namespace ToDoLy
                     if (confirmDelete == ConsoleKey.Y)
                     {
                         tasks.RemoveAt(selectedIndex);
+                        SaveFile("tasks.csv");
                         Console.ForegroundColor = ConsoleColor.Green;
                         Console.WriteLine("Task removed successfully!");
                         Console.ResetColor();
@@ -209,7 +226,7 @@ namespace ToDoLy
             }
             else
             {
-                PrintHeader("Show All Tasks");
+                PrintHeader("All Tasks");
             }
                 
             if (tasks.Count == 0)
@@ -218,27 +235,26 @@ namespace ToDoLy
                 return;
             }
 
+            Console.WriteLine();
+            Console.WriteLine("{0,5} | {1,-25} | {2,-25} | {3,-12} | {4,-10}",
+                      "No.", "Task Details", "Project", "Due Date", "Status");
+            Console.WriteLine(new string('-', 90));
+
             for (int i = 0; i < tasks.Count; i++)
             {
                 Task task = tasks[i];
+                string status = task.IsCompleted ? "Completed" : "Pending";
+
                 if (selectedIndex.HasValue && i == selectedIndex.Value)
-                {
-                    Console.ForegroundColor = ConsoleColor.Green; // Highlight the selected task
-                    Console.WriteLine(
-                        $"> Task: {tasks[i].Details} - " +
-                        $"Project: {tasks[i].Project}, " +
-                        $"Due: {tasks[i].DueDate.ToShortDateString()}, " +
-                        $"Status: {(tasks[i].IsCompleted ? "Completed" : "Pending")}");
-                    Console.ResetColor();
-                }
-                else
-                {
-                    Console.WriteLine(
-                        $"  Task: {tasks[i].Details} - " +
-                        $"Project: {tasks[i].Project}, " +
-                        $"Due: {tasks[i].DueDate.ToShortDateString()}, " +
-                        $"Status: {(tasks[i].IsCompleted ? "Completed" : "Pending")}");
-                } 
+                    Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine("{0,5} | {1,-25} | {2,-25} | {3,-12} | {4,-10}",
+                              i + 1,
+                              task.Details,
+                              task.Project,
+                              task.DueDate.ToShortDateString(),
+                              status);
+                Console.ResetColor();
+
             }
         }
 
@@ -254,9 +270,9 @@ namespace ToDoLy
 
         public void PrintHeader(string section)
         {
-            string border = new('=', 50);
+            string border = new('=', 90);
             string title = section;
-            string paddedTitle = title.PadLeft((50 + title.Length) / 2).PadRight(50);
+            string paddedTitle = title.PadLeft((90 + title.Length) / 2).PadRight(90);
 
             Console.ForegroundColor = ConsoleColor.Cyan;
             Console.WriteLine(border);
@@ -264,6 +280,7 @@ namespace ToDoLy
             Console.WriteLine(border);
             Console.ResetColor();
         }
+        
         public void PrintWelcome()
         {
             int tasksTodo = PendingTasksCount();
@@ -324,7 +341,9 @@ namespace ToDoLy
 
                 if (key.Key == ConsoleKey.Escape)
                 {
+                    Console.ForegroundColor = ConsoleColor.Red;
                     Console.WriteLine("Input cancelled.");
+                    Console.ResetColor();
                     return null;
                 }
                 else if (key.Key == ConsoleKey.Enter)

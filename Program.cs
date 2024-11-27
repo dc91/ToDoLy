@@ -40,7 +40,9 @@ while (true)
             goto EndLoop;
         default:
             Console.Clear();
-            Console.WriteLine("input not recognized, try again");
+            Console.ForegroundColor = ConsoleColor.Blue;
+            Console.WriteLine("Input not recognized, try again");
+            Console.ResetColor();
             break;
     }
 } EndLoop:;
@@ -48,7 +50,7 @@ while (true)
 
 static void PrintOptions()
 {
-    Console.Write("Pick an ");
+    Console.Write("Choose an ");
     Console.ForegroundColor = ConsoleColor.Blue;
     Console.Write("option");
     Console.ResetColor();
@@ -58,7 +60,7 @@ static void PrintOptions()
         ") Show Task List (by date or project)",
         ") Add New Task",
         ") Edit Task (update, mark as done, remove)",
-        ") Quit"
+        ") Quit\n"
         ];
 
     for (int i = 0; i < 4; i++)

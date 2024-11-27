@@ -30,11 +30,21 @@ namespace ToDoLy
             Console.WriteLine("Task added successfully");
         }
 
-        public void UpdateTask()
+        public void LoadTasks(string filePath)
         {
-            while (true)
+            using StreamReader sr = new(filePath);
+            string header = sr.ReadLine();
+
+            while (!sr.EndOfStream)
             {
-                //Add stuff
+                string line = sr.ReadLine();
+                string[] parts = line.Split(',');//users cant use comma, or it might crash.
+                //add something for runtime safety
+                string details = parts[0];
+                string project = parts[1];
+                DateTime dueDate = DateTime.Parse(parts[2]);
+                bool completed = parts[3] == "Completed";
+                tasks.Add(new Task(details, project, dueDate, completed));
             }
         }
 
@@ -72,14 +82,14 @@ namespace ToDoLy
             }
         }
 
-        public void SearchTask(string input)
+        public int PendingTasksCount()
         {
-            //Add stuff
+            return tasks.Count(t => !t.IsCompleted);
         }
 
-        public void SearchProject(string input)
+        public int CompletedTasksCount()
         {
-            //Add stuff
+            return tasks.Count(t => t.IsCompleted);
         }
     }
 }

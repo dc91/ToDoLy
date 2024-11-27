@@ -5,14 +5,18 @@ using System.IO;
 TaskManager tManager = new TaskManager();
 string filePath = "tasks.csv";
 
-if (!File.Exists(filePath))
+if (File.Exists(filePath))
+{
+    tManager.LoadTasks(filePath);
+}
+else
 {
     using StreamWriter sw = new(filePath);
     sw.WriteLine("Task Name,Project,Due Date,Status");
 }
 
-int tasksTodo = 0;
-int tasksDone = 0;
+int tasksTodo = tManager.PendingTasksCount();
+int tasksDone = tManager.CompletedTasksCount();
 
 Console.WriteLine("Welcome to ToDoLy");
 Console.WriteLine($"You have {tasksTodo} tasks todo and {tasksDone} tasks are done!");
@@ -30,7 +34,7 @@ while (true)
             tManager.AddTask();
             break;
         case "3":
-            tManager.UpdateTask();
+            //tManager.UpdateTask();
             break;
         case "4":
             tManager.SaveFile(filePath);

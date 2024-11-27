@@ -58,9 +58,6 @@ namespace ToDoLy
 
             int selectedIndex = 0;
             //Print list and highlight selectedIndex
-            Console.Clear();
-            Console.WriteLine("Use the UP and DOWN arrow keys to select a task. " +
-                "Press ENTER to select. Press ESC to cancel.\n");
             PrintTaskList(selectedIndex);
 
             while (true)
@@ -156,7 +153,11 @@ namespace ToDoLy
         }
         private void PrintTaskList(int selectedIndex)
         {
-            Console.SetCursorPosition(0, 2); // Move cursor below the header
+            Console.Clear();
+            Console.WriteLine("Use the UP and DOWN arrow keys to select a task. " +
+                "Press ENTER to select. Press ESC to cancel.\n");
+
+
             for (int i = 0; i < tasks.Count; i++)
             {
                 if (i == selectedIndex)
@@ -176,13 +177,9 @@ namespace ToDoLy
                         $"Project: {tasks[i].Project}, " +
                         $"Due: {tasks[i].DueDate.ToShortDateString()}, " +
                         $"Status: {(tasks[i].IsCompleted ? "Completed" : "Pending")}");
-                }
+                } 
             }
-            // Clear any leftover lines
-            for (int i = tasks.Count; i < Console.WindowHeight; i++)
-            {
-                Console.WriteLine(new string(' ', Console.WindowWidth));
-            }
+            
         }
 
        

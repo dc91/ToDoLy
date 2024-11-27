@@ -40,6 +40,7 @@ while (true)
             Console.WriteLine("Quitting, Goodbye");
             goto EndLoop;
         default:
+            Console.Clear();
             Console.WriteLine("input not recognized, try again");
             break;
     }

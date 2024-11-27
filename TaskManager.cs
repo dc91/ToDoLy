@@ -39,7 +39,11 @@ namespace ToDoLy
 
             Task task = new Task(details, project, dueDate, false);
             tasks.Add(task);
+            Console.Clear();
+            PrintHeader("Welcome to ToDoLy");
+            Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Task added successfully");
+            Console.ResetColor();
         }
 
         public void LoadTasks(string filePath)
@@ -61,7 +65,7 @@ namespace ToDoLy
         }
 
         public void UpdateTask()
-        {
+        {            
             if (tasks.Count == 0)
             {
                 Console.WriteLine("No tasks to update. Try adding a new task first.");
@@ -91,34 +95,36 @@ namespace ToDoLy
                     Task task = tasks[selectedIndex];
 
                     Console.Clear();
-                    Console.WriteLine($"Updating Task: {task.Details}");
+                    PrintHeader($"Updating Task: {task.Details}");
+                    Console.WriteLine("\n");
+                    PrintUpdateTaskInfo2(task);
 
-                    Console.WriteLine("Enter New Details (leave empty to keep current):");
+                    Console.Write("Enter New Task Details: ");
                     string newDetails = Console.ReadLine();
                     if (!string.IsNullOrEmpty(newDetails))
                         task.Details = newDetails;
 
-                    Console.WriteLine("Enter New Project (leave empty to keep current):");
+                    Console.Write("\nEnter New Project for Task: ");
                     string newProject = Console.ReadLine();
                     if (!string.IsNullOrEmpty(newProject))
                         task.Project = newProject;
 
-                    Console.WriteLine("Enter New Due Date (yyyy-MM-dd, leave empty to keep current):");
+                    Console.Write("\nEnter New Due Date (yyyy-MM-dd): ");
                     string dateInput = Console.ReadLine();
                     if (!string.IsNullOrEmpty(dateInput) && DateTime.TryParse(dateInput, out DateTime newDate))
                         task.DueDate = newDate;
 
-                    Console.WriteLine("Mark as Completed? (y/n):");
+                    Console.Write("\nMark as Completed? (y/n):");
                     string newStatus = Console.ReadLine();
-                    if (newStatus.ToLower() == "y")
+                    if (newStatus.Equals("y", StringComparison.CurrentCultureIgnoreCase))
                     {
                         task.IsCompleted = true;
                     }
-                    else if (newStatus.ToLower() == "n")
+                    else if (newStatus.Equals("n", StringComparison.CurrentCultureIgnoreCase))
                     {
                         task.IsCompleted = false;
                     }
-
+                    SaveFile("tasks.csv");
                     Console.WriteLine("Task updated successfully!");
                     break;
                 }
@@ -149,8 +155,15 @@ namespace ToDoLy
         {
             Console.Clear();
             if (selectedIndex.HasValue)
-                Console.WriteLine("Use the UP and DOWN arrow keys to select a task. " +
-                "Press ENTER to select. Press ESC to cancel.\n");
+            {
+                PrintHeader("Update/Change Task");
+                PrintUpdateTaskInfo();
+            }
+            else
+            {
+                PrintHeader("Show All Tasks");
+            }
+                
             if (tasks.Count == 0)
             {
                 Console.WriteLine("No tasks to show. Try adding a new task first.");
@@ -225,6 +238,30 @@ namespace ToDoLy
             Console.WriteLine(
                 "1. Enter task details\n2. Enter project name\n" +
                 "3. Enter due date\n4. Mark task done/pending\n\nESC to cancel");
+            Console.ResetColor();
+            Console.WriteLine();
+        }
+
+        public void PrintUpdateTaskInfo()
+        {
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.WriteLine(
+                "Use the UP and DOWN arrow keys to select a task.\n" +
+                "Press ENTER to select.\n" +
+                "Press ESC to cancel.\n");
+            Console.ResetColor();
+            Console.WriteLine();
+        }
+
+        public void PrintUpdateTaskInfo2(Task task)
+        {
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.WriteLine(
+                "Leave prompt empty if you want to keep current info:\n\n" +
+                $"* Task Details = {task.Details}\n" +
+                $"* Task Project = {task.Project}\n" +
+                $"* Task Due Date = {task.DueDate:d}\n" +
+                $"* Task Done Status = {task.IsCompleted}");
             Console.ResetColor();
             Console.WriteLine();
         }

@@ -133,8 +133,12 @@ namespace ToDoLy
             }
         }
 
-        public void PrintList()
+        public void PrintTaskList(int? selectedIndex = null)
         {
+            Console.Clear();
+            if (selectedIndex.HasValue)
+                Console.WriteLine("Use the UP and DOWN arrow keys to select a task. " +
+                "Press ENTER to select. Press ESC to cancel.\n");
             if (tasks.Count == 0)
             {
                 Console.WriteLine("No tasks to show. Try adding a new task first.");
@@ -144,23 +148,7 @@ namespace ToDoLy
             for (int i = 0; i < tasks.Count; i++)
             {
                 Task task = tasks[i];
-                Console.WriteLine(
-                    $"{i + 1}. {task.Details} - " +
-                    $"Project: {task.Project}, " +
-                    $"Due: {task.DueDate.ToShortDateString()}, " +
-                    $"Status: {(task.IsCompleted ? "Completed" : "Pending")}");
-            }
-        }
-        private void PrintTaskList(int selectedIndex)
-        {
-            Console.Clear();
-            Console.WriteLine("Use the UP and DOWN arrow keys to select a task. " +
-                "Press ENTER to select. Press ESC to cancel.\n");
-
-
-            for (int i = 0; i < tasks.Count; i++)
-            {
-                if (i == selectedIndex)
+                if (selectedIndex.HasValue && i == selectedIndex.Value)
                 {
                     Console.ForegroundColor = ConsoleColor.Green; // Highlight the selected task
                     Console.WriteLine(
@@ -179,10 +167,8 @@ namespace ToDoLy
                         $"Status: {(tasks[i].IsCompleted ? "Completed" : "Pending")}");
                 } 
             }
-            
         }
 
-       
         public int PendingTasksCount()
         {
             return tasks.Count(t => !t.IsCompleted);

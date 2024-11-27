@@ -28,7 +28,7 @@ while (true)
     switch (input)
     {
         case "1":
-            tManager.PrintList();
+            tManager.PrintTaskList();
             break;
         case "2":
             tManager.AddTask();

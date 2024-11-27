@@ -8,7 +8,7 @@ string filePath = "tasks.csv";
 if (!File.Exists(filePath))
 {
     using StreamWriter sw = new(filePath);
-    sw.WriteLine("Task Name, Project, Due Date, Status");
+    sw.WriteLine("Task Name,Project,Due Date,Status");
 }
 
 int tasksTodo = 0;
@@ -33,6 +33,7 @@ while (true)
             tManager.UpdateTask();
             break;
         case "4":
+            tManager.SaveFile(filePath);
             Console.WriteLine("Quitting, Goodbye");
             goto EndLoop;
         default:

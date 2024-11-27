@@ -8,10 +8,10 @@ namespace ToDoLy
 {
     internal class Task
     {
-        string Details {  get; set; }
-        string Project { get; set; }
-        DateTime DateTime { get; set; }
-        bool IsCompleted { get; set; }
+        public string Details {  get; set; }
+        public string Project { get; set; }
+        public DateTime DateTime { get; set; }
+        public bool IsCompleted { get; set; }
 
         public Task(string detalis, string project, DateTime dt, bool complete = false) 
         {

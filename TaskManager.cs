@@ -38,9 +38,19 @@ namespace ToDoLy
             }
         }
 
-        public void DeleteTask(Task task)
+        public void SaveFile(string filePath)
         {
-            //Add stuff
+            using StreamWriter sw = new (filePath);
+            sw.WriteLine("Task Name,Project,Due Date,Status");
+
+            foreach (Task task in tasks)
+            {
+                sw.WriteLine($"" +
+                    $"{task.Details}," +
+                    $"{task.Project}," +
+                    $"{task.DateTime:d}," +
+                    $"{(task.IsCompleted ? "Completed" : "Pending")}");
+            }
         }
 
         public void PrintList()

@@ -2,6 +2,7 @@
 using System;
 using System.IO;
 using static System.Collections.Specialized.BitVector32;
+using System.Threading.Tasks;
 
 TaskManager tManager = new();
 string filePath = "tasks.csv";
@@ -19,30 +20,44 @@ else
 tManager.PrintHeader("Welcome to ToDoLy");
 tManager.PrintWelcome();
 
+bool wrongKey = false;
 while (true)
 {
     Console.WriteLine();
     PrintOptions();
-    string input = Console.ReadLine();
-    switch (input)
+    if (wrongKey)
     {
-        case "1":
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.WriteLine("\nInvalid option. Please press 1, 2, 3, 4 or ESC.");
+        Console.ResetColor();
+    }
+    wrongKey = false;
+    Console.CursorVisible = false;
+    ConsoleKey key = Console.ReadKey(true).Key;
+
+    // Handle user input
+    switch (key)
+    {
+        case ConsoleKey.D1:
             tManager.PrintTaskList();
             break;
-        case "2":
+
+        case ConsoleKey.D2:
+            Console.CursorVisible = true;
             tManager.AddTask();
             break;
-        case "3":
+
+        case ConsoleKey.D3:
             tManager.UpdateTask();
             break;
-        case "4":
+        case ConsoleKey.D4:
             Console.WriteLine("Quitting, Goodbye");
             goto EndLoop;
         default:
             Console.Clear();
-            Console.ForegroundColor = ConsoleColor.Blue;
-            Console.WriteLine("Input not recognized, try again");
-            Console.ResetColor();
+            tManager.PrintHeader("Welcome to ToDoLy");
+            tManager.PrintWelcome();
+            wrongKey = true;
             break;
     }
 } EndLoop:;
@@ -52,20 +67,19 @@ static void PrintOptions()
 {
     Console.Write("Choose an ");
     Console.ForegroundColor = ConsoleColor.Blue;
-    Console.Write("option");
+    Console.Write("OPTION");
     Console.ResetColor();
     Console.WriteLine(":");
 
     string[] options = [
-        ") Show Task List (by date or project)",
-        ") Add New Task",
-        ") Edit Task (update, mark as done, remove)",
-        ") Quit\n"
+        ". Show Task List (by date or project)",
+        ". Add New Task",
+        ". Edit Task (update, mark as done, remove)",
+        ". Quit\n"
         ];
 
     for (int i = 0; i < 4; i++)
     {
-        Console.Write("(");
         Console.ForegroundColor = ConsoleColor.Blue;
         Console.Write(i+1);
         Console.ResetColor();

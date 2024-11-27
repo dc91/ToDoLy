@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Collections.Specialized.BitVector32;
 
 namespace ToDoLy
 {
@@ -15,6 +16,7 @@ namespace ToDoLy
         {
             Console.Clear();
             PrintHeader("Add a New Task");
+            Console.WriteLine();
             PrintAddTaskInfo();
 
             string details = null;
@@ -23,6 +25,7 @@ namespace ToDoLy
                 Console.Write("\n\nEnter Task Detils: ");
                 details = ReadInput();
                 if (details == null) return;
+                    
 
                 if (string.IsNullOrWhiteSpace(details))
                     Console.WriteLine("Cannot have an empty task. Please try again.");
@@ -115,6 +118,7 @@ namespace ToDoLy
                     PrintUpdateTaskInfo2(task);
 
                     Console.Write("Enter New Task Details: ");
+                    Console.CursorVisible = true;
                     string newDetails = Console.ReadLine();
                     if (!string.IsNullOrEmpty(newDetails))
                         task.Details = newDetails;
@@ -150,7 +154,9 @@ namespace ToDoLy
                     }
                     
                     SaveFile("tasks.csv");
-                    Console.WriteLine("Task updated successfully!");
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.WriteLine("\nTask updated successfully!");
+                    Console.ResetColor();
                     break;
                 }
                 else if (key == ConsoleKey.Escape)//cancel changes
@@ -218,44 +224,110 @@ namespace ToDoLy
 
         public void PrintTaskList(int? selectedIndex = null)
         {
-            Console.Clear();
-            if (selectedIndex.HasValue)
-            {
-                PrintHeader("Update/Change Task");
-                PrintUpdateTaskInfo();
-            }
-            else
-            {
-                PrintHeader("All Tasks");
-            }
-                
-            if (tasks.Count == 0)
-            {
-                Console.WriteLine("No tasks to show. Try adding a new task first.");
-                return;
-            }
+            bool isRunning = true;
+            bool wrongInput = false;
+            List<Task> originalTasks = new List<Task>(tasks);
 
-            Console.WriteLine();
-            Console.WriteLine("{0,5} | {1,-25} | {2,-25} | {3,-12} | {4,-10}",
-                      "No.", "Task Details", "Project", "Due Date", "Status");
-            Console.WriteLine(new string('-', 90));
-
-            for (int i = 0; i < tasks.Count; i++)
+            while (isRunning)
             {
-                Task task = tasks[i];
-                string status = task.IsCompleted ? "Completed" : "Pending";
+                Console.Clear();
+                if (selectedIndex.HasValue)
+                {
+                    PrintHeader("Update/Change Task");
+                    PrintUpdateTaskInfo();
+                }
+                else
+                {
+                    PrintHeader("All Tasks");
+                }
 
-                if (selectedIndex.HasValue && i == selectedIndex.Value)
-                    Console.ForegroundColor = ConsoleColor.Green;
+                if (tasks.Count == 0)
+                {
+                    Console.WriteLine("No tasks to show. Try adding a new task first.");
+                    return;
+                }
+
+                Console.WriteLine();
                 Console.WriteLine("{0,5} | {1,-25} | {2,-25} | {3,-12} | {4,-10}",
-                              i + 1,
-                              task.Details,
-                              task.Project,
-                              task.DueDate.ToShortDateString(),
-                              status);
-                Console.ResetColor();
+                          "No.", "Task Details", "Project", "Due Date", "Status");
+                Console.WriteLine(new string('-', 90));
 
-            }
+                for (int i = 0; i < originalTasks.Count; i++)
+                {
+                    Task task = originalTasks[i];
+                    string status = task.IsCompleted ? "Completed" : "Pending";
+
+                    if (selectedIndex.HasValue && i == selectedIndex.Value)
+                        Console.ForegroundColor = ConsoleColor.DarkYellow;
+                    Console.WriteLine("{0,5} | {1,-25} | {2,-25} | {3,-12} | {4,-10}",
+                                  i + 1,
+                                  task.Details,
+                                  task.Project,
+                                  task.DueDate.ToShortDateString(),
+                                  status);
+                    Console.ResetColor();
+                }
+
+                if (!selectedIndex.HasValue)
+                {
+                    //sorting options
+                    Console.Write("\nHow would you like to ");
+                    Console.ForegroundColor = ConsoleColor.Blue;
+                    Console.Write("SORT");
+                    Console.ResetColor();
+                    Console.WriteLine(" the tasks?\n");
+                    Console.ForegroundColor = ConsoleColor.Blue;
+                    Console.Write("1");
+                    Console.ResetColor();
+                    Console.WriteLine(". By Due Date");
+                    Console.ForegroundColor = ConsoleColor.Blue;
+                    Console.Write("2");
+                    Console.ResetColor();
+                    Console.WriteLine(". By Project Name");
+                    Console.ForegroundColor = ConsoleColor.Blue;
+                    Console.Write("3");
+                    Console.ResetColor();
+                    Console.WriteLine(". Default Order");
+                    Console.WriteLine("\nPress ESC to exit.");
+                    if (wrongInput)
+                    {
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine("\nInvalid option. Please press 1, 2, 3 or ESC.");
+                        Console.ResetColor();
+                    }
+                    wrongInput = false;
+
+                    ConsoleKey key = Console.ReadKey(true).Key;
+
+                    // Handle user input
+                    switch (key)
+                    {
+                        case ConsoleKey.D1: // Sort by Due Date
+                            originalTasks = tasks.OrderBy(t => t.DueDate).ToList();
+                            break;
+
+                        case ConsoleKey.D2: // Sort by Project
+                            originalTasks = tasks.OrderBy(t => t.Project).ToList();
+                            break;
+
+                        case ConsoleKey.D3: // Default order (original task list)
+                            originalTasks = new List<Task>(tasks); // Copy the original list
+                            break;
+
+                        case ConsoleKey.Escape: // Exit the loop
+                            Console.Clear();
+                            PrintHeader("Welcome to ToDoLy");
+                            PrintWelcome();
+                            isRunning = false;
+                            break;
+
+                        default:
+                            wrongInput = true;
+                            break;
+                    }
+                }
+                else break;
+            }   
         }
 
         public int PendingTasksCount()
@@ -274,9 +346,11 @@ namespace ToDoLy
             string title = section;
             string paddedTitle = title.PadLeft((90 + title.Length) / 2).PadRight(90);
 
-            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.ForegroundColor = ConsoleColor.DarkYellow;
             Console.WriteLine(border);
+            Console.WriteLine();
             Console.WriteLine(paddedTitle);
+            Console.WriteLine();
             Console.WriteLine(border);
             Console.ResetColor();
         }
@@ -309,26 +383,34 @@ namespace ToDoLy
 
         public void PrintUpdateTaskInfo()
         {
-            Console.ForegroundColor = ConsoleColor.Cyan;
-            Console.WriteLine(
-                "Use the UP and DOWN arrow keys to select a task.\n" +
-                "Press ENTER to update or change a task.\n" +
-                "Press DEL to DELETE a task.\n" +
-                "Press ESC to cancel.\n");
-            Console.ResetColor();
+            SmartUpdatePrint("UP or DOWN", "HIGHLIGHT", " a task.\n", ConsoleColor.DarkYellow);
+            SmartUpdatePrint("ENTER", "UPDATE", " a task.\n", ConsoleColor.Blue);
+            SmartUpdatePrint("DEL", "DELETE", " a task.\n", ConsoleColor.Red);
+            SmartUpdatePrint("ESC", "CANCEL", ".\n", ConsoleColor.DarkGray);
             Console.WriteLine();
+        }
+
+        public void SmartUpdatePrint(string key, string action, string ending, ConsoleColor color)
+        {
+            Console.Write("Press ");
+            Console.ForegroundColor = color;
+            Console.Write(key);
+            Console.ResetColor();
+            Console.Write(" to ");
+            Console.ForegroundColor = color;
+            Console.Write(action);
+            Console.ResetColor();
+            Console.WriteLine(ending);
         }
 
         public void PrintUpdateTaskInfo2(Task task)
         {
-            Console.ForegroundColor = ConsoleColor.Cyan;
             Console.WriteLine(
                 "Leave prompt empty if you want to keep current info:\n\n" +
                 $"* Task Details = {task.Details}\n" +
                 $"* Task Project = {task.Project}\n" +
                 $"* Task Due Date = {task.DueDate:d}\n" +
                 $"* Task Done Status = {task.IsCompleted}");
-            Console.ResetColor();
             Console.WriteLine();
         }
 
@@ -341,6 +423,9 @@ namespace ToDoLy
 
                 if (key.Key == ConsoleKey.Escape)
                 {
+                    Console.Clear();
+                    PrintHeader("Welcome to ToDoLy");
+                    PrintWelcome();
                     Console.ForegroundColor = ConsoleColor.Red;
                     Console.WriteLine("Input cancelled.");
                     Console.ResetColor();

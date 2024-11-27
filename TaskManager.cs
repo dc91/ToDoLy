@@ -13,17 +13,29 @@ namespace ToDoLy
 
         public void AddTask()
         {
-            Console.WriteLine("Enter Task Detils:");
-            string details = Console.ReadLine();
+            Console.Clear();
+            PrintHeader("Add a New Task");
+            PrintAddTaskInfo();
+
+            Console.WriteLine("\n\nEnter Task Detils:");
+            string details = ReadInput();
+            if (details == null) return;
 
             Console.WriteLine("Enter Project Name:");
-            string project = Console.ReadLine();
+            string project = ReadInput();
+            if (project == null) return;
 
-            Console.WriteLine("Enter Due Date (yyyy-mm-dd):");
             DateTime dueDate;
+            string dueDateInput;
 
-            while (!DateTime.TryParse(Console.ReadLine(), out dueDate))
-                Console.WriteLine("Invalid date format. Example (2024-12-25)");
+            while (true)
+            {
+                Console.WriteLine("Enter Due Date (yyyy-mm-dd):");
+                dueDateInput = ReadInput();
+                if (dueDateInput == null) return;//esc pressed
+                if (DateTime.TryParse(dueDateInput, out dueDate)) break;
+                else Console.WriteLine("Invalid date format. Example (2024-12-25)");
+            }
 
             Task task = new Task(details, project, dueDate, false);
             tasks.Add(task);
@@ -177,6 +189,74 @@ namespace ToDoLy
         public int CompletedTasksCount()
         {
             return tasks.Count(t => t.IsCompleted);
+        }
+
+        public void PrintHeader(string section)
+        {
+            string border = new('=', 50);
+            string title = section;
+            string paddedTitle = title.PadLeft((50 + title.Length) / 2).PadRight(50);
+
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.WriteLine(border);
+            Console.WriteLine(paddedTitle);
+            Console.WriteLine(border);
+            Console.ResetColor();
+        }
+        public void PrintWelcome()
+        {
+            int tasksTodo = PendingTasksCount();
+            int tasksDone = CompletedTasksCount();
+
+            Console.Write("\n\nYou have ");
+            Console.ForegroundColor = ConsoleColor.DarkRed;
+            Console.Write(tasksTodo);
+            Console.ResetColor();
+            Console.Write(" tasks to do and ");
+            Console.ForegroundColor = ConsoleColor.DarkGreen;
+            Console.Write(tasksDone);
+            Console.ResetColor();
+            Console.WriteLine(" tasks are done!\n");
+        }
+
+        public void PrintAddTaskInfo()
+        {
+            Console.ForegroundColor= ConsoleColor.Cyan;
+            Console.WriteLine(
+                "1. Enter task details\n2. Enter project name\n" +
+                "3. Enter due date\n4. Mark task done/pending\n\nESC to cancel");
+            Console.ResetColor();
+            Console.WriteLine();
+        }
+
+        public string ReadInput()
+        {
+            StringBuilder input = new();
+            while (true)
+            {
+                var key = Console.ReadKey(true);
+
+                if (key.Key == ConsoleKey.Escape)
+                {
+                    Console.WriteLine("Input cancelled.");
+                    return null;
+                }
+                else if (key.Key == ConsoleKey.Enter)
+                {
+                    Console.WriteLine();
+                    return input.ToString();
+                }
+                else if (key.Key == ConsoleKey.Backspace && input.Length > 0)
+                {
+                    input.Remove(input.Length - 1, 1);
+                    Console.Write("\b \b");//needs the space to erase
+                }
+                else if (!char.IsControl(key.KeyChar))//ex of control is \n \t backspace esc etc
+                {//a lot of work to make esc cancel possible...
+                    input.Append(key.KeyChar);
+                    Console.Write(key.KeyChar);
+                }
+            }
         }
     }
 }

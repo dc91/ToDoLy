@@ -1,6 +1,7 @@
 ﻿using ToDoLy;
 using System;
 using System.IO;
+using static System.Collections.Specialized.BitVector32;
 
 TaskManager tManager = new();
 string filePath = "tasks.csv";
@@ -15,7 +16,8 @@ else
     sw.WriteLine("Task Name,Project,Due Date,Status");
 }
 
-PrintWelcome(tManager);
+tManager.PrintHeader("Welcome to ToDoLy");
+tManager.PrintWelcome();
 
 while (true)
 {
@@ -42,33 +44,6 @@ while (true)
             break;
     }
 } EndLoop:;
-
-
-static void PrintWelcome(TaskManager tManager)
-{
-    int tasksTodo = tManager.PendingTasksCount();
-    int tasksDone = tManager.CompletedTasksCount();
-
-    string welcomeBorder = new('=', 50);
-    string welcomeMessage = "Welcome to ToDoLy";
-    string paddedTitle = welcomeMessage.PadLeft((50 + welcomeMessage.Length) / 2).PadRight(50);
-
-    Console.ForegroundColor = ConsoleColor.Cyan;
-    Console.WriteLine(welcomeBorder);
-    Console.WriteLine(paddedTitle);
-    Console.WriteLine(welcomeBorder);
-    Console.ResetColor();
-
-    Console.Write("\n\nYou have ");
-    Console.ForegroundColor = ConsoleColor.DarkRed;
-    Console.Write(tasksTodo);
-    Console.ResetColor();
-    Console.Write(" tasks to do and ");
-    Console.ForegroundColor = ConsoleColor.DarkGreen;
-    Console.Write(tasksDone);
-    Console.ResetColor();
-    Console.WriteLine(" tasks are done!\n");
-}
 
 
 static void PrintOptions()

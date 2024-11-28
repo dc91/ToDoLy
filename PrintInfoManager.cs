@@ -68,11 +68,12 @@ namespace ToDoLy
             Console.ResetColor();
         }
 
-        public static void PrintUpdateTaskInfo()
+        public static void PrintUpdateTaskInfo(bool enableDeleteInfo)
         {
             SmartUpdatePrint("UP or DOWN", "HIGHLIGHT", " a task.\n", ConsoleColor.DarkYellow);
             SmartUpdatePrint("ENTER", "UPDATE", " a task.\n", ConsoleColor.Blue);
-            SmartUpdatePrint("DEL", "DELETE", " a task.\n", ConsoleColor.Red);
+            if (enableDeleteInfo)
+                SmartUpdatePrint("DEL", "DELETE", " a task.\n", ConsoleColor.Red);
             SmartUpdatePrint("ESC", "CANCEL", ".\n", ConsoleColor.DarkGray);
             Console.WriteLine();
         }
@@ -88,6 +89,39 @@ namespace ToDoLy
             Console.Write(action);
             Console.ResetColor();
             Console.WriteLine(ending);
+        }
+
+        public static void PrintUpdateTaskFields(string[] fields, Task task, int fieldIndex)
+        {
+            for (int i = 0; i < fields.Length; i++)
+            {
+                if (i == fieldIndex)
+                {
+                    Console.ForegroundColor = ConsoleColor.Green;
+                }
+
+                switch (fields[i])
+                {
+                    case "Task Details":
+                        Console.Write("Task Details: ".PadRight(20));
+                        Console.WriteLine($"{task.Details}");
+                        break;
+                    case "Project":
+                        Console.Write("Project: ".PadRight(20));
+                        Console.WriteLine($"{task.Project}");
+                        break;
+                    case "Due Date":
+                        Console.Write("Due Date: ".PadRight(20));
+                        Console.WriteLine($"{task.DueDate.ToShortDateString()}");
+                        break;
+                    case "Completion Status":
+                        string status = task.IsCompleted ? "Completed" : "Pending";
+                        Console.Write("Completion Status: ".PadRight(20));
+                        Console.WriteLine($"{status}");
+                        break;
+                }
+                Console.ResetColor();
+            }
         }
 
         public static void PrintCancel()
@@ -171,6 +205,8 @@ namespace ToDoLy
             Console.WriteLine("\nInvalid option. Please press 1, 2, 3 or ESC.");
             Console.ResetColor();
         }
+
+
 
         
 

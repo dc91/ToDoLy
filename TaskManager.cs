@@ -61,7 +61,6 @@ namespace ToDoLy
             }
         }
 
-
         public void AddTask()
         {
             Console.Clear();
@@ -121,9 +120,7 @@ namespace ToDoLy
                     break;
                 }
                 else if (key == ConsoleKey.Escape)//cancel changes
-                {
                     break;
-                }
                 else if (key == ConsoleKey.Delete)
                 {
                     Console.Clear();
@@ -138,9 +135,7 @@ namespace ToDoLy
                         PrintInfoManager.PrintRemoveSuccess();
                     }
                     else
-                    {
                         PrintInfoManager.PrintRemoveCancelled();
-                    }
                     break;
                 }
             }
@@ -155,42 +150,13 @@ namespace ToDoLy
             {
                 Console.Clear();
                 PrintInfoManager.PrintHeader($"Updating Task: {task.Details}");
-                PrintInfoManager.SmartUpdatePrint("UP or DOWN", "HIGHLIGHT", " a value.\n", ConsoleColor.DarkYellow);
-                PrintInfoManager.SmartUpdatePrint("ENTER", "UPDATE", " a value.\n", ConsoleColor.Blue);
-                PrintInfoManager.SmartUpdatePrint("ESC", "CANCEL", " or go back.\n", ConsoleColor.DarkGray);
-                Console.WriteLine();
-                string[] fields = {
-                    "Task Details", "Project", "Due Date", "Completion Status" };
+                PrintInfoManager.PrintUpdateTaskInfo(false);
 
-                for (int i = 0; i < fields.Length; i++)
-                {
-                    if (i == fieldIndex)
-                    {
-                        Console.ForegroundColor = ConsoleColor.Green;
-                    }
+                string[] fields = ["Task Details", "Project", "Due Date", "Completion Status"];
 
-                    switch (fields[i])
-                    {
-                        case "Task Details":
-                            Console.Write("Task Details: ".PadRight(20));
-                            Console.WriteLine($"{task.Details}");
-                            break;
-                        case "Project":
-                            Console.Write("Project: ".PadRight(20));
-                            Console.WriteLine($"{task.Project}");
-                            break;
-                        case "Due Date":
-                            Console.Write("Due Date: ".PadRight(20));
-                            Console.WriteLine($"{task.DueDate.ToShortDateString()}");
-                            break;
-                        case "Completion Status":
-                            string status = task.IsCompleted ? "Completed" : "Pending";
-                            Console.Write("Completion Status: ".PadRight(20));
-                            Console.WriteLine($"{status}");
-                            break;
-                    }
-                    Console.ResetColor();
-                }
+                PrintInfoManager.PrintUpdateTaskFields(fields, task, fieldIndex);
+
+                
 
                 ConsoleKey key = Console.ReadKey(true).Key;
 
@@ -204,65 +170,7 @@ namespace ToDoLy
                 }
                 else if (key == ConsoleKey.Enter) // Editing the selected field
                 {
-                    //Console.Clear();
-                    Console.CursorVisible = true;
-                    Console.Write($"\nEnter new value for {fields[fieldIndex]}: ");
-                    string newValue = ReadEveryKey();
-                    Console.CursorVisible = false;
-
-                    // Update the task with the new value
-                    switch (fields[fieldIndex])
-                    {
-                        case "Task Details":
-                            if (!string.IsNullOrEmpty(newValue))
-                            {
-                                task.Details = newValue;
-                                fManager.SaveFile("tasks.csv", tasks);
-                            }
-                            break;
-                        case "Project":
-                            if (!string.IsNullOrEmpty(newValue))
-                            {
-                                task.Project = newValue;
-                                fManager.SaveFile("tasks.csv", tasks);
-                            }
-                            break;
-                        case "Due Date":
-                            if (string.IsNullOrEmpty(newValue))
-                            {
-                                break;
-                            }
-                            else if (DateTime.TryParse(newValue, out DateTime newDate))
-                            {
-                                task.DueDate = newDate;
-                                fManager.SaveFile("tasks.csv", tasks);
-                            }
-                            else
-                            {
-                                PrintInfoManager.PrintInvalidDate();
-                            }
-                            break;
-                        case "Completion Status":
-                            if (string.IsNullOrEmpty(newValue))
-                            {
-                                break;
-                            }
-                            else if (newValue.Equals("c", StringComparison.OrdinalIgnoreCase))
-                            {
-                                task.IsCompleted = true;
-                                fManager.SaveFile("tasks.csv", tasks);
-                            }
-                            else if (newValue.Equals("p", StringComparison.OrdinalIgnoreCase))
-                            {
-                                task.IsCompleted = false;
-                                fManager.SaveFile("tasks.csv", tasks);
-                            }
-                            else
-                            {
-                                PrintInfoManager.PrintInvalidBool();
-                            }
-                            break;
-                    }
+                    EditTaskDetails(fieldIndex, task, fields);
                 }
                 else if (key == ConsoleKey.Escape) // Finish updating
                 {
@@ -271,6 +179,60 @@ namespace ToDoLy
             }
             Console.ResetColor();
 
+        }
+
+        public void EditTaskDetails(int fieldIndex, Task task, string[] fields)
+        {
+            Console.CursorVisible = true;
+            Console.Write($"\nEnter new value for {fields[fieldIndex]}: ");
+            string newValue = ReadEveryKey();
+            Console.CursorVisible = false;
+
+            // Update the task with the new value
+            switch (fields[fieldIndex])
+            {
+                case "Task Details":
+                    if (!string.IsNullOrEmpty(newValue))
+                    {
+                        task.Details = newValue;
+                        fManager.SaveFile("tasks.csv", tasks);
+                    }
+                    break;
+                case "Project":
+                    if (!string.IsNullOrEmpty(newValue))
+                    {
+                        task.Project = newValue;
+                        fManager.SaveFile("tasks.csv", tasks);
+                    }
+                    break;
+                case "Due Date":
+                    if (string.IsNullOrEmpty(newValue))
+                        break;
+                    else if (DateTime.TryParse(newValue, out DateTime newDate))
+                    {
+                        task.DueDate = newDate;
+                        fManager.SaveFile("tasks.csv", tasks);
+                    }
+                    else
+                        PrintInfoManager.PrintInvalidDate();
+                    break;
+                case "Completion Status":
+                    if (string.IsNullOrEmpty(newValue))
+                        break;
+                    else if (newValue.Equals("c", StringComparison.OrdinalIgnoreCase))
+                    {
+                        task.IsCompleted = true;
+                        fManager.SaveFile("tasks.csv", tasks);
+                    }
+                    else if (newValue.Equals("p", StringComparison.OrdinalIgnoreCase))
+                    {
+                        task.IsCompleted = false;
+                        fManager.SaveFile("tasks.csv", tasks);
+                    }
+                    else
+                        PrintInfoManager.PrintInvalidBool();
+                    break;
+            }
         }
         
         public void PrintTaskList(int? selectedIndex = null)
@@ -286,7 +248,7 @@ namespace ToDoLy
                 if (selectedIndex.HasValue)
                 {
                     PrintInfoManager.PrintHeader("Update/Change Task");
-                    PrintInfoManager.PrintUpdateTaskInfo();
+                    PrintInfoManager.PrintUpdateTaskInfo(true);
                 }
                 else
                 {

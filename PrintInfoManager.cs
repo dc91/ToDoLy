@@ -8,7 +8,6 @@ namespace ToDoLy
 {
     internal class PrintInfoManager
     {
-        //PrintInfoManager
         public static void PrintHeader(string section)
         {
             string border = new('=', 90);
@@ -35,6 +34,29 @@ namespace ToDoLy
             Console.Write(complete);
             Console.ResetColor();
             Console.WriteLine(" tasks are done!\n");
+        }
+
+        public static void PrintOptions()
+        {
+            Console.Write("Choose an ");
+            Console.ForegroundColor = ConsoleColor.Blue;
+            Console.Write("OPTION");
+            Console.ResetColor();
+            Console.WriteLine(":");
+
+            string[] options = [
+                ". Show Task List (by date or project)",
+                ". Add New Task",
+                ". Edit Task (update, mark as done, remove)",
+                ". Quit\n"];
+
+            for (int i = 0; i < 4; i++)
+            {
+                Console.ForegroundColor = ConsoleColor.Blue;
+                Console.Write(i + 1);
+                Console.ResetColor();
+                Console.WriteLine(options[i]);
+            }
         }
 
         public static void PrintSortingOptions()

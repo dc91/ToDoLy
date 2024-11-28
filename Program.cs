@@ -30,7 +30,7 @@ while (true)
     PrintInfoManager.PrintHeader("Welcome to ToDoLy");
     pManager.PrintWelcome(complete, pending);
     Console.WriteLine();
-    PrintOptions();
+    PrintInfoManager.PrintOptions();
 
     if (wrongKey)
     {
@@ -63,28 +63,3 @@ while (true)
     }
 } EndLoop:;
 
-
-static void PrintOptions()
-{
-    Console.Write("Choose an ");
-    Console.ForegroundColor = ConsoleColor.Blue;
-    Console.Write("OPTION");
-    Console.ResetColor();
-    Console.WriteLine(":");
-
-    string[] options = [
-        ". Show Task List (by date or project)",
-        ". Add New Task",
-        ". Edit Task (update, mark as done, remove)",
-        ". Quit\n"
-        ];
-
-    for (int i = 0; i < 4; i++)
-    {
-        Console.ForegroundColor = ConsoleColor.Blue;
-        Console.Write(i+1);
-        Console.ResetColor();
-        Console.WriteLine(options[i]);
-    }
-
-}

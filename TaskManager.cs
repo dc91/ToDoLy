@@ -75,24 +75,6 @@ namespace ToDoLy
             Console.ResetColor();
         }
 
-        public void LoadTasks(string filePath)
-        {
-            using StreamReader sr = new(filePath);
-            string header = sr.ReadLine();
-
-            while (!sr.EndOfStream)
-            {
-                string line = sr.ReadLine();
-                string[] parts = line.Split('|');//use pipe so users can type comma
-
-                string details = parts[0];
-                string project = parts[1];
-                DateTime dueDate = DateTime.Parse(parts[2]);
-                bool completed = parts[3] == "Completed";
-                tasks.Add(new Task(details, project, dueDate, completed));
-            }
-        }
-
         public void UpdateTask()
         {            
             if (tasks.Count == 0)
@@ -304,6 +286,24 @@ namespace ToDoLy
 
         }
 
+        public void LoadTasks(string filePath)
+        {
+            using StreamReader sr = new(filePath);
+            string header = sr.ReadLine();
+
+            while (!sr.EndOfStream)
+            {
+                string line = sr.ReadLine();
+                string[] parts = line.Split('|');//use pipe so users can type comma
+
+                string details = parts[0];
+                string project = parts[1];
+                DateTime dueDate = DateTime.Parse(parts[2]);
+                bool completed = parts[3] == "Completed";
+                tasks.Add(new Task(details, project, dueDate, completed));
+            }
+        }
+        
         public void SaveFile(string filePath)
         {
             using StreamWriter sw = new (filePath);

@@ -23,8 +23,8 @@ else
 bool wrongKey = false;
 while (true)
 {
-    int pending = tManager.PendingTasksCount();
-    int complete = tManager.CompletedTasksCount();
+    int pending = tManager.tasks.Count(t => !t.IsCompleted);
+    int complete = tManager.tasks.Count(t => t.IsCompleted);
 
     Console.Clear();
     PrintInfoManager.PrintHeader("Welcome to ToDoLy");

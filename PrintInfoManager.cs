@@ -97,5 +97,82 @@ namespace ToDoLy
             Console.ReadKey();
             Console.ResetColor();
         }
+
+        public static void PrintAddSuccess()
+        {
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("Task successfully saved... Press any key");
+            Console.ReadKey();
+            Console.ResetColor();
+        }
+
+        public static void PrintAreUSure(Task task)
+        {
+            Console.Write("\nAre you sure you want to ");
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.Write("DELETE");
+            Console.ResetColor();
+            Console.WriteLine(" this task?\n");
+
+            Console.WriteLine(
+                        "Task: " +
+                        $"{task.Details}\n" +
+                        $"Project: {task.Project}\n" +
+                        $"Due: {task.DueDate.ToShortDateString()}\n" +
+                        $"Status: {(task.IsCompleted ? "Completed" : "Pending")}\n");
+            Console.WriteLine(new string('-', 50));
+            Console.Write("\nPress 'y' to confirm, or any other key to cancel: ");
+
+        }
+
+        public static void PrintRemoveSuccess()
+        {
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("Task removed successfully!");
+            Console.ReadKey();
+            Console.ResetColor();
+        }
+
+        public static void PrintRemoveCancelled()
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine("Task was not removed.");
+            Console.ReadKey();
+            Console.ResetColor();
+        }
+
+        public static void PrintInvalidDate()
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine("\nInvalid date format. Please enter in yyyy-MM-dd format.");
+            Console.ResetColor();
+            Console.ReadKey();
+        }
+
+        public static void PrintInvalidBool()
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine("Invalid input. Please enter 'c' for Completed or 'p' for Pending.");
+            Console.ResetColor();
+            Console.ReadKey();
+        }
+
+        public static void PrintTableHead()
+        {
+            Console.WriteLine();
+            Console.WriteLine("{0,5} | {1,-25} | {2,-25} | {3,-12} | {4,-10}",
+                      "No.", "Task Details", "Project", "Due Date", "Status");
+            Console.WriteLine(new string('-', 90));
+        }
+
+        public static void PrintWrongInput()
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine("\nInvalid option. Please press 1, 2, 3 or ESC.");
+            Console.ResetColor();
+        }
+
+        
+
     }
 }

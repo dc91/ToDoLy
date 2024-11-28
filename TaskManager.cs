@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using static System.Collections.Specialized.BitVector32;
@@ -13,7 +14,7 @@ namespace ToDoLy
         public FileManager fManager = new();
         public List<Task> tasks = new();
 
-        public string ReadInput()
+        public string ReadEveryKey()
         {// Reads input key-by-key. return null if ESC, or returns full input string
             StringBuilder input = new();
             while (true)
@@ -32,13 +33,35 @@ namespace ToDoLy
                     Console.Write("\b \b");//needs the space to erase
                 }
                 else if (!char.IsControl(key.KeyChar))//example of control is \n \t backspace esc etc
-                {
+                {//small buggs when typing control char, they are invis but cant be erased.
                     input.Append(key.KeyChar);
                     Console.Write(key.KeyChar);
                 }
             }
         }
-        
+
+        public string GetInput(string prompt, string errMess, bool expectDateTime)
+        {
+            while (true)
+            {
+                Console.Write(prompt);          
+                string input = ReadEveryKey();
+                if (input == null)
+                {
+                    PrintInfoManager.PrintCancel();
+                    return null;
+                }
+
+                if (!expectDateTime)
+                    if (!string.IsNullOrWhiteSpace(input)) return input;
+                if (expectDateTime)
+                    if (DateTime.TryParse(input, out DateTime date)) return date.ToString();
+                
+                Console.WriteLine(errMess);
+            }
+        }
+
+
         public void AddTask()
         {
             Console.Clear();
@@ -46,59 +69,24 @@ namespace ToDoLy
             Console.WriteLine();
             PrintInfoManager.PrintAddTaskInfo();
 
-            string details = null;
-            while (string.IsNullOrWhiteSpace(details))
-            {
-                Console.Write("\n\nEnter Task Detils: ");
-                details = ReadInput();
-                if (details == null)
-                {
-                    PrintInfoManager.PrintCancel();
-                    return;
-                }
+            string details = GetInput("\nEnter Task Details: ",
+                "Cannot have an empty task. Try again.", false);
+            if (details == null) return;
 
-                if (string.IsNullOrWhiteSpace(details))
-                    Console.WriteLine("Cannot have an empty task. Please try again.");
-            }
+            string project = GetInput("\nEnter Project Name: ", 
+                "Cannot have an project name. Try again.", false);
+            if (project == null) return;
 
-            string project = null;
-            while (string.IsNullOrWhiteSpace(project))
-            {
-                Console.Write("\nEnter Project Name: ");
-                project = ReadInput();
-                if (project == null)
-                {
-                    PrintInfoManager.PrintCancel();
-                    return;
-                }
+            string dueDateString = GetInput("\nEnter Due Date (yyyy-mm-dd): ",
+                "Invalid date format. Example (2024-12-25)", true);
+            if (dueDateString == null) return;
 
-                if (string.IsNullOrWhiteSpace(project))
-                    Console.WriteLine("Cannot have an empty project name. Please try again.");
-            }
-
-            DateTime dueDate;
-            string dueDateInput;
-
-            while (true)
-            {
-                Console.Write("\nEnter Due Date (yyyy-mm-dd): ");
-                dueDateInput = ReadInput();
-                if (dueDateInput == null)//esc pressed
-                {
-                    PrintInfoManager.PrintCancel();
-                    return;
-                }
-                if (DateTime.TryParse(dueDateInput, out dueDate)) break;
-                else Console.WriteLine("Invalid date format. Example (2024-12-25)");
-            }
+            DateTime dueDate = DateTime.Parse(dueDateString);
 
             Task task = new Task(details, project, dueDate, false);
             tasks.Add(task);
             fManager.SaveFile("tasks.csv", tasks);
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("Task successfully saved... Press any key");
-            Console.ReadKey();
-            Console.ResetColor();
+            PrintInfoManager.PrintAddSuccess();
         }
 
         public void UpdateTask()
@@ -140,39 +128,18 @@ namespace ToDoLy
                 {
                     Console.Clear();
                     PrintInfoManager.PrintHeader($"Delete Task: {tasks[selectedIndex].Details}");
-
-                    Console.Write("\nAre you sure you want to ");
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.Write("DELETE");
-                    Console.ResetColor();
-                    Console.WriteLine(" this task?\n");
-
-                    Console.WriteLine(
-                        "Task: " +
-                        $"{tasks[selectedIndex].Details}\n" +
-                        $"Project: {tasks[selectedIndex].Project}\n" +
-                        $"Due: {tasks[selectedIndex].DueDate.ToShortDateString()}\n" +
-                        $"Status: {(tasks[selectedIndex].IsCompleted ? "Completed" : "Pending")}\n");
-                    Console.WriteLine(new string('-', 50));
-                    Console.Write("\nPress 'y' to confirm, or any other key to cancel: ");
-
+                    PrintInfoManager.PrintAreUSure(tasks[selectedIndex]);
 
                     ConsoleKey confirmDelete = Console.ReadKey(true).Key;
                     if (confirmDelete == ConsoleKey.Y)
                     {
                         tasks.RemoveAt(selectedIndex);
                         fManager.SaveFile("tasks.csv", tasks);
-                        Console.ForegroundColor = ConsoleColor.Green;
-                        Console.WriteLine("Task removed successfully!");
-                        Console.ReadKey();
-                        Console.ResetColor();
+                        PrintInfoManager.PrintRemoveSuccess();
                     }
                     else
                     {
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine("Task was not removed.");
-                        Console.ReadKey();
-                        Console.ResetColor();
+                        PrintInfoManager.PrintRemoveCancelled();
                     }
                     break;
                 }
@@ -240,7 +207,7 @@ namespace ToDoLy
                     //Console.Clear();
                     Console.CursorVisible = true;
                     Console.Write($"\nEnter new value for {fields[fieldIndex]}: ");
-                    string newValue = ReadInput();
+                    string newValue = ReadEveryKey();
                     Console.CursorVisible = false;
 
                     // Update the task with the new value
@@ -272,10 +239,7 @@ namespace ToDoLy
                             }
                             else
                             {
-                                Console.ForegroundColor = ConsoleColor.Red;
-                                Console.WriteLine("\nInvalid date format. Please enter in yyyy-MM-dd format.");
-                                Console.ResetColor();
-                                Console.ReadKey(true);
+                                PrintInfoManager.PrintInvalidDate();
                             }
                             break;
                         case "Completion Status":
@@ -295,10 +259,7 @@ namespace ToDoLy
                             }
                             else
                             {
-                                Console.ForegroundColor = ConsoleColor.Red;
-                                Console.WriteLine("Invalid input. Please enter 'c' for Completed or 'p' for Pending.");
-                                Console.ResetColor();
-                                Console.ReadKey(true);
+                                PrintInfoManager.PrintInvalidBool();
                             }
                             break;
                     }
@@ -311,11 +272,12 @@ namespace ToDoLy
             Console.ResetColor();
 
         }
-
+        
         public void PrintTaskList(int? selectedIndex = null)
         {
             bool isRunning = true;
             bool wrongInput = false;
+
             List<Task> originalTasks = new List<Task>(tasks);
 
             while (isRunning)
@@ -337,11 +299,8 @@ namespace ToDoLy
                     return;
                 }
 
-                Console.WriteLine();
-                Console.WriteLine("{0,5} | {1,-25} | {2,-25} | {3,-12} | {4,-10}",
-                          "No.", "Task Details", "Project", "Due Date", "Status");
-                Console.WriteLine(new string('-', 90));
-
+                PrintInfoManager.PrintTableHead();
+                
                 for (int i = 0; i < originalTasks.Count; i++)
                 {
                     Task task = originalTasks[i];
@@ -357,21 +316,17 @@ namespace ToDoLy
                                   status);
                     Console.ResetColor();
                 }
-
+                
                 if (!selectedIndex.HasValue)
                 {
                     PrintInfoManager.PrintSortingOptions();
                     if (wrongInput)
-                    {
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine("\nInvalid option. Please press 1, 2, 3 or ESC.");
-                        Console.ResetColor();
-                    }
+                        PrintInfoManager.PrintWrongInput();
                     wrongInput = false;
 
-                    ConsoleKey key = Console.ReadKey(true).Key;
 
-                    // Handle user input
+                    //User Options
+                    ConsoleKey key = Console.ReadKey(true).Key;
                     switch (key)
                     {
                         case ConsoleKey.D1: // Sort by Due Date
@@ -393,16 +348,6 @@ namespace ToDoLy
                 }
                 else break;
             }
-        }
-
-        public int PendingTasksCount()
-        {
-            return tasks.Count(t => !t.IsCompleted);
-        }
-
-        public int CompletedTasksCount()
-        {
-            return tasks.Count(t => t.IsCompleted);
         }
         
     }

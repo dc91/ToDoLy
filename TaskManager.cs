@@ -57,11 +57,6 @@ namespace ToDoLy
             Task task = new Task(details, project, dueDate, false);
             tasks.Add(task);
             SaveFile("tasks.csv");
-            Console.Clear();
-            PrintHeader("Welcome to ToDoLy");
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("Task added successfully");
-            Console.ResetColor();
         }
 
         public void LoadTasks(string filePath)
@@ -91,7 +86,6 @@ namespace ToDoLy
             }
 
             int selectedIndex = 0;
-            //Print list and highlight selectedIndex
             PrintTaskList(selectedIndex);
 
             while (true)
@@ -111,59 +105,11 @@ namespace ToDoLy
                 else if (key == ConsoleKey.Enter)//Select task
                 {
                     Task task = tasks[selectedIndex];
-
-                    Console.Clear();
-                    PrintHeader($"Updating Task: {task.Details}");
-                    Console.WriteLine("\n");
-                    PrintUpdateTaskInfo2(task);
-
-                    Console.Write("Enter New Task Details: ");
-                    Console.CursorVisible = true;
-                    string newDetails = Console.ReadLine();
-                    if (!string.IsNullOrEmpty(newDetails))
-                        task.Details = newDetails;
-
-                    Console.Write("\nEnter New Project for Task: ");
-                    string newProject = Console.ReadLine();
-                    if (!string.IsNullOrEmpty(newProject))
-                        task.Project = newProject;
-
-                    Console.Write("\nEnter New Due Date (yyyy-MM-dd): ");
-                    string dateInput = Console.ReadLine();
-                    if (!string.IsNullOrEmpty(dateInput) && DateTime.TryParse(dateInput, out DateTime newDate))
-                        task.DueDate = newDate;
-
-                    while (true)
-                    {
-                        Console.Write("\nMark as Completed? (y/n):");
-                        string newStatus = Console.ReadLine().Trim().ToLower();
-                        if (newStatus == "y")
-                        {
-                            task.IsCompleted = true;
-                            break;
-                        }
-                        else if (newStatus == "n")
-                        {
-                            task.IsCompleted = false;
-                            break;
-                        }
-                        else
-                        {
-                            Console.WriteLine("Invalid input. Please enter \'y\' for yes and \'n\' for no.");
-                        }
-                    }
-                    
-                    SaveFile("tasks.csv");
-                    Console.ForegroundColor = ConsoleColor.Green;
-                    Console.WriteLine("\nTask updated successfully!");
-                    Console.ResetColor();
-                    break;
+                    UpdateTaskDetails(task);
+                    break;                    
                 }
                 else if (key == ConsoleKey.Escape)//cancel changes
                 {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine("\nUpdate cancelled.");
-                    Console.ResetColor();
                     break;
                 }
                 else if (key == ConsoleKey.Delete)
@@ -194,17 +140,152 @@ namespace ToDoLy
                         SaveFile("tasks.csv");
                         Console.ForegroundColor = ConsoleColor.Green;
                         Console.WriteLine("Task removed successfully!");
+                        Console.ReadKey();
                         Console.ResetColor();
                     }
                     else
                     {
                         Console.ForegroundColor = ConsoleColor.Red;
                         Console.WriteLine("Task was not removed.");
+                        Console.ReadKey();
                         Console.ResetColor();
                     }
                     break;
                 }
             }
+        }
+
+        public void UpdateTaskDetails(Task task)
+        {
+            int fieldIndex = 0;
+            bool isUpdating = true;
+
+            while (isUpdating)
+            {
+                Console.Clear();
+                PrintHeader($"Updating Task: {task.Details}");
+                SmartUpdatePrint("UP or DOWN", "HIGHLIGHT", " a value.\n", ConsoleColor.DarkYellow);
+                SmartUpdatePrint("ENTER", "UPDATE", " a value.\n", ConsoleColor.Blue);
+                SmartUpdatePrint("ESC", "CANCEL", " or go back.\n", ConsoleColor.DarkGray);
+                Console.WriteLine();
+                string[] fields = { 
+                    "Task Details", "Project", "Due Date", "Completion Status" };
+
+                for (int i = 0; i < fields.Length; i++)
+                {
+                    if (i == fieldIndex)
+                    {
+                        Console.ForegroundColor = ConsoleColor.Green;
+                    }
+
+                    switch(fields[i])
+                    {
+                        case "Task Details":
+                            Console.Write("Task Details: ".PadRight(20));
+                            Console.WriteLine($"{task.Details}");
+                            break;
+                        case "Project":
+                            Console.Write("Project: ".PadRight(20));
+                            Console.WriteLine($"{task.Project}");
+                            break;
+                        case "Due Date":
+                            Console.Write("Due Date: ".PadRight(20));
+                            Console.WriteLine($"{task.DueDate.ToShortDateString()}");
+                            break;
+                        case "Completion Status":
+                            string status = task.IsCompleted ? "Completed" : "Pending";
+                            Console.Write("Completion Status: ".PadRight(20));
+                            Console.WriteLine($"{status}");
+                            break;
+                    }
+                    Console.ResetColor();
+                }
+
+                ConsoleKey key = Console.ReadKey(true).Key;
+
+                if (key == ConsoleKey.DownArrow && fieldIndex < fields.Length - 1)
+                {
+                    fieldIndex++;
+                }
+                else if (key == ConsoleKey.UpArrow && fieldIndex > 0)
+                {
+                    fieldIndex--;
+                }
+                else if (key == ConsoleKey.Enter) // Editing the selected field
+                {
+                    //Console.Clear();
+                    Console.CursorVisible = true;
+                    Console.Write($"\nEnter new value for {fields[fieldIndex]}: ");
+                    string newValue = Console.ReadLine();
+                    Console.CursorVisible = false;
+
+                    // Update the task with the new value
+                    switch (fields[fieldIndex])
+                    {
+                        case "Task Details":
+                            if (!string.IsNullOrEmpty(newValue))
+                            {
+                                task.Details = newValue;
+                                SaveFile("tasks.csv"); // Save changes instantly
+                            }
+                            break;
+                        case "Project":
+                            if (!string.IsNullOrEmpty(newValue))
+                            {
+                                task.Project = newValue;
+                                SaveFile("tasks.csv"); // Save changes instantly
+                            }
+                            break;
+                        case "Due Date":
+                            if (string.IsNullOrEmpty(newValue))
+                            {
+                                break;
+                            }
+                            else if (DateTime.TryParse(newValue, out DateTime newDate))
+                            {
+                                task.DueDate = newDate;
+                                SaveFile("tasks.csv"); // Save changes instantly
+                            }
+                            else
+                            {
+                                Console.ForegroundColor = ConsoleColor.Red;
+                                Console.WriteLine("\nInvalid date format. Please enter in yyyy-MM-dd format.");
+                                Console.ResetColor();
+                                Console.ReadKey(true);
+                            }
+                            break;
+                        case "Completion Status":
+                            if (string.IsNullOrEmpty(newValue))
+                            {
+                                break;
+                            }
+                            else if (newValue.Equals("c", StringComparison.OrdinalIgnoreCase))
+                            {
+                                task.IsCompleted = true;
+                                SaveFile("tasks.csv"); // Save changes instantly
+                            }
+                            else if (newValue.Equals("p", StringComparison.OrdinalIgnoreCase))
+                            {
+                                task.IsCompleted = false;
+                                SaveFile("tasks.csv"); // Save changes instantly
+                            }
+                            else
+                            {
+                                Console.ForegroundColor = ConsoleColor.Red;
+                                Console.WriteLine("Invalid input. Please enter 'c' for Completed or 'p' for Pending.");
+                                Console.ResetColor();
+                                Console.ReadKey(true);
+                            }
+                            break;
+                    }
+                }
+                else if (key == ConsoleKey.Escape) // Finish updating
+                {
+                    isUpdating = false;
+                }
+            }
+            Console.ResetColor();
+
         }
 
         public void SaveFile(string filePath)
@@ -270,25 +351,7 @@ namespace ToDoLy
 
                 if (!selectedIndex.HasValue)
                 {
-                    //sorting options
-                    Console.Write("\nHow would you like to ");
-                    Console.ForegroundColor = ConsoleColor.Blue;
-                    Console.Write("SORT");
-                    Console.ResetColor();
-                    Console.WriteLine(" the tasks?\n");
-                    Console.ForegroundColor = ConsoleColor.Blue;
-                    Console.Write("1");
-                    Console.ResetColor();
-                    Console.WriteLine(". By Due Date");
-                    Console.ForegroundColor = ConsoleColor.Blue;
-                    Console.Write("2");
-                    Console.ResetColor();
-                    Console.WriteLine(". By Project Name");
-                    Console.ForegroundColor = ConsoleColor.Blue;
-                    Console.Write("3");
-                    Console.ResetColor();
-                    Console.WriteLine(". Default Order");
-                    Console.WriteLine("\nPress ESC to exit.");
+                    PrintSortingOptions();
                     if (wrongInput)
                     {
                         Console.ForegroundColor = ConsoleColor.Red;
@@ -305,22 +368,15 @@ namespace ToDoLy
                         case ConsoleKey.D1: // Sort by Due Date
                             originalTasks = tasks.OrderBy(t => t.DueDate).ToList();
                             break;
-
                         case ConsoleKey.D2: // Sort by Project
                             originalTasks = tasks.OrderBy(t => t.Project).ToList();
                             break;
-
                         case ConsoleKey.D3: // Default order (original task list)
                             originalTasks = new List<Task>(tasks); // Copy the original list
                             break;
-
                         case ConsoleKey.Escape: // Exit the loop
-                            Console.Clear();
-                            PrintHeader("Welcome to ToDoLy");
-                            PrintWelcome();
                             isRunning = false;
                             break;
-
                         default:
                             wrongInput = true;
                             break;
@@ -328,6 +384,29 @@ namespace ToDoLy
                 }
                 else break;
             }   
+        }
+
+        public void PrintSortingOptions()
+        {
+            //sorting options
+            Console.Write("\nHow would you like to ");
+            Console.ForegroundColor = ConsoleColor.Blue;
+            Console.Write("SORT");
+            Console.ResetColor();
+            Console.WriteLine(" the tasks?\n");
+            Console.ForegroundColor = ConsoleColor.Blue;
+            Console.Write("1");
+            Console.ResetColor();
+            Console.WriteLine(". By Due Date");
+            Console.ForegroundColor = ConsoleColor.Blue;
+            Console.Write("2");
+            Console.ResetColor();
+            Console.WriteLine(". By Project Name");
+            Console.ForegroundColor = ConsoleColor.Blue;
+            Console.Write("3");
+            Console.ResetColor();
+            Console.WriteLine(". Default Order");
+            Console.WriteLine("\nPress ESC to exit.");
         }
 
         public int PendingTasksCount()
@@ -373,12 +452,11 @@ namespace ToDoLy
 
         public void PrintAddTaskInfo()
         {
-            Console.ForegroundColor= ConsoleColor.Cyan;
-            Console.WriteLine(
-                "1. Enter task details\n2. Enter project name\n" +
-                "3. Enter due date\n4. Mark task done/pending\n\nESC to cancel");
+            Console.WriteLine("1. Enter task details\n2. Enter project name");
+            Console.WriteLine("3. Enter due date\n4. Mark task done/pending\n");
+            Console.ForegroundColor= ConsoleColor.DarkGray;
+            Console.WriteLine("ESC to CANCEL");
             Console.ResetColor();
-            Console.WriteLine();
         }
 
         public void PrintUpdateTaskInfo()
@@ -403,16 +481,6 @@ namespace ToDoLy
             Console.WriteLine(ending);
         }
 
-        public void PrintUpdateTaskInfo2(Task task)
-        {
-            Console.WriteLine(
-                "Leave prompt empty if you want to keep current info:\n\n" +
-                $"* Task Details = {task.Details}\n" +
-                $"* Task Project = {task.Project}\n" +
-                $"* Task Due Date = {task.DueDate:d}\n" +
-                $"* Task Done Status = {task.IsCompleted}");
-            Console.WriteLine();
-        }
 
         public string ReadInput()
         {

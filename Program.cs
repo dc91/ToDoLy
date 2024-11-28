@@ -17,18 +17,22 @@ else
     sw.WriteLine("Task Name,Project,Due Date,Status");
 }
 
-tManager.PrintHeader("Welcome to ToDoLy");
-tManager.PrintWelcome();
+
+
 
 bool wrongKey = false;
 while (true)
 {
+    Console.Clear();
+    tManager.PrintHeader("Welcome to ToDoLy");
+    tManager.PrintWelcome();
     Console.WriteLine();
     PrintOptions();
+
     if (wrongKey)
     {
         Console.ForegroundColor = ConsoleColor.Red;
-        Console.WriteLine("\nInvalid option. Please press 1, 2, 3, 4 or ESC.");
+        Console.WriteLine("\nInvalid option. Please press 1, 2, 3, or 4.");
         Console.ResetColor();
     }
     wrongKey = false;
@@ -41,12 +45,10 @@ while (true)
         case ConsoleKey.D1:
             tManager.PrintTaskList();
             break;
-
         case ConsoleKey.D2:
             Console.CursorVisible = true;
             tManager.AddTask();
             break;
-
         case ConsoleKey.D3:
             tManager.UpdateTask();
             break;
@@ -54,9 +56,6 @@ while (true)
             Console.WriteLine("Quitting, Goodbye");
             goto EndLoop;
         default:
-            Console.Clear();
-            tManager.PrintHeader("Welcome to ToDoLy");
-            tManager.PrintWelcome();
             wrongKey = true;
             break;
     }

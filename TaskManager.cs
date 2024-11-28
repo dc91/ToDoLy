@@ -56,7 +56,7 @@ namespace ToDoLy
                     PrintCancel();
                     return;
                 }
-                    
+
                 if (string.IsNullOrWhiteSpace(details))
                     Console.WriteLine("Cannot have an empty task. Please try again.");
             }
@@ -102,7 +102,7 @@ namespace ToDoLy
         }
 
         public void UpdateTask()
-        {            
+        {
             if (tasks.Count == 0)
             {
                 Console.WriteLine("No tasks to update. Try adding a new task first.");
@@ -130,7 +130,7 @@ namespace ToDoLy
                 {
                     Task task = tasks[selectedIndex];
                     UpdateTaskDetails(task);
-                    break;                    
+                    break;
                 }
                 else if (key == ConsoleKey.Escape)//cancel changes
                 {
@@ -155,7 +155,7 @@ namespace ToDoLy
                         $"Status: {(tasks[selectedIndex].IsCompleted ? "Completed" : "Pending")}\n");
                     Console.WriteLine(new string('-', 50));
                     Console.Write("\nPress 'y' to confirm, or any other key to cancel: ");
-                    
+
 
                     ConsoleKey confirmDelete = Console.ReadKey(true).Key;
                     if (confirmDelete == ConsoleKey.Y)
@@ -192,7 +192,7 @@ namespace ToDoLy
                 SmartUpdatePrint("ENTER", "UPDATE", " a value.\n", ConsoleColor.Blue);
                 SmartUpdatePrint("ESC", "CANCEL", " or go back.\n", ConsoleColor.DarkGray);
                 Console.WriteLine();
-                string[] fields = { 
+                string[] fields = {
                     "Task Details", "Project", "Due Date", "Completion Status" };
 
                 for (int i = 0; i < fields.Length; i++)
@@ -202,7 +202,7 @@ namespace ToDoLy
                         Console.ForegroundColor = ConsoleColor.Green;
                     }
 
-                    switch(fields[i])
+                    switch (fields[i])
                     {
                         case "Task Details":
                             Console.Write("Task Details: ".PadRight(20));
@@ -310,6 +310,21 @@ namespace ToDoLy
             }
             Console.ResetColor();
 
+        }
+
+        public void SaveFile(string filePath)
+        {
+            using StreamWriter sw = new (filePath);
+            sw.WriteLine("Task Name|Project|Due Date|Status");
+
+            foreach (Task task in tasks)
+            {
+                sw.WriteLine(
+                    $"{task.Details}|" +
+                    $"{task.Project}|" +
+                    $"{task.DueDate:d}|" +
+                    $"{(task.IsCompleted ? "Completed" : "Pending")}");
+            }
         }
 
         public void PrintTaskList(int? selectedIndex = null)

@@ -42,9 +42,9 @@ namespace ToDoLy
         public void AddTask()
         {
             Console.Clear();
-            PrintHeader("Add a New Task");
+            PrintInfoManager.PrintHeader("Add a New Task");
             Console.WriteLine();
-            PrintAddTaskInfo();
+            PrintInfoManager.PrintAddTaskInfo();
 
             string details = null;
             while (string.IsNullOrWhiteSpace(details))
@@ -53,7 +53,7 @@ namespace ToDoLy
                 details = ReadInput();
                 if (details == null)
                 {
-                    PrintCancel();
+                    PrintInfoManager.PrintCancel();
                     return;
                 }
 
@@ -68,7 +68,7 @@ namespace ToDoLy
                 project = ReadInput();
                 if (project == null)
                 {
-                    PrintCancel();
+                    PrintInfoManager.PrintCancel();
                     return;
                 }
 
@@ -85,7 +85,7 @@ namespace ToDoLy
                 dueDateInput = ReadInput();
                 if (dueDateInput == null)//esc pressed
                 {
-                    PrintCancel();
+                    PrintInfoManager.PrintCancel();
                     return;
                 }
                 if (DateTime.TryParse(dueDateInput, out dueDate)) break;
@@ -139,7 +139,7 @@ namespace ToDoLy
                 else if (key == ConsoleKey.Delete)
                 {
                     Console.Clear();
-                    PrintHeader($"Delete Task: {tasks[selectedIndex].Details}");
+                    PrintInfoManager.PrintHeader($"Delete Task: {tasks[selectedIndex].Details}");
 
                     Console.Write("\nAre you sure you want to ");
                     Console.ForegroundColor = ConsoleColor.Red;
@@ -187,10 +187,10 @@ namespace ToDoLy
             while (isUpdating)
             {
                 Console.Clear();
-                PrintHeader($"Updating Task: {task.Details}");
-                SmartUpdatePrint("UP or DOWN", "HIGHLIGHT", " a value.\n", ConsoleColor.DarkYellow);
-                SmartUpdatePrint("ENTER", "UPDATE", " a value.\n", ConsoleColor.Blue);
-                SmartUpdatePrint("ESC", "CANCEL", " or go back.\n", ConsoleColor.DarkGray);
+                PrintInfoManager.PrintHeader($"Updating Task: {task.Details}");
+                PrintInfoManager.SmartUpdatePrint("UP or DOWN", "HIGHLIGHT", " a value.\n", ConsoleColor.DarkYellow);
+                PrintInfoManager.SmartUpdatePrint("ENTER", "UPDATE", " a value.\n", ConsoleColor.Blue);
+                PrintInfoManager.SmartUpdatePrint("ESC", "CANCEL", " or go back.\n", ConsoleColor.DarkGray);
                 Console.WriteLine();
                 string[] fields = {
                     "Task Details", "Project", "Due Date", "Completion Status" };
@@ -323,12 +323,12 @@ namespace ToDoLy
                 Console.Clear();
                 if (selectedIndex.HasValue)
                 {
-                    PrintHeader("Update/Change Task");
-                    PrintUpdateTaskInfo();
+                    PrintInfoManager.PrintHeader("Update/Change Task");
+                    PrintInfoManager.PrintUpdateTaskInfo();
                 }
                 else
                 {
-                    PrintHeader("All Tasks");
+                    PrintInfoManager.PrintHeader("All Tasks");
                 }
 
                 if (tasks.Count == 0)
@@ -360,7 +360,7 @@ namespace ToDoLy
 
                 if (!selectedIndex.HasValue)
                 {
-                    PrintSortingOptions();
+                    PrintInfoManager.PrintSortingOptions();
                     if (wrongInput)
                     {
                         Console.ForegroundColor = ConsoleColor.Red;
@@ -405,99 +405,5 @@ namespace ToDoLy
             return tasks.Count(t => t.IsCompleted);
         }
         
-       
-
-        //PrintInfoManager
-        public static void PrintHeader(string section)
-        {
-            string border = new('=', 90);
-            string title = section;
-            string paddedTitle = title.PadLeft((90 + title.Length) / 2).PadRight(90);
-
-            Console.ForegroundColor = ConsoleColor.DarkYellow;
-            Console.WriteLine(border);
-            Console.WriteLine();
-            Console.WriteLine(paddedTitle);
-            Console.WriteLine();
-            Console.WriteLine(border);
-            Console.ResetColor();
-        }
-
-        public void PrintWelcome()
-        {
-            int tasksTodo = PendingTasksCount();
-            int tasksDone = CompletedTasksCount();
-
-            Console.Write("\n\nYou have ");
-            Console.ForegroundColor = ConsoleColor.DarkRed;
-            Console.Write(tasksTodo);
-            Console.ResetColor();
-            Console.Write(" tasks to do and ");
-            Console.ForegroundColor = ConsoleColor.DarkGreen;
-            Console.Write(tasksDone);
-            Console.ResetColor();
-            Console.WriteLine(" tasks are done!\n");
-        }
-
-        public void PrintSortingOptions()
-        {
-            Console.Write("\nHow would you like to ");
-            Console.ForegroundColor = ConsoleColor.Blue;
-            Console.Write("SORT");
-            Console.ResetColor();
-            Console.WriteLine(" the tasks?\n");
-            Console.ForegroundColor = ConsoleColor.Blue;
-            Console.Write("1");
-            Console.ResetColor();
-            Console.WriteLine(". By Due Date");
-            Console.ForegroundColor = ConsoleColor.Blue;
-            Console.Write("2");
-            Console.ResetColor();
-            Console.WriteLine(". By Project Name");
-            Console.ForegroundColor = ConsoleColor.Blue;
-            Console.Write("3");
-            Console.ResetColor();
-            Console.WriteLine(". Default Order");
-            Console.WriteLine("\nPress ESC to exit.");
-        }
-
-        public void PrintAddTaskInfo()
-        {
-            Console.WriteLine("1. Enter task details\n2. Enter project name");
-            Console.WriteLine("3. Enter due date\n4. Mark task done/pending\n");
-            Console.ForegroundColor = ConsoleColor.DarkGray;
-            Console.WriteLine("ESC to CANCEL");
-            Console.ResetColor();
-        }
-
-        public void PrintUpdateTaskInfo()
-        {
-            SmartUpdatePrint("UP or DOWN", "HIGHLIGHT", " a task.\n", ConsoleColor.DarkYellow);
-            SmartUpdatePrint("ENTER", "UPDATE", " a task.\n", ConsoleColor.Blue);
-            SmartUpdatePrint("DEL", "DELETE", " a task.\n", ConsoleColor.Red);
-            SmartUpdatePrint("ESC", "CANCEL", ".\n", ConsoleColor.DarkGray);
-            Console.WriteLine();
-        }
-
-        public void SmartUpdatePrint(string key, string action, string ending, ConsoleColor color)
-        {
-            Console.Write("Press ");
-            Console.ForegroundColor = color;
-            Console.Write(key);
-            Console.ResetColor();
-            Console.Write(" to ");
-            Console.ForegroundColor = color;
-            Console.Write(action);
-            Console.ResetColor();
-            Console.WriteLine(ending);
-        }
-
-        public void PrintCancel()
-        {
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.Write("\nCancelling... Press any key");
-            Console.ReadKey();
-            Console.ResetColor();
-        }
     }
 }

@@ -3,9 +3,11 @@ using System;
 using System.IO;
 using static System.Collections.Specialized.BitVector32;
 using System.Threading.Tasks;
+using System.Numerics;
 
 TaskManager tManager = new();
 FileManager fManager = new();
+PrintInfoManager pManager = new();
 string filePath = "tasks.csv";
 
 if (File.Exists(filePath))
@@ -21,9 +23,12 @@ else
 bool wrongKey = false;
 while (true)
 {
+    int pending = tManager.PendingTasksCount();
+    int complete = tManager.CompletedTasksCount();
+
     Console.Clear();
-    TaskManager.PrintHeader("Welcome to ToDoLy");
-    tManager.PrintWelcome();
+    PrintInfoManager.PrintHeader("Welcome to ToDoLy");
+    pManager.PrintWelcome(complete, pending);
     Console.WriteLine();
     PrintOptions();
 

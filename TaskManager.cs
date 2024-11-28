@@ -12,13 +12,7 @@ namespace ToDoLy
     {
         private List<Task> tasks = new();
 
-        public void PrintCancel()
-        {
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("Cancelling... Press any key");
-            Console.ReadKey();
-            Console.ResetColor();
-        }
+        
         public void AddTask()
         {
             Console.Clear();
@@ -75,6 +69,10 @@ namespace ToDoLy
             Task task = new Task(details, project, dueDate, false);
             tasks.Add(task);
             SaveFile("tasks.csv");
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("Task successfully saved... Press any key");
+            Console.ReadKey();
+            Console.ResetColor();
         }
 
         public void LoadTasks(string filePath)
@@ -234,7 +232,7 @@ namespace ToDoLy
                     //Console.Clear();
                     Console.CursorVisible = true;
                     Console.Write($"\nEnter new value for {fields[fieldIndex]}: ");
-                    string newValue = Console.ReadLine();
+                    string newValue = ReadInput();
                     Console.CursorVisible = false;
 
                     // Update the task with the new value
@@ -401,7 +399,7 @@ namespace ToDoLy
                     }
                 }
                 else break;
-            }   
+            }
         }
 
         public void PrintSortingOptions()
@@ -425,16 +423,6 @@ namespace ToDoLy
             Console.ResetColor();
             Console.WriteLine(". Default Order");
             Console.WriteLine("\nPress ESC to exit.");
-        }
-
-        public int PendingTasksCount()
-        {
-            return tasks.Count(t => !t.IsCompleted);
-        }
-
-        public int CompletedTasksCount()
-        {
-            return tasks.Count(t => t.IsCompleted);
         }
 
         public void PrintHeader(string section)
@@ -499,6 +487,13 @@ namespace ToDoLy
             Console.WriteLine(ending);
         }
 
+        public void PrintCancel()
+        {
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.Write("\nCancelling... Press any key");
+            Console.ReadKey();
+            Console.ResetColor();
+        }
 
         public string ReadInput()
         {
@@ -525,5 +520,16 @@ namespace ToDoLy
                 }
             }
         }
+
+        public int PendingTasksCount()
+        {
+            return tasks.Count(t => !t.IsCompleted);
+        }
+
+        public int CompletedTasksCount()
+        {
+            return tasks.Count(t => t.IsCompleted);
+        }
+
     }
 }

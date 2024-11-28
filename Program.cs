@@ -18,8 +18,6 @@ else
 }
 
 
-
-
 bool wrongKey = false;
 while (true)
 {
@@ -39,7 +37,6 @@ while (true)
     Console.CursorVisible = false;
     ConsoleKey key = Console.ReadKey(true).Key;
 
-    // Handle user input
     switch (key)
     {
         case ConsoleKey.D1:

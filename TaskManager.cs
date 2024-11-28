@@ -312,21 +312,6 @@ namespace ToDoLy
 
         }
 
-        public void SaveFile(string filePath)
-        {
-            using StreamWriter sw = new (filePath);
-            sw.WriteLine("Task Name|Project|Due Date|Status");
-
-            foreach (Task task in tasks)
-            {
-                sw.WriteLine(
-                    $"{task.Details}|" +
-                    $"{task.Project}|" +
-                    $"{task.DueDate:d}|" +
-                    $"{(task.IsCompleted ? "Completed" : "Pending")}");
-            }
-        }
-
         public void PrintTaskList(int? selectedIndex = null)
         {
             bool isRunning = true;

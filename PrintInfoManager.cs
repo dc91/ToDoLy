@@ -53,7 +53,15 @@ namespace ToDoLy
             for (int i = 0; i < 4; i++)
             {
                 Console.ForegroundColor = ConsoleColor.Blue;
-                Console.Write(i + 1);
+                if (i != 3)
+                    Console.Write("* " + (i + 1));
+                else
+                {
+                    Console.ForegroundColor = ConsoleColor.DarkGray;
+                    Console.Write("ESC");
+                    Console.ResetColor();
+                }
+                    
                 Console.ResetColor();
                 Console.WriteLine(options[i]);
             }
@@ -67,26 +75,44 @@ namespace ToDoLy
             Console.ResetColor();
             Console.WriteLine(" the tasks?\n");
             Console.ForegroundColor = ConsoleColor.Blue;
-            Console.Write("1");
+            Console.Write("* 1");
             Console.ResetColor();
             Console.WriteLine(". By Due Date");
             Console.ForegroundColor = ConsoleColor.Blue;
-            Console.Write("2");
+            Console.Write("* 2");
             Console.ResetColor();
             Console.WriteLine(". By Project Name");
             Console.ForegroundColor = ConsoleColor.Blue;
-            Console.Write("3");
+            Console.Write("* 3");
             Console.ResetColor();
             Console.WriteLine(". Default Order");
-            Console.WriteLine("\nPress ESC to exit.");
+            Console.Write("\nPress ");
+            Console.ForegroundColor = ConsoleColor.DarkGray;
+            Console.Write("ESC");
+            Console.ResetColor();
+            Console.WriteLine(" to exit.");
         }
 
-        public static void PrintAddTaskInfo()
+        public static void PrintAddTaskInfo(int activeStep = 1)
         {
-            Console.WriteLine("1. Enter task details\n2. Enter project name");
-            Console.WriteLine("3. Enter due date\n4. Mark task done/pending\n");
+            string[] prompt = ["Enter Task Details", "Enter Project Name", "Enter Due Date"];
+
+            for (int step = 1; step <= 3; step++)
+            {
+                string activePrompt = prompt[step-1];
+                if (step == activeStep)
+                {
+                    Console.ForegroundColor = ConsoleColor.DarkYellow;
+                    Console.WriteLine($"> {activePrompt}");
+                    Console.ResetColor();
+                }
+                else
+                {
+                    Console.WriteLine($"  {activePrompt}");
+                }
+            }
             Console.ForegroundColor = ConsoleColor.DarkGray;
-            Console.WriteLine("ESC to CANCEL");
+            Console.WriteLine("\nESC to CANCEL");
             Console.ResetColor();
         }
 
@@ -177,7 +203,7 @@ namespace ToDoLy
                         $"Due: {task.DueDate.ToShortDateString()}\n" +
                         $"Status: {(task.IsCompleted ? "Completed" : "Pending")}\n");
             Console.WriteLine(new string('-', 50));
-            Console.Write("\nPress 'y' to confirm, or any other key to cancel: ");
+            Console.Write("\nPress 'ENTER' to confirm, or any other key to cancel: ");
 
         }
 

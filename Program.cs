@@ -26,21 +26,36 @@ while (true)
     int pending = tManager.tasks.Count(t => !t.IsCompleted);
     int complete = tManager.tasks.Count(t => t.IsCompleted);
 
-    Console.Clear();
-    PrintInfoManager.PrintHeader("Welcome to ToDoLy");
-    pManager.PrintWelcome(complete, pending);
-    Console.WriteLine();
-    PrintInfoManager.PrintOptions();
+    if (!wrongKey)
+    {
+        Console.Clear();
+        PrintInfoManager.PrintHeader("Welcome to ToDoLy - Main Menu");
+        pManager.PrintWelcome(complete, pending);
+        Console.WriteLine();
+        PrintInfoManager.PrintOptions();
+    }
+    if (wrongKey)
+    {
+        PrintInfoManager.PrintWrongInput();
+    }
+        
+    Console.CursorVisible = false;
+    ConsoleKey key = Console.ReadKey(true).Key;
 
     if (wrongKey)
     {
-        Console.ForegroundColor = ConsoleColor.Red;
-        Console.WriteLine("\nInvalid option. Please press 1, 2, 3, or 4.");
-        Console.ResetColor();
+        while (true)
+        {
+            ConsoleKey tryKey = Console.ReadKey(true).Key;
+            if (tryKey == ConsoleKey.D1 || tryKey == ConsoleKey.D2 ||
+                tryKey == ConsoleKey.D3 || tryKey == ConsoleKey.Escape)
+            {
+                key = tryKey;
+                break;
+            }
+        }
     }
     wrongKey = false;
-    Console.CursorVisible = false;
-    ConsoleKey key = Console.ReadKey(true).Key;
 
     switch (key)
     {
@@ -54,7 +69,7 @@ while (true)
         case ConsoleKey.D3:
             tManager.UpdateTask();
             break;
-        case ConsoleKey.D4:
+        case ConsoleKey.Escape:
             Console.WriteLine("Quitting, Goodbye");
             goto EndLoop;
         default:

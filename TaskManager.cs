@@ -46,6 +46,7 @@ namespace ToDoLy
             {
                 Console.Write(prompt);          
                 string input = ReadEveryKey();
+
                 if (input == null)
                 {
                     PrintInfoManager.PrintCancel();
@@ -66,15 +67,25 @@ namespace ToDoLy
             Console.Clear();
             PrintInfoManager.PrintHeader("Add a New Task");
             Console.WriteLine();
-            PrintInfoManager.PrintAddTaskInfo();
+            PrintInfoManager.PrintAddTaskInfo(1);
 
             string details = GetInput("\nEnter Task Details: ",
                 "Cannot have an empty task. Try again.", false);
             if (details == null) return;
 
+            Console.Clear();
+            PrintInfoManager.PrintHeader("Add a New Task");
+            Console.WriteLine();
+            PrintInfoManager.PrintAddTaskInfo(2);
+
             string project = GetInput("\nEnter Project Name: ", 
                 "Cannot have an project name. Try again.", false);
             if (project == null) return;
+
+            Console.Clear();
+            PrintInfoManager.PrintHeader("Add a New Task");
+            Console.WriteLine();
+            PrintInfoManager.PrintAddTaskInfo(3);
 
             string dueDateString = GetInput("\nEnter Due Date (yyyy-mm-dd): ",
                 "Invalid date format. Example (2024-12-25)", true);
@@ -128,7 +139,7 @@ namespace ToDoLy
                     PrintInfoManager.PrintAreUSure(tasks[selectedIndex]);
 
                     ConsoleKey confirmDelete = Console.ReadKey(true).Key;
-                    if (confirmDelete == ConsoleKey.Y)
+                    if (confirmDelete == ConsoleKey.Enter)
                     {
                         tasks.RemoveAt(selectedIndex);
                         fManager.SaveFile("tasks.csv", tasks);
@@ -284,11 +295,26 @@ namespace ToDoLy
                     PrintInfoManager.PrintSortingOptions();
                     if (wrongInput)
                         PrintInfoManager.PrintWrongInput();
-                    wrongInput = false;
+                    
 
 
                     //User Options
                     ConsoleKey key = Console.ReadKey(true).Key;
+
+                    if (wrongInput)
+                    {
+                        while (true)
+                        {
+                            ConsoleKey tryKey = Console.ReadKey(true).Key;
+                            if (tryKey == ConsoleKey.D1 || tryKey == ConsoleKey.D2 ||
+                                tryKey == ConsoleKey.D3 || tryKey == ConsoleKey.Escape)
+                            {
+                                key = tryKey;
+                                break;
+                            }
+                        }
+                    }
+                    wrongInput = false;
                     switch (key)
                     {
                         case ConsoleKey.D1: // Sort by Due Date

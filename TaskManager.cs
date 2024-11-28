@@ -10,8 +10,34 @@ namespace ToDoLy
 {
     internal class TaskManager
     {
-        private List<Task> tasks = new();
+        public FileManager fManager = new();
+        public List<Task> tasks = new();
 
+        public string ReadInput()
+        {// Reads input key-by-key. return null if ESC, or returns full input string
+            StringBuilder input = new();
+            while (true)
+            {
+                var key = Console.ReadKey(true);
+
+                if (key.Key == ConsoleKey.Escape) return null;
+                else if (key.Key == ConsoleKey.Enter)
+                {
+                    Console.WriteLine();
+                    return input.ToString();
+                }
+                else if (key.Key == ConsoleKey.Backspace && input.Length > 0)
+                {
+                    input.Remove(input.Length - 1, 1);
+                    Console.Write("\b \b");//needs the space to erase
+                }
+                else if (!char.IsControl(key.KeyChar))//example of control is \n \t backspace esc etc
+                {
+                    input.Append(key.KeyChar);
+                    Console.Write(key.KeyChar);
+                }
+            }
+        }
         
         public void AddTask()
         {
@@ -68,7 +94,7 @@ namespace ToDoLy
 
             Task task = new Task(details, project, dueDate, false);
             tasks.Add(task);
-            SaveFile("tasks.csv");
+            fManager.SaveFile("tasks.csv", tasks);
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Task successfully saved... Press any key");
             Console.ReadKey();
@@ -135,7 +161,7 @@ namespace ToDoLy
                     if (confirmDelete == ConsoleKey.Y)
                     {
                         tasks.RemoveAt(selectedIndex);
-                        SaveFile("tasks.csv");
+                        fManager.SaveFile("tasks.csv", tasks);
                         Console.ForegroundColor = ConsoleColor.Green;
                         Console.WriteLine("Task removed successfully!");
                         Console.ReadKey();
@@ -224,14 +250,14 @@ namespace ToDoLy
                             if (!string.IsNullOrEmpty(newValue))
                             {
                                 task.Details = newValue;
-                                SaveFile("tasks.csv"); // Save changes instantly
+                                fManager.SaveFile("tasks.csv", tasks);
                             }
                             break;
                         case "Project":
                             if (!string.IsNullOrEmpty(newValue))
                             {
                                 task.Project = newValue;
-                                SaveFile("tasks.csv"); // Save changes instantly
+                                fManager.SaveFile("tasks.csv", tasks);
                             }
                             break;
                         case "Due Date":
@@ -242,7 +268,7 @@ namespace ToDoLy
                             else if (DateTime.TryParse(newValue, out DateTime newDate))
                             {
                                 task.DueDate = newDate;
-                                SaveFile("tasks.csv"); // Save changes instantly
+                                fManager.SaveFile("tasks.csv", tasks);
                             }
                             else
                             {
@@ -260,12 +286,12 @@ namespace ToDoLy
                             else if (newValue.Equals("c", StringComparison.OrdinalIgnoreCase))
                             {
                                 task.IsCompleted = true;
-                                SaveFile("tasks.csv"); // Save changes instantly
+                                fManager.SaveFile("tasks.csv", tasks);
                             }
                             else if (newValue.Equals("p", StringComparison.OrdinalIgnoreCase))
                             {
                                 task.IsCompleted = false;
-                                SaveFile("tasks.csv"); // Save changes instantly
+                                fManager.SaveFile("tasks.csv", tasks);
                             }
                             else
                             {
@@ -284,39 +310,6 @@ namespace ToDoLy
             }
             Console.ResetColor();
 
-        }
-
-        public void LoadTasks(string filePath)
-        {
-            using StreamReader sr = new(filePath);
-            string header = sr.ReadLine();
-
-            while (!sr.EndOfStream)
-            {
-                string line = sr.ReadLine();
-                string[] parts = line.Split('|');//use pipe so users can type comma
-
-                string details = parts[0];
-                string project = parts[1];
-                DateTime dueDate = DateTime.Parse(parts[2]);
-                bool completed = parts[3] == "Completed";
-                tasks.Add(new Task(details, project, dueDate, completed));
-            }
-        }
-        
-        public void SaveFile(string filePath)
-        {
-            using StreamWriter sw = new (filePath);
-            sw.WriteLine("Task Name|Project|Due Date|Status");
-
-            foreach (Task task in tasks)
-            {
-                sw.WriteLine(
-                    $"{task.Details}|" +
-                    $"{task.Project}|" +
-                    $"{task.DueDate:d}|" +
-                    $"{(task.IsCompleted ? "Completed" : "Pending")}");
-            }
         }
 
         public void PrintTaskList(int? selectedIndex = null)
@@ -402,9 +395,52 @@ namespace ToDoLy
             }
         }
 
+        public int PendingTasksCount()
+        {
+            return tasks.Count(t => !t.IsCompleted);
+        }
+
+        public int CompletedTasksCount()
+        {
+            return tasks.Count(t => t.IsCompleted);
+        }
+        
+       
+
+        //PrintInfoManager
+        public static void PrintHeader(string section)
+        {
+            string border = new('=', 90);
+            string title = section;
+            string paddedTitle = title.PadLeft((90 + title.Length) / 2).PadRight(90);
+
+            Console.ForegroundColor = ConsoleColor.DarkYellow;
+            Console.WriteLine(border);
+            Console.WriteLine();
+            Console.WriteLine(paddedTitle);
+            Console.WriteLine();
+            Console.WriteLine(border);
+            Console.ResetColor();
+        }
+
+        public void PrintWelcome()
+        {
+            int tasksTodo = PendingTasksCount();
+            int tasksDone = CompletedTasksCount();
+
+            Console.Write("\n\nYou have ");
+            Console.ForegroundColor = ConsoleColor.DarkRed;
+            Console.Write(tasksTodo);
+            Console.ResetColor();
+            Console.Write(" tasks to do and ");
+            Console.ForegroundColor = ConsoleColor.DarkGreen;
+            Console.Write(tasksDone);
+            Console.ResetColor();
+            Console.WriteLine(" tasks are done!\n");
+        }
+
         public void PrintSortingOptions()
         {
-            //sorting options
             Console.Write("\nHow would you like to ");
             Console.ForegroundColor = ConsoleColor.Blue;
             Console.Write("SORT");
@@ -425,42 +461,11 @@ namespace ToDoLy
             Console.WriteLine("\nPress ESC to exit.");
         }
 
-        public void PrintHeader(string section)
-        {
-            string border = new('=', 90);
-            string title = section;
-            string paddedTitle = title.PadLeft((90 + title.Length) / 2).PadRight(90);
-
-            Console.ForegroundColor = ConsoleColor.DarkYellow;
-            Console.WriteLine(border);
-            Console.WriteLine();
-            Console.WriteLine(paddedTitle);
-            Console.WriteLine();
-            Console.WriteLine(border);
-            Console.ResetColor();
-        }
-        
-        public void PrintWelcome()
-        {
-            int tasksTodo = PendingTasksCount();
-            int tasksDone = CompletedTasksCount();
-
-            Console.Write("\n\nYou have ");
-            Console.ForegroundColor = ConsoleColor.DarkRed;
-            Console.Write(tasksTodo);
-            Console.ResetColor();
-            Console.Write(" tasks to do and ");
-            Console.ForegroundColor = ConsoleColor.DarkGreen;
-            Console.Write(tasksDone);
-            Console.ResetColor();
-            Console.WriteLine(" tasks are done!\n");
-        }
-
         public void PrintAddTaskInfo()
         {
             Console.WriteLine("1. Enter task details\n2. Enter project name");
             Console.WriteLine("3. Enter due date\n4. Mark task done/pending\n");
-            Console.ForegroundColor= ConsoleColor.DarkGray;
+            Console.ForegroundColor = ConsoleColor.DarkGray;
             Console.WriteLine("ESC to CANCEL");
             Console.ResetColor();
         }
@@ -494,42 +499,5 @@ namespace ToDoLy
             Console.ReadKey();
             Console.ResetColor();
         }
-
-        public string ReadInput()
-        {
-            StringBuilder input = new();
-            while (true)
-            {
-                var key = Console.ReadKey(true);
-
-                if (key.Key == ConsoleKey.Escape) return null;
-                else if (key.Key == ConsoleKey.Enter)
-                {
-                    Console.WriteLine();
-                    return input.ToString();
-                }
-                else if (key.Key == ConsoleKey.Backspace && input.Length > 0)
-                {
-                    input.Remove(input.Length - 1, 1);
-                    Console.Write("\b \b");//needs the space to erase
-                }
-                else if (!char.IsControl(key.KeyChar))//ex of control is \n \t backspace esc etc
-                {//a lot of work to make esc cancel possible...
-                    input.Append(key.KeyChar);
-                    Console.Write(key.KeyChar);
-                }
-            }
-        }
-
-        public int PendingTasksCount()
-        {
-            return tasks.Count(t => !t.IsCompleted);
-        }
-
-        public int CompletedTasksCount()
-        {
-            return tasks.Count(t => t.IsCompleted);
-        }
-
     }
 }

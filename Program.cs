@@ -5,11 +5,12 @@ using static System.Collections.Specialized.BitVector32;
 using System.Threading.Tasks;
 
 TaskManager tManager = new();
+FileManager fManager = new();
 string filePath = "tasks.csv";
 
 if (File.Exists(filePath))
 {
-    tManager.LoadTasks(filePath);
+    tManager.tasks = fManager.LoadTasks(filePath);
 }
 else
 {
@@ -17,12 +18,11 @@ else
     sw.WriteLine("Task Name,Project,Due Date,Status");
 }
 
-
 bool wrongKey = false;
 while (true)
 {
     Console.Clear();
-    tManager.PrintHeader("Welcome to ToDoLy");
+    TaskManager.PrintHeader("Welcome to ToDoLy");
     tManager.PrintWelcome();
     Console.WriteLine();
     PrintOptions();

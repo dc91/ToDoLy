@@ -12,6 +12,13 @@ namespace ToDoLy
     {
         private List<Task> tasks = new();
 
+        public void PrintCancel()
+        {
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("Cancelling... Press any key");
+            Console.ReadKey();
+            Console.ResetColor();
+        }
         public void AddTask()
         {
             Console.Clear();
@@ -24,9 +31,12 @@ namespace ToDoLy
             {
                 Console.Write("\n\nEnter Task Detils: ");
                 details = ReadInput();
-                if (details == null) return;
+                if (details == null)
+                {
+                    PrintCancel();
+                    return;
+                }
                     
-
                 if (string.IsNullOrWhiteSpace(details))
                     Console.WriteLine("Cannot have an empty task. Please try again.");
             }
@@ -36,7 +46,11 @@ namespace ToDoLy
             {
                 Console.Write("\nEnter Project Name: ");
                 project = ReadInput();
-                if (project == null) return;
+                if (project == null)
+                {
+                    PrintCancel();
+                    return;
+                }
 
                 if (string.IsNullOrWhiteSpace(project))
                     Console.WriteLine("Cannot have an empty project name. Please try again.");
@@ -49,7 +63,11 @@ namespace ToDoLy
             {
                 Console.Write("\nEnter Due Date (yyyy-mm-dd): ");
                 dueDateInput = ReadInput();
-                if (dueDateInput == null) return;//esc pressed
+                if (dueDateInput == null)//esc pressed
+                {
+                    PrintCancel();
+                    return;
+                }
                 if (DateTime.TryParse(dueDateInput, out dueDate)) break;
                 else Console.WriteLine("Invalid date format. Example (2024-12-25)");
             }
@@ -489,16 +507,7 @@ namespace ToDoLy
             {
                 var key = Console.ReadKey(true);
 
-                if (key.Key == ConsoleKey.Escape)
-                {
-                    Console.Clear();
-                    PrintHeader("Welcome to ToDoLy");
-                    PrintWelcome();
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine("Input cancelled.");
-                    Console.ResetColor();
-                    return null;
-                }
+                if (key.Key == ConsoleKey.Escape) return null;
                 else if (key.Key == ConsoleKey.Enter)
                 {
                     Console.WriteLine();

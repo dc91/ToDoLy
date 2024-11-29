@@ -45,9 +45,9 @@ namespace ToDoLy
             Console.WriteLine(":");
 
             string[] options = [
-                ". Show Task List (by date or project)",
+                ". Show All Tasks",
                 ". Add New Task",
-                ". Edit Task (update, mark as done, remove)",
+                ". Edit Tasks",
                 ". Quit\n"];
 
             for (int i = 0; i < 4; i++)
@@ -67,28 +67,49 @@ namespace ToDoLy
             }
         }
 
-        public static void PrintSortingOptions()
+        public static void PrintSortingOptions(bool showCompletedTasks = true)
         {
+            string toggleSetting = showCompletedTasks ? "Showing" : "Hiding";
             Console.Write("\nHow would you like to ");
             Console.ForegroundColor = ConsoleColor.Blue;
             Console.Write("SORT");
             Console.ResetColor();
             Console.WriteLine(" the tasks?\n");
             Console.ForegroundColor = ConsoleColor.Blue;
-            Console.Write("* 1");
+            Console.Write("[1]");
             Console.ResetColor();
-            Console.WriteLine(". By Due Date");
+            Console.WriteLine(" By Due Date");
             Console.ForegroundColor = ConsoleColor.Blue;
-            Console.Write("* 2");
+            Console.Write("[2]");
             Console.ResetColor();
-            Console.WriteLine(". By Project Name");
+            Console.WriteLine(" By Project Name");
             Console.ForegroundColor = ConsoleColor.Blue;
-            Console.Write("* 3");
+            Console.Write("[3]");
             Console.ResetColor();
-            Console.WriteLine(". Default Order");
+            Console.WriteLine(" Default");
+            
+
+            Console.Write("\nHow would you like to ");
+            Console.ForegroundColor = ConsoleColor.DarkYellow;
+            Console.Write("FILTER");
+            Console.ResetColor();
+            Console.WriteLine(" the tasks?\n");
+            Console.ForegroundColor = ConsoleColor.DarkYellow;
+            Console.Write("[F]");
+            Console.ResetColor();
+            Console.WriteLine($" Show/Hide Completed Tasks (Currently: {toggleSetting})");
+            Console.ForegroundColor = ConsoleColor.DarkYellow;
+            Console.Write("[P]");
+            Console.ResetColor();
+            Console.WriteLine($" View Task From a Specific Project");
+            Console.ForegroundColor = ConsoleColor.DarkYellow;
+            Console.Write("[S]");
+            Console.ResetColor();
+            Console.WriteLine($" Search For Task");
+
             Console.Write("\nPress ");
             Console.ForegroundColor = ConsoleColor.DarkGray;
-            Console.Write("ESC");
+            Console.Write("[ESC]");
             Console.ResetColor();
             Console.WriteLine(" to exit.");
         }
@@ -245,6 +266,25 @@ namespace ToDoLy
             Console.WriteLine("{0,5} | {1,-25} | {2,-25} | {3,-12} | {4,-10}",
                       "No.", "Task Details", "Project", "Due Date", "Status");
             Console.WriteLine(new string('-', 90));
+        }
+
+        public static void PrintTableRows(List<Task> originalTasks, int? selectedIndex)
+        {
+            for (int i = 0; i < originalTasks.Count; i++)
+            {
+                Task task = originalTasks[i];
+                string status = task.IsCompleted ? "Completed" : "Pending";
+
+                if (selectedIndex.HasValue && i == selectedIndex.Value)
+                    Console.ForegroundColor = ConsoleColor.DarkYellow;
+                Console.WriteLine("{0,5} | {1,-25} | {2,-25} | {3,-12} | {4,-10}",
+                              i + 1,
+                              task.Details,
+                              task.Project,
+                              task.DueDate.ToShortDateString(),
+                              status);
+                Console.ResetColor();
+            }
         }
 
         public static void PrintWrongInput()

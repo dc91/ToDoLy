@@ -249,9 +249,10 @@ namespace ToDoLy
         public void PrintTaskList(int? selectedIndex = null)
         {
             bool isRunning = true;
-            bool wrongInput = false;
+            bool showCompletedTasks = true;
 
-            List<Task> originalTasks = new List<Task>(tasks);
+            List<Task> filteredTasks = new List<Task>(tasks);
+            List<Task> sortedTasks = new List<Task>(tasks);
 
             while (isRunning)
             {
@@ -262,9 +263,7 @@ namespace ToDoLy
                     PrintInfoManager.PrintUpdateTaskInfo(true);
                 }
                 else
-                {
                     PrintInfoManager.PrintHeader("All Tasks");
-                }
 
                 if (tasks.Count == 0)
                 {
@@ -272,65 +271,53 @@ namespace ToDoLy
                     return;
                 }
 
-                PrintInfoManager.PrintTableHead();
-                
-                for (int i = 0; i < originalTasks.Count; i++)
-                {
-                    Task task = originalTasks[i];
-                    string status = task.IsCompleted ? "Completed" : "Pending";
+                if (showCompletedTasks)
+                    filteredTasks = sortedTasks;
+                else
+                    filteredTasks = sortedTasks.Where(t => !t.IsCompleted).ToList();
 
-                    if (selectedIndex.HasValue && i == selectedIndex.Value)
-                        Console.ForegroundColor = ConsoleColor.DarkYellow;
-                    Console.WriteLine("{0,5} | {1,-25} | {2,-25} | {3,-12} | {4,-10}",
-                                  i + 1,
-                                  task.Details,
-                                  task.Project,
-                                  task.DueDate.ToShortDateString(),
-                                  status);
-                    Console.ResetColor();
-                }
+
+                PrintInfoManager.PrintTableHead();
+                PrintInfoManager.PrintTableRows(filteredTasks, selectedIndex);
                 
                 if (!selectedIndex.HasValue)
                 {
-                    PrintInfoManager.PrintSortingOptions();
-                    if (wrongInput)
-                        PrintInfoManager.PrintWrongInput();
-                    
-
+                    PrintInfoManager.PrintSortingOptions(showCompletedTasks);
 
                     //User Options
-                    ConsoleKey key = Console.ReadKey(true).Key;
-
-                    if (wrongInput)
+                    ConsoleKey key;
+                    
+                   //Force a valid input before refreshing
+                    while (true)
                     {
-                        while (true)
+                        ConsoleKey tryKey = Console.ReadKey(true).Key;
+                        if (tryKey == ConsoleKey.D1 || tryKey == ConsoleKey.D2 ||
+                            tryKey == ConsoleKey.D3 || tryKey == ConsoleKey.F || 
+                            tryKey == ConsoleKey.Escape)
                         {
-                            ConsoleKey tryKey = Console.ReadKey(true).Key;
-                            if (tryKey == ConsoleKey.D1 || tryKey == ConsoleKey.D2 ||
-                                tryKey == ConsoleKey.D3 || tryKey == ConsoleKey.Escape)
-                            {
-                                key = tryKey;
-                                break;
-                            }
+                            key = tryKey;
+                            break;
                         }
                     }
-                    wrongInput = false;
+                    
                     switch (key)
                     {
                         case ConsoleKey.D1: // Sort by Due Date
-                            originalTasks = tasks.OrderBy(t => t.DueDate).ToList();
+                            sortedTasks = tasks.OrderBy(t => t.DueDate).ToList();
                             break;
-                        case ConsoleKey.D2: // Sort by Project
-                            originalTasks = tasks.OrderBy(t => t.Project).ToList();
+                        case ConsoleKey.D2: // Sort by Project Name
+                            sortedTasks = tasks.OrderBy(t => t.Project).ToList();
                             break;
                         case ConsoleKey.D3: // Default order (original task list)
-                            originalTasks = new List<Task>(tasks); // Copy the original list
+                            sortedTasks = new List<Task>(tasks); // Copy the original list
+                            break;
+                        case ConsoleKey.F: // Toggle showCompletedTasks
+                            showCompletedTasks = !showCompletedTasks;
                             break;
                         case ConsoleKey.Escape: // Exit the loop
                             isRunning = false;
                             break;
                         default:
-                            wrongInput = true;
                             break;
                     }
                 }

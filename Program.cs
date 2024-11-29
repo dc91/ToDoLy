@@ -11,51 +11,37 @@ PrintInfoManager pManager = new();
 string filePath = "tasks.csv";
 
 if (File.Exists(filePath))
-{
     tManager.tasks = fManager.LoadTasks(filePath);
-}
 else
 {
     using StreamWriter sw = new(filePath);
     sw.WriteLine("Task Name,Project,Due Date,Status");
 }
 
-bool wrongKey = false;
 while (true)
 {
     int pending = tManager.tasks.Count(t => !t.IsCompleted);
     int complete = tManager.tasks.Count(t => t.IsCompleted);
 
-    if (!wrongKey)
-    {
-        Console.Clear();
-        PrintInfoManager.PrintHeader("Welcome to ToDoLy - Main Menu");
-        pManager.PrintWelcome(complete, pending);
-        Console.WriteLine();
-        PrintInfoManager.PrintOptions();
-    }
-    if (wrongKey)
-    {
-        PrintInfoManager.PrintWrongInput();
-    }
-        
-    Console.CursorVisible = false;
-    ConsoleKey key = Console.ReadKey(true).Key;
+    Console.Clear();
+    PrintInfoManager.PrintHeader("Welcome to ToDoLy - Main Menu");
+    pManager.PrintWelcome(complete, pending);
+    Console.WriteLine();
+    PrintInfoManager.PrintOptions();
 
-    if (wrongKey)
+    Console.CursorVisible = false;
+    ConsoleKey key;
+
+    while (true)
     {
-        while (true)
+        ConsoleKey tryKey = Console.ReadKey(true).Key;
+        if (tryKey == ConsoleKey.D1 || tryKey == ConsoleKey.D2 ||
+            tryKey == ConsoleKey.D3 || tryKey == ConsoleKey.Escape)
         {
-            ConsoleKey tryKey = Console.ReadKey(true).Key;
-            if (tryKey == ConsoleKey.D1 || tryKey == ConsoleKey.D2 ||
-                tryKey == ConsoleKey.D3 || tryKey == ConsoleKey.Escape)
-            {
-                key = tryKey;
-                break;
-            }
+            key = tryKey;
+            break;
         }
     }
-    wrongKey = false;
 
     switch (key)
     {
@@ -73,7 +59,6 @@ while (true)
             Console.WriteLine("Quitting, Goodbye");
             goto EndLoop;
         default:
-            wrongKey = true;
             break;
     }
 } EndLoop:;

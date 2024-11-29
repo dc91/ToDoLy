@@ -104,54 +104,164 @@ namespace ToDoLy
             if (tasks.Count == 0)
             {
                 Console.WriteLine("No tasks to update. Try adding a new task first.");
+                Console.ReadKey();
                 return;
             }
 
+            bool isRunning = true;
+            bool showCompletedTasks = true;
+            int currentPage = 0;
+            int itemsPerPage = 6;
             int selectedIndex = 0;
-            PrintTaskList(selectedIndex);
+            string? selectedProject = null;
 
+            while (isRunning)
+            {
+                List<Task> filteredTasks = new List<Task>(tasks);
+                List<Task> sortedTasks = new List<Task>(tasks);
+
+                if (showCompletedTasks)
+                    filteredTasks = sortedTasks;
+                else
+                    filteredTasks = sortedTasks.Where(t => !t.IsCompleted).ToList();
+
+                if (!string.IsNullOrEmpty(selectedProject))
+                    filteredTasks = filteredTasks.Where(t => t.Project == selectedProject).ToList();
+            
+                int totalPages = (int)Math.Ceiling((double)filteredTasks.Count / itemsPerPage);
+                int startIndex = currentPage * itemsPerPage;
+                int endIndex = Math.Min(startIndex + itemsPerPage, filteredTasks.Count);
+            
+                Console.Clear();
+                PrintInfoManager.PrintHeader($"Your Tasks - Page {currentPage + 1} of {totalPages}");
+                PrintInfoManager.PrintTableHead();
+                PrintInfoManager.PrintTableRows(filteredTasks
+                    .GetRange(startIndex, endIndex - startIndex), selectedIndex);
+
+                //fill with blank lines, if last page not full
+                int remainingLines = itemsPerPage - (endIndex - startIndex);
+                for (int i = 0; i < remainingLines; i++)
+                {
+                    Console.WriteLine();
+                }
+                
+                PrintInfoManager.PrintSortingOptions(showCompletedTasks);
+
+                //Check what key is pressed, act accordingly.. yes it's long
+                while (true)
+                {
+                    ConsoleKey key = TrapUntilValidInput();
+                    switch (key)
+                    {
+                        case ConsoleKey.Enter:
+                            Task task = filteredTasks[selectedIndex + (6 * currentPage)];
+                            selectedIndex = 0;
+                            UpdateTaskDetails(task);
+                            goto EndLoop;
+                        case ConsoleKey.Escape:
+                            goto EndOuterLoop;
+                        case ConsoleKey.Delete:
+                            Task taskToDelete = filteredTasks[selectedIndex + (6 * currentPage)];
+                            int unsortedIndex = tasks.IndexOf(taskToDelete);
+                            Console.Clear();
+                            PrintInfoManager.PrintHeader($"Delete Task: {tasks[unsortedIndex].Details}");
+                            PrintInfoManager.PrintAreUSure(tasks[unsortedIndex]);
+                            ConsoleKey confirmDelete = Console.ReadKey(true).Key;
+                            if (confirmDelete == ConsoleKey.Enter)
+                            {
+                                tasks.RemoveAt(unsortedIndex);
+                                fManager.SaveFile("tasks.csv", tasks);
+                                PrintInfoManager.PrintRemoveSuccess();
+                            }
+                            else
+                                PrintInfoManager.PrintRemoveCancelled();
+                            goto EndLoop;
+                        case ConsoleKey.D1:
+                            sortedTasks = tasks.OrderBy(t => t.DueDate).ToList();
+                            currentPage = 0;
+                            goto EndLoop;
+                        case ConsoleKey.D2:
+                            sortedTasks = tasks.OrderBy(t => t.Project).ToList();
+                            currentPage = 0;
+                            goto EndLoop;
+                        case ConsoleKey.D3:
+                            sortedTasks = new List<Task>(tasks);
+                            currentPage = 0;
+                            goto EndLoop;
+                        case ConsoleKey.F:
+                            showCompletedTasks = !showCompletedTasks;
+                            currentPage = 0;
+                            goto EndLoop;
+                        case ConsoleKey.P:
+                            selectedProject = ShowProjectSelect();
+                            selectedIndex = 0;
+                            currentPage = 0;
+                            goto EndLoop;
+                        case ConsoleKey.A:
+                            sortedTasks = new List<Task>(tasks);
+                            selectedProject = null;
+                            currentPage = 0;
+                            goto EndLoop;
+                        case ConsoleKey.S:
+                            List<Task> foundMatches = SearchForTask();
+                            if (foundMatches.Count == 0)
+                            {
+                                Console.WriteLine("No Task found... Press any key to continue");
+                                Console.ReadKey();
+                            }
+                            else
+                                ShowFoundSearch(foundMatches);
+                            goto EndLoop;
+                        case ConsoleKey.LeftArrow:
+                            if (currentPage > 0)
+                            {
+                                currentPage--;
+                                selectedIndex = 0;
+                            }
+                            goto EndLoop;
+                        case ConsoleKey.RightArrow:
+                            if (currentPage < totalPages - 1)
+                            {
+                                currentPage++;
+                                selectedIndex = 0;
+                            }
+                            goto EndLoop;
+                        case ConsoleKey.DownArrow:
+                            if (selectedIndex < (endIndex - startIndex - 1))
+                                selectedIndex++;
+                            goto EndLoop;
+                        case ConsoleKey.UpArrow:
+                            if (selectedIndex > 0)
+                                selectedIndex--;
+                            goto EndLoop;
+                        default:
+                            goto EndLoop;
+                    }
+                }
+            EndLoop:;
+            }
+        EndOuterLoop:;
+        }
+        
+        public ConsoleKey TrapUntilValidInput()
+        {
+            // Force a valid input before usng keypress
             while (true)
             {
-                ConsoleKey key = Console.ReadKey(true).Key;
-
-                if (key == ConsoleKey.DownArrow && selectedIndex < tasks.Count - 1)
+                ConsoleKey tryKey = Console.ReadKey(true).Key;
+                if (tryKey == ConsoleKey.D1 || tryKey == ConsoleKey.D2 ||
+                    tryKey == ConsoleKey.D3 || tryKey == ConsoleKey.F ||
+                    tryKey == ConsoleKey.P || tryKey == ConsoleKey.A ||
+                    tryKey == ConsoleKey.S || tryKey == ConsoleKey.Escape ||
+                    tryKey == ConsoleKey.LeftArrow || tryKey == ConsoleKey.RightArrow ||
+                    tryKey == ConsoleKey.DownArrow || tryKey == ConsoleKey.UpArrow ||
+                    tryKey == ConsoleKey.Enter || tryKey == ConsoleKey.Delete)
                 {
-                    selectedIndex++;
-                    PrintTaskList(selectedIndex);
-                }
-                else if (key == ConsoleKey.UpArrow && selectedIndex > 0)
-                {
-                    selectedIndex--;
-                    PrintTaskList(selectedIndex);
-                }
-                else if (key == ConsoleKey.Enter)//Select task
-                {
-                    Task task = tasks[selectedIndex];
-                    UpdateTaskDetails(task);
-                    break;
-                }
-                else if (key == ConsoleKey.Escape)//cancel changes
-                    break;
-                else if (key == ConsoleKey.Delete)
-                {
-                    Console.Clear();
-                    PrintInfoManager.PrintHeader($"Delete Task: {tasks[selectedIndex].Details}");
-                    PrintInfoManager.PrintAreUSure(tasks[selectedIndex]);
-
-                    ConsoleKey confirmDelete = Console.ReadKey(true).Key;
-                    if (confirmDelete == ConsoleKey.Enter)
-                    {
-                        tasks.RemoveAt(selectedIndex);
-                        fManager.SaveFile("tasks.csv", tasks);
-                        PrintInfoManager.PrintRemoveSuccess();
-                    }
-                    else
-                        PrintInfoManager.PrintRemoveCancelled();
-                    break;
+                    return tryKey;
                 }
             }
         }
-
+   
         public void UpdateTaskDetails(Task task)
         {
             int fieldIndex = 0;
@@ -245,100 +355,34 @@ namespace ToDoLy
                     break;
             }
         }
-        
-        public void PrintTaskList(int? selectedIndex = null)
+
+        public List<Task> SearchForTask()
         {
-            bool isRunning = true;
-            bool showCompletedTasks = true;
-            string? selectedProject = null;
+            List<Task> inputMatches = new List<Task>();
+            Console.Write("\nPlease enter your search here:");
+            string input = Console.ReadLine().Trim().ToLower();
 
-            List<Task> filteredTasks = new List<Task>(tasks);
-            List<Task> sortedTasks = new List<Task>(tasks);
-
-            while (isRunning)
+            if (input != null)
             {
-                Console.Clear();
-                if (selectedIndex.HasValue)
-                {
-                    PrintInfoManager.PrintHeader("Update/Change Task");
-                    PrintInfoManager.PrintUpdateTaskInfo(true);
-                }
-                else
-                    PrintInfoManager.PrintHeader("All Tasks");
-
-                if (tasks.Count == 0)
-                {
-                    Console.WriteLine("No tasks to show. Try adding a new task first.");
-                    return;
-                }
-
-                if (showCompletedTasks)
-                    filteredTasks = sortedTasks;
-                else
-                    filteredTasks = sortedTasks.Where(t => !t.IsCompleted).ToList();
-
-                if (!string.IsNullOrEmpty(selectedProject))
-                {
-                    filteredTasks = filteredTasks.Where(t => t.Project == selectedProject).ToList();
-                }
-                
-
-                PrintInfoManager.PrintTableHead();
-                PrintInfoManager.PrintTableRows(filteredTasks, selectedIndex);
-                
-                if (!selectedIndex.HasValue)
-                {
-                    PrintInfoManager.PrintSortingOptions(showCompletedTasks);
-
-                    //User Options
-                    ConsoleKey key;
-                    
-                   //Force a valid input before refreshing
-                    while (true)
-                    {
-                        ConsoleKey tryKey = Console.ReadKey(true).Key;
-                        if (tryKey == ConsoleKey.D1 || tryKey == ConsoleKey.D2 ||
-                            tryKey == ConsoleKey.D3 || tryKey == ConsoleKey.F ||
-                            tryKey == ConsoleKey.P || tryKey == ConsoleKey.A || 
-                            tryKey == ConsoleKey.Escape)
-                        {
-                            key = tryKey;
-                            break;
-                        }
-                    }
-                    
-                    switch (key)
-                    {
-                        case ConsoleKey.D1: // Sort by Due Date
-                            sortedTasks = tasks.OrderBy(t => t.DueDate).ToList();
-                            break;
-                        case ConsoleKey.D2: // Sort by Project Name
-                            sortedTasks = tasks.OrderBy(t => t.Project).ToList();
-                            break;
-                        case ConsoleKey.D3: // Default order (original task list)
-                            sortedTasks = new List<Task>(tasks); // Copy the original list
-                            break;
-                        case ConsoleKey.F: // Toggle showCompletedTasks
-                            showCompletedTasks = !showCompletedTasks;
-                            break;
-                        case ConsoleKey.P: // Toggle showCompletedTasks
-                            selectedProject = ShowProjectSelect();
-                            break;
-                        case ConsoleKey.A: // Toggle showCompletedTasks
-                            sortedTasks = new List<Task>(tasks);
-                            selectedProject = null;
-                            break;
-                        case ConsoleKey.Escape: // Exit the loop
-                            isRunning = false;
-                            break;
-                        default:
-                            break;
-                    }
-                }
-                else break;
+                inputMatches = tasks.Where(x => x.Details.Trim().ToLower() == input).ToList();
             }
+
+            return inputMatches;
         }
-        
+
+        public  void ShowFoundSearch(List<Task> Matches)
+        {
+            Console.Clear();
+            PrintInfoManager.PrintHeader("Search Results");
+            PrintInfoManager.PrintTableHead();
+            PrintInfoManager.PrintTableRows(Matches, null);
+
+
+            Console.WriteLine("\n\nPress any key to go back");
+            Console.ReadKey();
+
+        }
+
         public string ShowProjectSelect()
         {
             string selectedProject = "";
@@ -353,12 +397,10 @@ namespace ToDoLy
                 Console.Clear();
                 PrintInfoManager.PrintHeader("List Of Projects");
 
-                // Print the list of projects with the current selection highlighted
                 for (int i = 0; i < projects.Count; i++)
                 {
                     if (i == selectedIndex)
                     {
-                        // Highlight the currently selected project (e.g., using a different color)
                         Console.ForegroundColor = ConsoleColor.DarkYellow;
                         Console.WriteLine("> " + projects[i]);
                         Console.ResetColor();
@@ -369,7 +411,6 @@ namespace ToDoLy
                     }
                 }
 
-                // Wait for user input to move the selection or select the project
                 key = Console.ReadKey(true).Key;
 
                 switch (key)
@@ -393,10 +434,9 @@ namespace ToDoLy
                         break;
                 }
             } while (key != ConsoleKey.Enter);
-
+            selectedIndex = 0;
             return selectedProject;
         }
-
 
     }
 }

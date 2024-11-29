@@ -45,20 +45,19 @@ namespace ToDoLy
             Console.WriteLine(":");
 
             string[] options = [
-                ". Show All Tasks",
-                ". Add New Task",
-                ". Edit Tasks",
-                ". Quit\n"];
+                " Show and Edit Tasks",
+                " Add New Task",
+                " Quit\n"];
 
-            for (int i = 0; i < 4; i++)
+            for (int i = 0; i < 3; i++)
             {
                 Console.ForegroundColor = ConsoleColor.Blue;
-                if (i != 3)
-                    Console.Write("* " + (i + 1));
+                if (i != 2)
+                    Console.Write("[" + (i + 1) + "]  ");
                 else
                 {
                     Console.ForegroundColor = ConsoleColor.DarkGray;
-                    Console.Write("ESC");
+                    Console.Write("[ESC]");
                     Console.ResetColor();
                 }
                     
@@ -69,47 +68,65 @@ namespace ToDoLy
 
         public static void PrintSortingOptions(bool showCompletedTasks = true)
         {
-            string toggleSetting = showCompletedTasks ? "Showing" : "Hiding";
+            string toggleSetting = showCompletedTasks ? "Hide" : "Show";
             Console.Write("\nHow would you like to ");
             Console.ForegroundColor = ConsoleColor.Blue;
             Console.Write("SORT");
+            Console.ResetColor();
+            Console.Write(" or ");
+            Console.ForegroundColor = ConsoleColor.DarkYellow;
+            Console.Write("FILTER");
             Console.ResetColor();
             Console.WriteLine(" the tasks?\n");
             Console.ForegroundColor = ConsoleColor.Blue;
             Console.Write("[1]");
             Console.ResetColor();
-            Console.WriteLine(" By Due Date");
+            Console.Write(" By Due Date");
+
+            Console.ForegroundColor = ConsoleColor.DarkYellow;
+            Console.Write("\t\t[F]");
+            Console.ResetColor();
+            Console.Write($" {toggleSetting} COMPLETED Tasks");
+
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.Write("\t\t[ARROWS]");
+            Console.ResetColor();
+            Console.WriteLine($" NAVIGATE");          
+
             Console.ForegroundColor = ConsoleColor.Blue;
             Console.Write("[2]");
             Console.ResetColor();
-            Console.WriteLine(" By Project Name");
+            Console.Write(" By Project Name");
+
+            Console.ForegroundColor = ConsoleColor.DarkYellow;
+            Console.Write("\t[P]");
+            Console.ResetColor();
+            Console.Write($" Show Tasks from SPECIFIC PROJECT");
+
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.Write("\t[ENTER]");
+            Console.ResetColor();
+            Console.WriteLine($" EDIT Task");
+
             Console.ForegroundColor = ConsoleColor.Blue;
             Console.Write("[3]");
             Console.ResetColor();
-            Console.WriteLine(" Default");
-            
+            Console.Write(" Default");
 
-            Console.Write("\nHow would you like to ");
             Console.ForegroundColor = ConsoleColor.DarkYellow;
-            Console.Write("FILTER");
+            Console.Write("\t\t[A]");
             Console.ResetColor();
-            Console.WriteLine(" the tasks?\n");
+            Console.Write($" Show Tasks From ALL PROJECTS");
+
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.Write("\t[DEL]");
+            Console.ResetColor();
+            Console.WriteLine($" DELETE Task");
+
             Console.ForegroundColor = ConsoleColor.DarkYellow;
-            Console.Write("[F]");
+            Console.Write("\t\t\t[S]");
             Console.ResetColor();
-            Console.WriteLine($" Show/Hide Completed Tasks (Currently: {toggleSetting})");
-            Console.ForegroundColor = ConsoleColor.DarkYellow;
-            Console.Write("[P]");
-            Console.ResetColor();
-            Console.WriteLine($" Show Tasks From a Specific Project");
-            Console.ForegroundColor = ConsoleColor.DarkYellow;
-            Console.Write("[A]");
-            Console.ResetColor();
-            Console.WriteLine($" Show Tasks From All Projects");
-            Console.ForegroundColor = ConsoleColor.DarkYellow;
-            Console.Write("[S]");
-            Console.ResetColor();
-            Console.WriteLine($" Search For Task");
+            Console.WriteLine($" SEARCH For Task");
 
             Console.Write("\nPress ");
             Console.ForegroundColor = ConsoleColor.DarkGray;
@@ -267,8 +284,8 @@ namespace ToDoLy
         public static void PrintTableHead()
         {
             Console.WriteLine();
-            Console.WriteLine("{0,5} | {1,-25} | {2,-25} | {3,-12} | {4,-10}",
-                      "No.", "Task Details", "Project", "Due Date", "Status");
+            Console.WriteLine("| {0,-25} | {1,-25} | {2,-12} | {3,-10}",
+                      "Task Details", "Project", "Due Date", "Status");
             Console.WriteLine(new string('-', 90));
         }
 
@@ -281,24 +298,14 @@ namespace ToDoLy
 
                 if (selectedIndex.HasValue && i == selectedIndex.Value)
                     Console.ForegroundColor = ConsoleColor.DarkYellow;
-                Console.WriteLine("{0,5} | {1,-25} | {2,-25} | {3,-12} | {4,-10}",
-                              i + 1,
-                              task.Details,
-                              task.Project,
-                              task.DueDate.ToShortDateString(),
-                              status);
+                Console.WriteLine("| {0,-25} | {1,-25} | {2,-12} | {3,-10}",
+                      task.Details,
+                      task.Project,
+                      task.DueDate.ToShortDateString(),
+                      status);
                 Console.ResetColor();
             }
         }
-
-        public static void PrintWrongInput()
-        {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine("\nInvalid option. Please press 1, 2, 3 or ESC.");
-            Console.ResetColor();
-        }
-
-
 
         
 

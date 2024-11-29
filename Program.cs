@@ -36,8 +36,7 @@ while (true)
     while (true)
     {
         ConsoleKey tryKey = Console.ReadKey(true).Key;
-        if (tryKey == ConsoleKey.D1 || tryKey == ConsoleKey.D2 ||
-            tryKey == ConsoleKey.D3 || tryKey == ConsoleKey.Escape)
+        if (tryKey == ConsoleKey.D1 || tryKey == ConsoleKey.D2 || tryKey == ConsoleKey.Escape)
         {
             key = tryKey;
             break;
@@ -47,14 +46,11 @@ while (true)
     switch (key)
     {
         case ConsoleKey.D1:
-            tManager.PrintTaskList();
+            tManager.UpdateTask();
             break;
         case ConsoleKey.D2:
             Console.CursorVisible = true;
             tManager.AddTask();
-            break;
-        case ConsoleKey.D3:
-            tManager.UpdateTask();
             break;
         case ConsoleKey.Escape:
             Console.WriteLine("Quitting, Goodbye");

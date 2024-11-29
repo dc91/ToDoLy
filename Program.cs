@@ -5,6 +5,7 @@ using static System.Collections.Specialized.BitVector32;
 using System.Threading.Tasks;
 using System.Numerics;
 
+
 TaskManager tManager = new();
 FileManager fManager = new();
 PrintInfoManager pManager = new();

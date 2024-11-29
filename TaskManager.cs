@@ -250,6 +250,7 @@ namespace ToDoLy
         {
             bool isRunning = true;
             bool showCompletedTasks = true;
+            string? selectedProject = null;
 
             List<Task> filteredTasks = new List<Task>(tasks);
             List<Task> sortedTasks = new List<Task>(tasks);
@@ -276,6 +277,11 @@ namespace ToDoLy
                 else
                     filteredTasks = sortedTasks.Where(t => !t.IsCompleted).ToList();
 
+                if (!string.IsNullOrEmpty(selectedProject))
+                {
+                    filteredTasks = filteredTasks.Where(t => t.Project == selectedProject).ToList();
+                }
+                
 
                 PrintInfoManager.PrintTableHead();
                 PrintInfoManager.PrintTableRows(filteredTasks, selectedIndex);
@@ -292,7 +298,8 @@ namespace ToDoLy
                     {
                         ConsoleKey tryKey = Console.ReadKey(true).Key;
                         if (tryKey == ConsoleKey.D1 || tryKey == ConsoleKey.D2 ||
-                            tryKey == ConsoleKey.D3 || tryKey == ConsoleKey.F || 
+                            tryKey == ConsoleKey.D3 || tryKey == ConsoleKey.F ||
+                            tryKey == ConsoleKey.P || tryKey == ConsoleKey.A || 
                             tryKey == ConsoleKey.Escape)
                         {
                             key = tryKey;
@@ -314,6 +321,13 @@ namespace ToDoLy
                         case ConsoleKey.F: // Toggle showCompletedTasks
                             showCompletedTasks = !showCompletedTasks;
                             break;
+                        case ConsoleKey.P: // Toggle showCompletedTasks
+                            selectedProject = ShowProjectSelect();
+                            break;
+                        case ConsoleKey.A: // Toggle showCompletedTasks
+                            sortedTasks = new List<Task>(tasks);
+                            selectedProject = null;
+                            break;
                         case ConsoleKey.Escape: // Exit the loop
                             isRunning = false;
                             break;
@@ -325,5 +339,64 @@ namespace ToDoLy
             }
         }
         
+        public string ShowProjectSelect()
+        {
+            string selectedProject = "";
+
+            List<string> projects = tasks.Select(x => x.Project).Distinct().ToList();
+            int selectedIndex = 0;
+
+            ConsoleKey key;
+
+            do
+            {
+                Console.Clear();
+                PrintInfoManager.PrintHeader("List Of Projects");
+
+                // Print the list of projects with the current selection highlighted
+                for (int i = 0; i < projects.Count; i++)
+                {
+                    if (i == selectedIndex)
+                    {
+                        // Highlight the currently selected project (e.g., using a different color)
+                        Console.ForegroundColor = ConsoleColor.DarkYellow;
+                        Console.WriteLine("> " + projects[i]);
+                        Console.ResetColor();
+                    }
+                    else
+                    {
+                        Console.WriteLine("  " + projects[i]);
+                    }
+                }
+
+                // Wait for user input to move the selection or select the project
+                key = Console.ReadKey(true).Key;
+
+                switch (key)
+                {
+                    case ConsoleKey.UpArrow:
+                        if (selectedIndex > 0)
+                            selectedIndex--;
+                        break;
+
+                    case ConsoleKey.DownArrow:
+                        if (selectedIndex < projects.Count - 1)
+                            selectedIndex++;
+                        break;
+                    case ConsoleKey.Enter:
+                        selectedProject = projects[selectedIndex];
+                        break;
+
+                    case ConsoleKey.Escape:
+                        return null;
+                    default:
+                        break;
+                }
+            } while (key != ConsoleKey.Enter);
+
+            return selectedProject;
+        }
+
+
     }
 }

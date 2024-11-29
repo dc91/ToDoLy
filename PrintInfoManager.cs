@@ -101,7 +101,11 @@ namespace ToDoLy
             Console.ForegroundColor = ConsoleColor.DarkYellow;
             Console.Write("[P]");
             Console.ResetColor();
-            Console.WriteLine($" View Task From a Specific Project");
+            Console.WriteLine($" Show Tasks From a Specific Project");
+            Console.ForegroundColor = ConsoleColor.DarkYellow;
+            Console.Write("[A]");
+            Console.ResetColor();
+            Console.WriteLine($" Show Tasks From All Projects");
             Console.ForegroundColor = ConsoleColor.DarkYellow;
             Console.Write("[S]");
             Console.ResetColor();

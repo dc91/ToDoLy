@@ -25,15 +25,15 @@ namespace ToDoLy
 
         public void PrintWelcome(int complete, int pending)
         {
-            Console.Write("\n\nYou have ");
+            Console.Write("\n\nYou have completed ");
             Console.ForegroundColor = ConsoleColor.DarkRed;
-            Console.Write(pending);
-            Console.ResetColor();
-            Console.Write(" tasks to do! \nAnd ");
-            Console.ForegroundColor = ConsoleColor.DarkGreen;
             Console.Write(complete);
             Console.ResetColor();
-            Console.WriteLine(" tasks are done!\n");
+            Console.Write(" tasks! \nAnd you\'ve got ");
+            Console.ForegroundColor = ConsoleColor.DarkGreen;
+            Console.Write(pending);
+            Console.ResetColor();
+            Console.WriteLine(" tasks pending!\n");
             Console.WriteLine($"You have a total of {pending + complete} tasks saved");
         }
 

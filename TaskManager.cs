@@ -78,6 +78,8 @@ namespace ToDoLy
             Console.WriteLine();
             PrintInfoManager.PrintAddTaskInfo(2);
 
+            Console.WriteLine(details);
+
             string project = GetInput("\nEnter Project Name: ", 
                 "Cannot have an project name. Try again.", false);
             if (project == null) return;
@@ -86,6 +88,7 @@ namespace ToDoLy
             PrintInfoManager.PrintHeader("Add a New Task");
             Console.WriteLine();
             PrintInfoManager.PrintAddTaskInfo(3);
+            Console.WriteLine($"{details}\n{project}");
 
             string dueDateString = GetInput("\nEnter Due Date (yyyy-mm-dd): ",
                 "Invalid date format. Example (2024-12-25)", true);
@@ -114,12 +117,14 @@ namespace ToDoLy
             int itemsPerPage = 6;
             int selectedIndex = 0;
             string? selectedProject = null;
+            List<Task> showFoundMatches = [];
+            bool matchFound = false;
+
+            List<Task> filteredTasks = new List<Task>(tasks);
+            List<Task> sortedTasks = new List<Task>(tasks);
 
             while (isRunning)
             {
-                List<Task> filteredTasks = new List<Task>(tasks);
-                List<Task> sortedTasks = new List<Task>(tasks);
-
                 if (showCompletedTasks)
                     filteredTasks = sortedTasks;
                 else
@@ -127,7 +132,14 @@ namespace ToDoLy
 
                 if (!string.IsNullOrEmpty(selectedProject))
                     filteredTasks = filteredTasks.Where(t => t.Project == selectedProject).ToList();
-            
+
+                if (matchFound)
+                {
+                    if (showCompletedTasks)
+                        filteredTasks = showFoundMatches;
+                    else
+                        filteredTasks = showFoundMatches.Where(t => !t.IsCompleted).ToList();
+                }
                 int totalPages = (int)Math.Ceiling((double)filteredTasks.Count / itemsPerPage);
                 int startIndex = currentPage * itemsPerPage;
                 int endIndex = Math.Min(startIndex + itemsPerPage, filteredTasks.Count);
@@ -171,10 +183,14 @@ namespace ToDoLy
                             {
                                 tasks.RemoveAt(unsortedIndex);
                                 fManager.SaveFile("tasks.csv", tasks);
+                                filteredTasks = tasks;
+                                sortedTasks = tasks;
                                 PrintInfoManager.PrintRemoveSuccess();
                             }
                             else
                                 PrintInfoManager.PrintRemoveCancelled();
+                            selectedIndex = 0;
+                            currentPage = 0;
                             goto EndLoop;
                         case ConsoleKey.D1:
                             sortedTasks = tasks.OrderBy(t => t.DueDate).ToList();
@@ -196,21 +212,29 @@ namespace ToDoLy
                             selectedProject = ShowProjectSelect();
                             selectedIndex = 0;
                             currentPage = 0;
+                            matchFound = false;
                             goto EndLoop;
                         case ConsoleKey.A:
                             sortedTasks = new List<Task>(tasks);
                             selectedProject = null;
                             currentPage = 0;
+                            matchFound = false;
                             goto EndLoop;
                         case ConsoleKey.S:
                             List<Task> foundMatches = SearchForTask();
                             if (foundMatches.Count == 0)
                             {
                                 Console.WriteLine("No Task found... Press any key to continue");
+                                matchFound = false;
                                 Console.ReadKey();
                             }
                             else
-                                ShowFoundSearch(foundMatches);
+                            {
+                                showFoundMatches = foundMatches;
+                                matchFound = true;
+                            }
+                            currentPage = 0;
+                            selectedIndex = 0;
                             goto EndLoop;
                         case ConsoleKey.LeftArrow:
                             if (currentPage > 0)
@@ -218,6 +242,7 @@ namespace ToDoLy
                                 currentPage--;
                                 selectedIndex = 0;
                             }
+                            else currentPage = 0;
                             goto EndLoop;
                         case ConsoleKey.RightArrow:
                             if (currentPage < totalPages - 1)
@@ -225,6 +250,7 @@ namespace ToDoLy
                                 currentPage++;
                                 selectedIndex = 0;
                             }
+                            else currentPage = totalPages - 1;
                             goto EndLoop;
                         case ConsoleKey.DownArrow:
                             if (selectedIndex < (endIndex - startIndex - 1))
@@ -271,35 +297,24 @@ namespace ToDoLy
             {
                 Console.Clear();
                 PrintInfoManager.PrintHeader($"Updating Task: {task.Details}");
-                PrintInfoManager.PrintUpdateTaskInfo(false);
+                PrintInfoManager.PrintUpdateTaskInfo();
 
                 string[] fields = ["Task Details", "Project", "Due Date", "Completion Status"];
 
                 PrintInfoManager.PrintUpdateTaskFields(fields, task, fieldIndex);
 
-                
-
                 ConsoleKey key = Console.ReadKey(true).Key;
 
                 if (key == ConsoleKey.DownArrow && fieldIndex < fields.Length - 1)
-                {
                     fieldIndex++;
-                }
                 else if (key == ConsoleKey.UpArrow && fieldIndex > 0)
-                {
                     fieldIndex--;
-                }
-                else if (key == ConsoleKey.Enter) // Editing the selected field
-                {
+                else if (key == ConsoleKey.Enter)
                     EditTaskDetails(fieldIndex, task, fields);
-                }
-                else if (key == ConsoleKey.Escape) // Finish updating
-                {
+                else if (key == ConsoleKey.Escape)
                     isUpdating = false;
-                }
             }
             Console.ResetColor();
-
         }
 
         public void EditTaskDetails(int fieldIndex, Task task, string[] fields)
@@ -363,24 +378,8 @@ namespace ToDoLy
             string input = Console.ReadLine().Trim().ToLower();
 
             if (input != null)
-            {
                 inputMatches = tasks.Where(x => x.Details.Trim().ToLower() == input).ToList();
-            }
-
             return inputMatches;
-        }
-
-        public  void ShowFoundSearch(List<Task> Matches)
-        {
-            Console.Clear();
-            PrintInfoManager.PrintHeader("Search Results");
-            PrintInfoManager.PrintTableHead();
-            PrintInfoManager.PrintTableRows(Matches, null);
-
-
-            Console.WriteLine("\n\nPress any key to go back");
-            Console.ReadKey();
-
         }
 
         public string ShowProjectSelect()

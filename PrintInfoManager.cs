@@ -29,11 +29,12 @@ namespace ToDoLy
             Console.ForegroundColor = ConsoleColor.DarkRed;
             Console.Write(pending);
             Console.ResetColor();
-            Console.Write(" tasks to do and ");
+            Console.Write(" tasks to do! \nAnd ");
             Console.ForegroundColor = ConsoleColor.DarkGreen;
             Console.Write(complete);
             Console.ResetColor();
             Console.WriteLine(" tasks are done!\n");
+            Console.WriteLine($"You have a total of {pending + complete} tasks saved");
         }
 
         public static void PrintOptions()
@@ -158,12 +159,10 @@ namespace ToDoLy
             Console.ResetColor();
         }
 
-        public static void PrintUpdateTaskInfo(bool enableDeleteInfo)
+        public static void PrintUpdateTaskInfo()
         {
-            SmartUpdatePrint("UP or DOWN", "HIGHLIGHT", " a task.\n", ConsoleColor.DarkYellow);
-            SmartUpdatePrint("ENTER", "UPDATE", " a task.\n", ConsoleColor.Blue);
-            if (enableDeleteInfo)
-                SmartUpdatePrint("DEL", "DELETE", " a task.\n", ConsoleColor.Red);
+            SmartUpdatePrint("UP or DOWN", "HIGHLIGHT", " a value.\n", ConsoleColor.DarkYellow);
+            SmartUpdatePrint("ENTER", "UPDATE", " a value.\n", ConsoleColor.Blue);
             SmartUpdatePrint("ESC", "CANCEL", ".\n", ConsoleColor.DarkGray);
             Console.WriteLine();
         }

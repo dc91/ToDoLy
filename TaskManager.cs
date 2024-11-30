@@ -64,7 +64,7 @@ namespace ToDoLy
 
         public void AddTask()
         {
-            Console.Clear();
+            Console.Clear();// clear after each step so the console doesnt get full of eventual misstakes
             PrintInfoManager.PrintHeader("Add a New Task");
             Console.WriteLine();
             PrintInfoManager.PrintAddTaskInfo(1);
@@ -271,7 +271,7 @@ namespace ToDoLy
         
         public ConsoleKey TrapUntilValidInput()
         {
-            // Force a valid input before usng keypress
+            // Force a valid input before using keypress
             while (true)
             {
                 ConsoleKey tryKey = Console.ReadKey(true).Key;
@@ -321,7 +321,7 @@ namespace ToDoLy
         {
             Console.CursorVisible = true;
             Console.Write($"\nEnter new value for {fields[fieldIndex]}: ");
-            string newValue = ReadEveryKey();
+            string newValue = ReadEveryKey();// dont check for null since null == no changes
             Console.CursorVisible = false;
 
             // Update the task with the new value

@@ -55,5 +55,24 @@ namespace ToDoLy
                 Console.WriteLine(errMess);
             }
         }
+
+        public static ConsoleKey TrapUntilValidInput()
+        {
+            // Force a valid input before using keypress
+            while (true)
+            {
+                ConsoleKey tryKey = Console.ReadKey(true).Key;
+                if (tryKey == ConsoleKey.D1 || tryKey == ConsoleKey.D2 ||
+                    tryKey == ConsoleKey.D3 || tryKey == ConsoleKey.F ||
+                    tryKey == ConsoleKey.P || tryKey == ConsoleKey.A ||
+                    tryKey == ConsoleKey.S || tryKey == ConsoleKey.Escape ||
+                    tryKey == ConsoleKey.LeftArrow || tryKey == ConsoleKey.RightArrow ||
+                    tryKey == ConsoleKey.DownArrow || tryKey == ConsoleKey.UpArrow ||
+                    tryKey == ConsoleKey.Enter || tryKey == ConsoleKey.Delete)
+                {
+                    return tryKey;
+                }
+            }
+        }
     }
 }

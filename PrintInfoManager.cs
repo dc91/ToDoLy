@@ -82,12 +82,12 @@ namespace ToDoLy
             Console.ForegroundColor = ConsoleColor.Blue;
             Console.Write("[1]");
             Console.ResetColor();
-            Console.Write(" By Due Date");
+            Console.Write(" By DATE");
 
             Console.ForegroundColor = ConsoleColor.DarkYellow;
             Console.Write("\t\t[F]");
             Console.ResetColor();
-            Console.Write($" {toggleSetting} COMPLETED Tasks");
+            Console.Write($" {toggleSetting} COMPLETED");
 
             Console.ForegroundColor = ConsoleColor.Red;
             Console.Write("\t\t[ARROWS]");
@@ -97,15 +97,15 @@ namespace ToDoLy
             Console.ForegroundColor = ConsoleColor.Blue;
             Console.Write("[2]");
             Console.ResetColor();
-            Console.Write(" By Project Name");
+            Console.Write(" By PROJECT");
 
             Console.ForegroundColor = ConsoleColor.DarkYellow;
-            Console.Write("\t[P]");
+            Console.Write("\t\t[P]");
             Console.ResetColor();
-            Console.Write($" Show Tasks from SPECIFIC PROJECT");
+            Console.Write($" SPECIFIC PROJECT");
 
             Console.ForegroundColor = ConsoleColor.Red;
-            Console.Write("\t[ENTER]");
+            Console.Write("\t\t[ENTER]");
             Console.ResetColor();
             Console.WriteLine($" EDIT Task");
 
@@ -117,17 +117,17 @@ namespace ToDoLy
             Console.ForegroundColor = ConsoleColor.DarkYellow;
             Console.Write("\t\t[A]");
             Console.ResetColor();
-            Console.Write($" Show Tasks From ALL PROJECTS");
+            Console.Write($" ALL TASKS");
 
             Console.ForegroundColor = ConsoleColor.Red;
-            Console.Write("\t[DEL]");
+            Console.Write("\t\t\t[DEL]");
             Console.ResetColor();
             Console.WriteLine($" DELETE Task");
 
             Console.ForegroundColor = ConsoleColor.DarkYellow;
             Console.Write("\t\t\t[S]");
             Console.ResetColor();
-            Console.WriteLine($" SEARCH For Task");
+            Console.WriteLine($" SEARCH");
 
             Console.Write("\nPress ");
             Console.ForegroundColor = ConsoleColor.DarkGray;
@@ -161,6 +161,7 @@ namespace ToDoLy
 
         public static void PrintUpdateTaskInfo()
         {
+            Console.WriteLine();
             SmartUpdatePrint("UP or DOWN", "HIGHLIGHT", " a value.\n", ConsoleColor.DarkYellow);
             SmartUpdatePrint("ENTER", "UPDATE", " a value.\n", ConsoleColor.Blue);
             SmartUpdatePrint("ESC", "CANCEL", ".\n", ConsoleColor.DarkGray);

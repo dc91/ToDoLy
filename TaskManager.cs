@@ -71,19 +71,24 @@ namespace ToDoLy
             string? selectedProject = null;
             List<Task> showFoundMatches = [];
             bool matchFound = false;
-
+            
             List<Task> filteredTasks = new List<Task>(tasks);
             List<Task> sortedTasks = new List<Task>(tasks);
 
             while (keepGoing)
             {
+                string banner = "";
                 if (showCompletedTasks)
                     filteredTasks = sortedTasks;
                 else
                     filteredTasks = sortedTasks.Where(t => !t.IsCompleted).ToList();
 
                 if (!string.IsNullOrEmpty(selectedProject))
+                {
                     filteredTasks = filteredTasks.Where(t => t.Project == selectedProject).ToList();
+                    banner = $"Tasks in Project: {selectedProject}";
+                }
+                    
 
                 if (matchFound)
                 {
@@ -91,13 +96,17 @@ namespace ToDoLy
                         filteredTasks = showFoundMatches;
                     else
                         filteredTasks = showFoundMatches.Where(t => !t.IsCompleted).ToList();
+                    banner = "Search Results";
                 }
                 int totalPages = (int)Math.Ceiling((double)filteredTasks.Count / itemsPerPage);
                 int startIndex = currentPage * itemsPerPage;
                 int endIndex = Math.Min(startIndex + itemsPerPage, filteredTasks.Count);
-            
+                string stdBanner = (!string.IsNullOrEmpty(banner)) ? banner : $"Your Tasks - Page {currentPage + 1} of {totalPages}";
+
+
+
                 Console.Clear();
-                PrintInfoManager.PrintHeader($"Your Tasks - Page {currentPage + 1} of {totalPages}");
+                PrintInfoManager.PrintHeader(stdBanner);
                 PrintInfoManager.PrintTableHead();
                 PrintInfoManager.PrintTableRows(filteredTasks
                     .GetRange(startIndex, endIndex - startIndex), selectedIndex);

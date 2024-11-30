@@ -273,6 +273,14 @@ namespace ToDoLy
             Console.ReadKey();
         }
 
+        public static void PrintInvalidDateEarly()
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine("\nDate is before today. Will not save. Press any key to continue");
+            Console.ResetColor();
+            Console.ReadKey();
+        }
+
         public static void PrintInvalidBool()
         {
             Console.ForegroundColor = ConsoleColor.Red;

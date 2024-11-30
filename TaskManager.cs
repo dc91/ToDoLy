@@ -315,8 +315,15 @@ namespace ToDoLy
                         break;
                     else if (DateTime.TryParse(newValue, out DateTime newDate))
                     {
-                        task.DueDate = newDate;
-                        fManager.SaveFile("tasks.csv", tasks);
+                        if (newDate < DateTime.Now)
+                        {
+                            PrintInfoManager.PrintInvalidDateEarly();
+                        }
+                        else
+                        {
+                            task.DueDate = newDate;
+                            fManager.SaveFile("tasks.csv", tasks);
+                        }
                     }
                     else
                         PrintInfoManager.PrintInvalidDate();

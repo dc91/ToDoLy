@@ -51,11 +51,16 @@ namespace ToDoLy
                     return null;
                 }
 
-                if (!expectDateTime)
-                    if (!string.IsNullOrWhiteSpace(input)) return input;
-                if (expectDateTime)
-                    if (DateTime.TryParse(input, out DateTime date)) return date.ToString();
-
+                if (!expectDateTime && !string.IsNullOrWhiteSpace(input)) return input;
+                if (expectDateTime && DateTime.TryParse(input, out DateTime date))
+                {
+                    if (date < DateTime.Now)
+                    {
+                        PrintInfoManager.PrintInvalidDateEarly();
+                        continue;
+                    }
+                    return date.ToString();
+                }
                 Console.WriteLine(errMess);
             }
         }

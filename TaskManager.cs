@@ -14,54 +14,6 @@ namespace ToDoLy
         public FileManager fManager = new();
         public List<Task> tasks = new();
 
-        public string ReadEveryKey()
-        {// Reads input key-by-key. return null if ESC, or returns full input string
-            StringBuilder input = new();
-            while (true)
-            {
-                var key = Console.ReadKey(true);
-
-                if (key.Key == ConsoleKey.Escape) return null;
-                else if (key.Key == ConsoleKey.Enter)
-                {
-                    Console.WriteLine();
-                    return input.ToString();
-                }
-                else if (key.Key == ConsoleKey.Backspace && input.Length > 0)
-                {
-                    input.Remove(input.Length - 1, 1);
-                    Console.Write("\b \b");//needs the space to erase
-                }
-                else if (!char.IsControl(key.KeyChar))//example of control is \n \t backspace esc etc
-                {//small buggs when typing control char, they are invis but cant be erased.
-                    input.Append(key.KeyChar);
-                    Console.Write(key.KeyChar);
-                }
-            }
-        }
-
-        public string GetInput(string prompt, string errMess, bool expectDateTime)
-        {
-            while (true)
-            {
-                Console.Write(prompt);          
-                string input = ReadEveryKey();
-
-                if (input == null)
-                {
-                    PrintInfoManager.PrintCancel();
-                    return null;
-                }
-
-                if (!expectDateTime)
-                    if (!string.IsNullOrWhiteSpace(input)) return input;
-                if (expectDateTime)
-                    if (DateTime.TryParse(input, out DateTime date)) return date.ToString();
-                
-                Console.WriteLine(errMess);
-            }
-        }
-
         public void AddTask()
         {
             Console.Clear();// clear after each step so the console doesnt get full of eventual misstakes
@@ -69,7 +21,7 @@ namespace ToDoLy
             Console.WriteLine();
             PrintInfoManager.PrintAddTaskInfo(1);
 
-            string details = GetInput("\nEnter Task Details: ",
+            string details = UserInputManager.GetInput("\nEnter Task Details: ",
                 "Cannot have an empty task. Try again.", false);
             if (details == null) return;
 
@@ -80,7 +32,7 @@ namespace ToDoLy
 
             Console.WriteLine(details);
 
-            string project = GetInput("\nEnter Project Name: ", 
+            string project = UserInputManager.GetInput("\nEnter Project Name: ", 
                 "Cannot have an project name. Try again.", false);
             if (project == null) return;
 
@@ -90,7 +42,7 @@ namespace ToDoLy
             PrintInfoManager.PrintAddTaskInfo(3);
             Console.WriteLine($"{details}\n{project}");
 
-            string dueDateString = GetInput("\nEnter Due Date (yyyy-mm-dd): ",
+            string dueDateString = UserInputManager.GetInput("\nEnter Due Date (yyyy-mm-dd): ",
                 "Invalid date format. Example (2024-12-25)", true);
             if (dueDateString == null) return;
 
@@ -321,7 +273,7 @@ namespace ToDoLy
         {
             Console.CursorVisible = true;
             Console.Write($"\nEnter new value for {fields[fieldIndex]}: ");
-            string newValue = ReadEveryKey();// dont check for null since null == no changes
+            string newValue = UserInputManager.ReadEveryKey();// dont check for null since null == no changes
             Console.CursorVisible = false;
 
             // Update the task with the new value

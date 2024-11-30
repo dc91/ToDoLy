@@ -63,7 +63,7 @@ namespace ToDoLy
                 return;
             }
 
-            bool isRunning = true;
+            bool keepGoing = true;
             bool showCompletedTasks = true;
             int currentPage = 0;
             int itemsPerPage = 6;
@@ -75,7 +75,7 @@ namespace ToDoLy
             List<Task> filteredTasks = new List<Task>(tasks);
             List<Task> sortedTasks = new List<Task>(tasks);
 
-            while (isRunning)
+            while (keepGoing)
             {
                 if (showCompletedTasks)
                     filteredTasks = sortedTasks;
@@ -111,116 +111,143 @@ namespace ToDoLy
                 
                 PrintInfoManager.PrintSortingOptions(showCompletedTasks);
 
-                //Check what key is pressed, act accordingly.. yes it's long
-                while (true)
-                {
-                    ConsoleKey key = UserInputManager.TrapUntilValidInput();
-                    switch (key)
-                    {
-                        case ConsoleKey.Enter:
-                            Task task = filteredTasks[selectedIndex + (6 * currentPage)];
-                            selectedIndex = 0;
-                            UpdateTaskDetails(task);
-                            goto EndLoop;
-                        case ConsoleKey.Escape:
-                            goto EndOuterLoop;
-                        case ConsoleKey.Delete:
-                            Task taskToDelete = filteredTasks[selectedIndex + (6 * currentPage)];
-                            int unsortedIndex = tasks.IndexOf(taskToDelete);
-                            Console.Clear();
-                            PrintInfoManager.PrintHeader($"Delete Task: {tasks[unsortedIndex].Details}");
-                            PrintInfoManager.PrintAreUSure(tasks[unsortedIndex]);
-                            ConsoleKey confirmDelete = Console.ReadKey(true).Key;
-                            if (confirmDelete == ConsoleKey.Enter)
-                            {
-                                tasks.RemoveAt(unsortedIndex);
-                                fManager.SaveFile("tasks.csv", tasks);
-                                filteredTasks = tasks;
-                                sortedTasks = tasks;
-                                PrintInfoManager.PrintRemoveSuccess();
-                            }
-                            else
-                                PrintInfoManager.PrintRemoveCancelled();
-                            selectedIndex = 0;
-                            currentPage = 0;
-                            goto EndLoop;
-                        case ConsoleKey.D1:
-                            sortedTasks = tasks.OrderBy(t => t.DueDate).ToList();
-                            currentPage = 0;
-                            goto EndLoop;
-                        case ConsoleKey.D2:
-                            sortedTasks = tasks.OrderBy(t => t.Project).ToList();
-                            currentPage = 0;
-                            goto EndLoop;
-                        case ConsoleKey.D3:
-                            sortedTasks = new List<Task>(tasks);
-                            currentPage = 0;
-                            goto EndLoop;
-                        case ConsoleKey.F:
-                            showCompletedTasks = !showCompletedTasks;
-                            currentPage = 0;
-                            goto EndLoop;
-                        case ConsoleKey.P:
-                            selectedProject = ShowProjectSelect();
-                            selectedIndex = 0;
-                            currentPage = 0;
-                            matchFound = false;
-                            goto EndLoop;
-                        case ConsoleKey.A:
-                            sortedTasks = new List<Task>(tasks);
-                            selectedProject = null;
-                            currentPage = 0;
-                            matchFound = false;
-                            goto EndLoop;
-                        case ConsoleKey.S:
-                            List<Task> foundMatches = SearchForTask();
-                            if (foundMatches.Count == 0)
-                            {
-                                Console.WriteLine("No Task found... Press any key to continue");
-                                matchFound = false;
-                                Console.ReadKey();
-                            }
-                            else
-                            {
-                                showFoundMatches = foundMatches;
-                                matchFound = true;
-                            }
-                            currentPage = 0;
-                            selectedIndex = 0;
-                            goto EndLoop;
-                        case ConsoleKey.LeftArrow:
-                            if (currentPage > 0)
-                            {
-                                currentPage--;
-                                selectedIndex = 0;
-                            }
-                            else currentPage = 0;
-                            goto EndLoop;
-                        case ConsoleKey.RightArrow:
-                            if (currentPage < totalPages - 1)
-                            {
-                                currentPage++;
-                                selectedIndex = 0;
-                            }
-                            else currentPage = totalPages - 1;
-                            goto EndLoop;
-                        case ConsoleKey.DownArrow:
-                            if (selectedIndex < (endIndex - startIndex - 1))
-                                selectedIndex++;
-                            goto EndLoop;
-                        case ConsoleKey.UpArrow:
-                            if (selectedIndex > 0)
-                                selectedIndex--;
-                            goto EndLoop;
-                        default:
-                            goto EndLoop;
-                    }
-                }
-            EndLoop:;
+                // Check what key is pressed, act accordingly.. yes it's long
+                // Pass by ref cuz when i extracted the method there were too many variables
+                // that had to be changed, that were declared/used outside.
+                keepGoing = UserAction(ref filteredTasks, ref sortedTasks, ref showFoundMatches, 
+                                       ref matchFound, ref showCompletedTasks, ref selectedProject, 
+                                       ref currentPage, ref selectedIndex, startIndex, 
+                                       endIndex, totalPages);
             }
-        EndOuterLoop:;
         }
-        
+
+        public bool UserAction(ref List<Task> filteredTasks, ref List<Task> sortedTasks,
+                               ref List<Task> showFoundMatches, ref bool matchFound,
+                               ref bool showCompletedTasks, ref string? selectedProject,
+                               ref int currentPage, ref int selectedIndex,
+                               int startIndex, int endIndex, int totalPages)
+        {
+            while (true)
+            {
+                ConsoleKey key = UserInputManager.TrapUntilValidInput();
+                switch (key)
+                {
+                    case ConsoleKey.Enter:
+                        Task task = filteredTasks[selectedIndex + (6 * currentPage)];
+                        selectedIndex = 0;
+                        UpdateTaskDetails(task);
+                        return true;
+
+                    case ConsoleKey.Escape:
+                        return false;
+
+                    case ConsoleKey.Delete:
+                        Task taskToDelete = filteredTasks[selectedIndex + (6 * currentPage)];
+                        int unsortedIndex = tasks.IndexOf(taskToDelete);
+                        Console.Clear();
+                        PrintInfoManager.PrintHeader($"Delete Task: {tasks[unsortedIndex].Details}");
+                        PrintInfoManager.PrintAreUSure(tasks[unsortedIndex]);
+                        ConsoleKey confirmDelete = Console.ReadKey(true).Key;
+                        if (confirmDelete == ConsoleKey.Enter)
+                        {
+                            tasks.RemoveAt(unsortedIndex);
+                            fManager.SaveFile("tasks.csv", tasks);
+                            filteredTasks = tasks;
+                            sortedTasks = tasks;
+                            PrintInfoManager.PrintRemoveSuccess();
+                        }
+                        else
+                            PrintInfoManager.PrintRemoveCancelled();
+                        selectedIndex = 0;
+                        currentPage = 0;
+                        return true;
+
+                    case ConsoleKey.D1:
+                        sortedTasks = tasks.OrderBy(t => t.DueDate).ToList();
+                        currentPage = 0;
+                        return true;
+
+                    case ConsoleKey.D2:
+                        sortedTasks = tasks.OrderBy(t => t.Project).ToList();
+                        currentPage = 0;
+                        return true;
+
+                    case ConsoleKey.D3:
+                        sortedTasks = new List<Task>(tasks);
+                        currentPage = 0;
+                        return true;
+
+                    case ConsoleKey.F:
+                        showCompletedTasks = !showCompletedTasks;
+                        currentPage = 0;
+                        return true;
+
+                    case ConsoleKey.P:
+                        selectedProject = ShowProjectSelect();
+                        selectedIndex = 0;
+                        currentPage = 0;
+                        matchFound = false;
+                        return true;
+
+                    case ConsoleKey.A:
+                        sortedTasks = new List<Task>(tasks);
+                        selectedProject = null;
+                        currentPage = 0;
+                        matchFound = false;
+                        return true;
+
+                    case ConsoleKey.S:
+                        List<Task> foundMatches = SearchForTask();
+                        if (foundMatches.Count == 0)
+                        {
+                            Console.WriteLine("No Task found... Press any key to continue");
+                            matchFound = false;
+                            Console.ReadKey();
+                        }
+                        else
+                        {
+                            showFoundMatches = foundMatches;
+                            matchFound = true;
+                        }
+                        currentPage = 0;
+                        selectedIndex = 0;
+                        return true;
+
+                    case ConsoleKey.LeftArrow:
+                        if (currentPage > 0)
+                        {
+                            currentPage--;
+                            selectedIndex = 0;
+                        }
+                        else currentPage = 0;
+                        return true;
+
+                    case ConsoleKey.RightArrow:
+                        if (currentPage < totalPages - 1)
+                        {
+                            currentPage++;
+                            selectedIndex = 0;
+                        }
+                        else currentPage = totalPages - 1;
+                        return true;
+
+                    case ConsoleKey.DownArrow:
+                        if (selectedIndex < (endIndex - startIndex - 1))
+                            selectedIndex++;
+                        return true;
+
+                    case ConsoleKey.UpArrow:
+                        if (selectedIndex > 0)
+                            selectedIndex--;
+                        return true;
+
+                    default:
+                        return true;
+                }
+            }
+        }
+
+
         public void UpdateTaskDetails(Task task)
         {
             int fieldIndex = 0;

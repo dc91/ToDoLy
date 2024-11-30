@@ -15,7 +15,11 @@ namespace ToDoLy
             {
                 var key = Console.ReadKey(true);
 
-                if (key.Key == ConsoleKey.Escape) return null;
+                if (key.Key == ConsoleKey.Escape)
+                {
+                    Console.WriteLine();
+                    return null;
+                }
                 else if (key.Key == ConsoleKey.Enter)
                 {
                     Console.WriteLine();

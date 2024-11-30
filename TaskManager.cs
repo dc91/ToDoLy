@@ -344,7 +344,7 @@ namespace ToDoLy
         {
             List<Task> inputMatches = new List<Task>();
             Console.Write("\nPlease enter your search here:");
-            string input = Console.ReadLine().Trim().ToLower();
+            string input = UserInputManager.ReadEveryKey();
 
             if (input != null)
                 inputMatches = tasks.Where(x => x.Details.Trim().ToLower() == input).ToList();

@@ -162,8 +162,8 @@ namespace ToDoLy
         public static void PrintUpdateTaskInfo()
         {
             Console.WriteLine();
-            SmartUpdatePrint("UP or DOWN", "HIGHLIGHT", " a value.\n", ConsoleColor.DarkYellow);
-            SmartUpdatePrint("ENTER", "UPDATE", " a value.\n", ConsoleColor.Blue);
+            SmartUpdatePrint("UP or DOWN", "HIGHLIGHT", " a value.", ConsoleColor.DarkYellow);
+            SmartUpdatePrint("ENTER", "UPDATE", " a value.", ConsoleColor.Blue);
             SmartUpdatePrint("ESC", "CANCEL", ".\n", ConsoleColor.DarkGray);
             Console.WriteLine();
         }

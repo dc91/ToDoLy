@@ -17,34 +17,64 @@ The code has five classes and a main (Program.cs):
 4. PrintInfoManager.cs
 5. UserInputManager.cs
 
-## Task.cs
-Contains the basic info of a task. It has a constructor so the object can be created faster.
+# Classes
 
-**string** Details 
+### 1. TaskManager
+  * Fields
+    * FileManager fManager
+    * List<Task> tasks
+  * Methods
+    * AddTask()
+    * UpdateTask()
+    * SelectTaskToEdit(Task task, ref string? selectedProject)
+    * EditTaskDetails(int fieldIndex, Task task, string[] fields, ref string? selectedProject)
+    * SearchForTask()
+    * ShowProjectSelect()
+    * CalcPageLayout(...)
+    * FilterOptions(...)
+    * UserAction(...)
+    * HandleEnter(...)
+    * HandleDeleteKey(...)
+    * HandleFKey(...)
+    * HandlePKey(...)
+    * HandleAKey(...)
+    * HandleSKey(...)
 
-**string** Project name 
+### 2. FileManager
+  * Methods
+    * SaveFile(string fileName, List<Task> tasks)
+    * LoadTasks(string filePath)
 
-**DateTime** Due Date
+### 3. Task
+  * Fields
+    * **string** _Details_
+    * **string** _Project_
+    * **DateTime** _DueDate_
+    * **bool** _IsCompleted_
 
-**bool** Completion status.
+### 4. UserInputManager
+  * Methods
+    * static string GetInput(string prompt, string errorMessage, bool allowEmpty)
+    * static ConsoleKey TrapUntilValidInput(int mode)
+    * static string ReadEveryKey()
 
-## TaskManager.cs
-This class contains the methods for creating/updating/displaying/removing tasks.
-It is responsible for the bulk of the functionality.
-
-## FileManager.cs
-This class contains the methods for loading and creating files. Short and simple.
-
-## PrintInfoManager.cs
-This class contains the methods for printing information and instructions to the user. It has more code than it needs, since I wanted to make it colorfull and user friendly.
-
-## UserInputManager.cs
-This class contains the methods for taking input from user. This class only handles keypresses when user is inputing a string, not when "action keys" are used.
-
-The method "ReadEveryKey" builds a string while the user types, making it possible to escape from an active input prompt. 
-Instead of reading the string only after completed input. 
-
-
+### 5. PrintInfoManager
+  * Methods
+    * static void PrintHeader(string message)
+    * static void PrintAddTaskInfo(int step)
+    * static void PrintWithColor(string message, ConsoleColor color)
+    * static void PrintTableHead()
+    * static void PrintTableRows(List<Task> tasks, int selectedIndex)
+    * static void PrintSortingOptions(bool showCompletedTasks)
+    * static void PrintUpdateTaskFields(string[] fields, Task task, int fieldIndex)
+    * static void PrintUpdateTaskInfo()
+    * static void PrintInvalidDate()
+    * static void PrintInvalidDateEarly()
+    * static void PrintDeleteConfirm()
+    * static void PrintDeleteCancel()
+    * static void PrintProjectList(ref List<string> projects, ref int selectedIndex)
+    * static void PrintAreUSure(Task task)
+      
 # Known buggs
 If the console window is smaller than the content, and the window becomes scrollable, every clear() won't clear everything.
 You will still be able to see everything and use the app. But now you will now be able to scroll up and see the miss-prints (not pretty).

@@ -54,87 +54,89 @@ namespace ToDoLy
             PrintInfoManager.PrintAddSuccess();
         }
 
+
+
         public void UpdateTask()
         {
             if (tasks.Count == 0)
             {
-                Console.WriteLine("No tasks to update. Try adding a new task first.");
+                Console.WriteLine("No tasks to view. Try adding a new task first.");
                 Console.ReadKey();
                 return;
             }
 
-            bool keepGoing = true;
             bool showCompletedTasks = true;
-            int currentPage = 0;
-            int itemsPerPage = 6;
-            int selectedIndex = 0;
             string? selectedProject = null;
-            List<Task> showFoundMatches = [];
-            bool matchFound = false;
+            List<Task> FoundMatches = [];
             
             List<Task> filteredTasks = new List<Task>(tasks);
             List<Task> sortedTasks = new List<Task>(tasks);
+            List<Task> projectTasks = new List<Task>();
 
+            int currentPage = 0;
+            int selectedIndex = 0;
+            const int itemsPerPage = 6;// const so we don't divide by 0 when defining totalPages
+
+            bool keepGoing = true;
             while (keepGoing)
             {
-                string banner = "";
-                if (showCompletedTasks)
-                    filteredTasks = sortedTasks;
-                else
-                    filteredTasks = sortedTasks.Where(t => !t.IsCompleted).ToList();
+                //Apply any filters
+                filteredTasks = FilterOptions(ref showCompletedTasks, selectedProject, 
+                                              ref FoundMatches, ref sortedTasks, ref projectTasks);
 
-                if (!string.IsNullOrEmpty(selectedProject))
-                {
-                    filteredTasks = filteredTasks.Where(t => t.Project == selectedProject).ToList();
-                    banner = $"Tasks in Project: {selectedProject}";
-                }
-                    
-
-                if (matchFound)
-                {
-                    if (showCompletedTasks)
-                        filteredTasks = showFoundMatches;
-                    else
-                        filteredTasks = showFoundMatches.Where(t => !t.IsCompleted).ToList();
-                    banner = "Search Results";
-                }
                 int totalPages = (int)Math.Ceiling((double)filteredTasks.Count / itemsPerPage);
                 int startIndex = currentPage * itemsPerPage;
                 int endIndex = Math.Min(startIndex + itemsPerPage, filteredTasks.Count);
-                string stdBanner = (!string.IsNullOrEmpty(banner)) ? banner : $"Your Tasks - Page {currentPage + 1} of {totalPages}";
 
-
-
+                //Print header and table
                 Console.Clear();
-                PrintInfoManager.PrintHeader(stdBanner);
+                string banner = PrintInfoManager.SetBanner(ref FoundMatches, selectedProject, 
+                                                           ref currentPage, ref totalPages, ref projectTasks);
+                PrintInfoManager.PrintHeader(banner);
                 PrintInfoManager.PrintTableHead();
                 PrintInfoManager.PrintTableRows(filteredTasks
                     .GetRange(startIndex, endIndex - startIndex), selectedIndex);
 
                 //fill with blank lines, if last page not full
                 int remainingLines = itemsPerPage - (endIndex - startIndex);
-                for (int i = 0; i < remainingLines; i++)
-                {
-                    Console.WriteLine();
-                }
-                
+                for (int i = 0; i < remainingLines; i++) Console.WriteLine();
+
                 PrintInfoManager.PrintSortingOptions(showCompletedTasks);
 
                 // Check what key is pressed, act accordingly.. yes it's long
-                // Pass by ref cuz when i extracted the method there were too many variables
-                // that had to be changed, that were declared/used outside.
-                keepGoing = UserAction(ref filteredTasks, ref sortedTasks, ref showFoundMatches, 
-                                       ref matchFound, ref showCompletedTasks, ref selectedProject, 
-                                       ref currentPage, ref selectedIndex, startIndex, 
-                                       endIndex, totalPages);
+                keepGoing = UserAction(ref filteredTasks, ref sortedTasks, ref FoundMatches, 
+                                       ref showCompletedTasks, ref selectedProject,
+                                       ref currentPage, ref selectedIndex, startIndex,
+                                       endIndex, totalPages, ref projectTasks);
             }
         }
 
+        private static List<Task> FilterOptions(ref bool showCompletedTasks, string? selectedProject, 
+                                                ref List<Task> FoundMatches, ref List<Task> sortedTasks,
+                                                ref List<Task> projectTasks)
+        {
+            List<Task> filteredTasks = showCompletedTasks ? sortedTasks : sortedTasks
+                                       .Where(t => t.IsCompleted == false).ToList();
+
+            projectTasks = new List<Task>();
+
+            if (!string.IsNullOrEmpty(selectedProject))
+                projectTasks = filteredTasks.Where(t => t.Project == selectedProject).ToList();
+
+            if (projectTasks.Count > 0)//if user deletes last task in project, see all projects
+                filteredTasks = projectTasks;
+
+
+            return FoundMatches.Count == 0
+                   ? filteredTasks
+                   : filteredTasks.Intersect(FoundMatches).ToList();
+        }
+
+
         public bool UserAction(ref List<Task> filteredTasks, ref List<Task> sortedTasks,
-                               ref List<Task> showFoundMatches, ref bool matchFound,
-                               ref bool showCompletedTasks, ref string? selectedProject,
-                               ref int currentPage, ref int selectedIndex,
-                               int startIndex, int endIndex, int totalPages)
+                               ref List<Task> FoundMatches, ref bool showCompletedTasks, 
+                               ref string? selectedProject, ref int currentPage,ref int selectedIndex, 
+                               int startIndex, int endIndex, int totalPages, ref List<Task> projectTasks)
         {
             while (true)
             {
@@ -144,7 +146,11 @@ namespace ToDoLy
                     case ConsoleKey.Enter:
                         Task task = filteredTasks[selectedIndex + (6 * currentPage)];
                         selectedIndex = 0;
-                        UpdateTaskDetails(task);
+                        UpdateTaskDetails(task);//if updates give emtpy litst, see all, otherwise stay
+                        List<Task> returnToListAfterUpdate = filteredTasks.Where(t => t != task).ToList();
+                        if (returnToListAfterUpdate.Count == 0)
+                            showCompletedTasks = true;
+                        selectedIndex = 0;
                         return true;
 
                     case ConsoleKey.Escape:
@@ -161,9 +167,19 @@ namespace ToDoLy
                         {
                             tasks.RemoveAt(unsortedIndex);
                             fManager.SaveFile("tasks.csv", tasks);
+                            List<Task> returnToListAfterDelete = filteredTasks.Where(t => t != taskToDelete).ToList();
+                            if (returnToListAfterDelete.Count == 0)
+                                showCompletedTasks = true;
                             filteredTasks = tasks;
                             sortedTasks = tasks;
+                            FoundMatches = [];
                             PrintInfoManager.PrintRemoveSuccess();
+                            if (tasks.Count == 0)
+                            {
+                                Console.WriteLine("\nDeleted last task. Go back to main menu by pressing any key...");
+                                Console.ReadKey();
+                                return false;
+                            }
                         }
                         else
                             PrintInfoManager.PrintRemoveCancelled();
@@ -188,35 +204,45 @@ namespace ToDoLy
 
                     case ConsoleKey.F:
                         showCompletedTasks = !showCompletedTasks;
+                        List<Task> checkEmptyList = filteredTasks.Where(t => t.IsCompleted == false).ToList();
+                        if (checkEmptyList.Count == 0)
+                        {
+                            Console.WriteLine("\nFiltering would only give an empty list. Press any key...");
+                            Console.ReadKey();
+                            showCompletedTasks = true;
+                        }
+                        selectedIndex = 0;
                         currentPage = 0;
                         return true;
 
                     case ConsoleKey.P:
+                        FoundMatches = [];
                         selectedProject = ShowProjectSelect();
                         selectedIndex = 0;
                         currentPage = 0;
-                        matchFound = false;
+                        showCompletedTasks = true;
                         return true;
 
                     case ConsoleKey.A:
+                        FoundMatches = [];
                         sortedTasks = new List<Task>(tasks);
                         selectedProject = null;
+                        showCompletedTasks = true;
                         currentPage = 0;
-                        matchFound = false;
                         return true;
 
                     case ConsoleKey.S:
-                        List<Task> foundMatches = SearchForTask();
-                        if (foundMatches.Count == 0)
+                        List<Task> searchResults = SearchForTask();
+                        if (searchResults.Count == 0)
                         {
                             Console.WriteLine("No Task found... Press any key to continue");
-                            matchFound = false;
                             Console.ReadKey();
                         }
                         else
                         {
-                            showFoundMatches = foundMatches;
-                            matchFound = true;
+                            selectedProject = null;
+                            showCompletedTasks = true;
+                            FoundMatches = searchResults;
                         }
                         currentPage = 0;
                         selectedIndex = 0;
@@ -351,7 +377,7 @@ namespace ToDoLy
         {
             List<Task> inputMatches = new List<Task>();
             Console.Write("\nPlease enter your search here:");
-            string input = UserInputManager.ReadEveryKey();
+            string input = UserInputManager.ReadEveryKey().Trim().ToLower();
 
             if (input != null)
                 inputMatches = tasks.Where(x => x.Details.Trim().ToLower() == input).ToList();

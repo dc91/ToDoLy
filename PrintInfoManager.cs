@@ -8,6 +8,16 @@ namespace ToDoLy
 {
     internal class PrintInfoManager
     {
+        public static string SetBanner(ref List<Task> FoundMatches, string? selectedProject,
+                                 ref int currentPage, ref int totalPages, ref List<Task> projectTasks)
+        {
+            if (!string.IsNullOrEmpty(selectedProject) && projectTasks.Count > 0)
+                return $"Tasks in Project: {selectedProject}";
+            else if (FoundMatches.Count != 0)
+                return "Search Results";
+            return $"Your Tasks - Page {currentPage + 1} of {totalPages}";
+        }
+
         public static void PrintHeader(string section)
         {
             string border = new('=', 90);

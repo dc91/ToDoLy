@@ -60,7 +60,10 @@ The code has five classes and a main (Program.cs):
 
 ### 5. PrintInfoManager
   * Methods
+    * static string SetBanner(...)
     * static void PrintHeader(string message)
+    * void PrintWelcome(int complete, int pending)
+    * static void PrintOptions()
     * static void PrintAddTaskInfo(int step)
     * static void PrintWithColor(string message, ConsoleColor color)
     * static void PrintTableHead()

@@ -47,7 +47,8 @@ namespace ToDoLy
 
                 if (input == null)
                 {
-                    PrintInfoManager.PrintCancel();
+                    PrintInfoManager.PrintWithColor("\nCancelling... Press any key", ConsoleColor.Green);
+                    Console.ReadKey();
                     return null;
                 }
 

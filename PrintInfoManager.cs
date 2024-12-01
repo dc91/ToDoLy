@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Collections.Specialized.BitVector32;
 
 namespace ToDoLy
 {
@@ -36,114 +39,51 @@ namespace ToDoLy
         public void PrintWelcome(int complete, int pending)
         {
             Console.Write("\n\nYou have completed ");
-            Console.ForegroundColor = ConsoleColor.DarkRed;
-            Console.Write(complete);
-            Console.ResetColor();
-            Console.Write(" tasks! \nAnd you\'ve got ");
-            Console.ForegroundColor = ConsoleColor.DarkGreen;
-            Console.Write(pending);
-            Console.ResetColor();
-            Console.WriteLine(" tasks pending!\n");
-            Console.WriteLine($"You have a total of {pending + complete} tasks saved");
+            PrintWithColor(complete.ToString(), ConsoleColor.DarkRed, " tasks! \nAnd you\'ve got ", false);
+            PrintWithColor(pending.ToString(), ConsoleColor.DarkGreen, " tasks pending!");
+            Console.WriteLine($"\nYou have a total of {pending + complete} tasks saved");
         }
 
         public static void PrintOptions()
         {
             Console.Write("Choose an ");
-            Console.ForegroundColor = ConsoleColor.Blue;
-            Console.Write("OPTION");
-            Console.ResetColor();
-            Console.WriteLine(":");
-
-            string[] options = [
-                " Show and Edit Tasks",
-                " Add New Task",
-                " Quit\n"];
-
-            for (int i = 0; i < 3; i++)
-            {
-                Console.ForegroundColor = ConsoleColor.Blue;
-                if (i != 2)
-                    Console.Write("[" + (i + 1) + "]  ");
-                else
-                {
-                    Console.ForegroundColor = ConsoleColor.DarkGray;
-                    Console.Write("[ESC]");
-                    Console.ResetColor();
-                }
-                    
-                Console.ResetColor();
-                Console.WriteLine(options[i]);
-            }
+            PrintWithColor("OPTION", ConsoleColor.Blue, ":");
+            PrintWithColor("[1]", ConsoleColor.Blue, " Show and Edit Tasks");
+            PrintWithColor("[2]", ConsoleColor.Blue, " Add New Task");
+            PrintWithColor("[ESC]", ConsoleColor.DarkGray, " Quit");
         }
 
         public static void PrintSortingOptions(bool showCompletedTasks = true)
         {
             string toggleSetting = showCompletedTasks ? "Hide" : "Show";
+
             Console.Write("\nHow would you like to ");
-            Console.ForegroundColor = ConsoleColor.Blue;
-            Console.Write("SORT");
-            Console.ResetColor();
-            Console.Write(" or ");
-            Console.ForegroundColor = ConsoleColor.DarkYellow;
-            Console.Write("FILTER");
-            Console.ResetColor();
-            Console.WriteLine(" the tasks?\n");
-            Console.ForegroundColor = ConsoleColor.Blue;
-            Console.Write("[1]");
-            Console.ResetColor();
-            Console.Write(" By DATE");
 
-            Console.ForegroundColor = ConsoleColor.DarkYellow;
-            Console.Write("\t\t[F]");
-            Console.ResetColor();
-            Console.Write($" {toggleSetting} COMPLETED");
+            PrintWithColor("SORT", ConsoleColor.Blue, " or ", false);
 
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.Write("\t\t[ARROWS]");
-            Console.ResetColor();
-            Console.WriteLine($" NAVIGATE");          
+            PrintWithColor("FILTER", ConsoleColor.DarkYellow, " the tasks?\n");
 
-            Console.ForegroundColor = ConsoleColor.Blue;
-            Console.Write("[2]");
-            Console.ResetColor();
-            Console.Write(" By PROJECT");
+            PrintWithColor("[1]", ConsoleColor.Blue, " By DATE", false);
 
-            Console.ForegroundColor = ConsoleColor.DarkYellow;
-            Console.Write("\t\t[P]");
-            Console.ResetColor();
-            Console.Write($" SPECIFIC PROJECT");
+            PrintWithColor("\t\t[F]", ConsoleColor.DarkYellow, $" {toggleSetting} COMPLETED", false);
+            
+            PrintWithColor("\t\t[ARROWS]", ConsoleColor.Red, $" NAVIGATE");
 
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.Write("\t\t[ENTER]");
-            Console.ResetColor();
-            Console.WriteLine($" EDIT Task");
+            PrintWithColor("[2]", ConsoleColor.Blue, " By PROJECT", false);
 
-            Console.ForegroundColor = ConsoleColor.Blue;
-            Console.Write("[3]");
-            Console.ResetColor();
-            Console.Write(" Default");
+            PrintWithColor("\t\t[P]", ConsoleColor.DarkYellow, " SPECIFIC PROJECT", false);
 
-            Console.ForegroundColor = ConsoleColor.DarkYellow;
-            Console.Write("\t\t[A]");
-            Console.ResetColor();
-            Console.Write($" ALL TASKS");
+            PrintWithColor("\t\t[ENTER]", ConsoleColor.Red, $" EDIT Task");
 
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.Write("\t\t\t[DEL]");
-            Console.ResetColor();
-            Console.WriteLine($" DELETE Task");
+            PrintWithColor("[3]", ConsoleColor.Blue, " Default", false);
 
-            Console.ForegroundColor = ConsoleColor.DarkYellow;
-            Console.Write("\t\t\t[S]");
-            Console.ResetColor();
-            Console.WriteLine($" SEARCH");
+            PrintWithColor("\t\t[A]", ConsoleColor.DarkYellow, " ALL TASKS", false);
 
-            Console.Write("\nPress ");
-            Console.ForegroundColor = ConsoleColor.DarkGray;
-            Console.Write("[ESC]");
-            Console.ResetColor();
-            Console.WriteLine(" to exit.");
+            PrintWithColor("\t\t\t[DEL]", ConsoleColor.Red, $" DELETE Task");
+
+            PrintWithColor("\t\t\t[S]", ConsoleColor.DarkYellow, " SEARCH", false);
+
+            PrintWithColor("\n[ESC]", ConsoleColor.DarkGray, " to exit.");
         }
 
         public static void PrintAddTaskInfo(int activeStep = 1)
@@ -164,31 +104,19 @@ namespace ToDoLy
                     Console.WriteLine($"  {activePrompt}");
                 }
             }
-            Console.ForegroundColor = ConsoleColor.DarkGray;
-            Console.WriteLine("\nESC to CANCEL");
-            Console.ResetColor();
+            PrintWithColor("\nESC to CANCEL", ConsoleColor.DarkGray);
+            Console.WriteLine();
         }
 
         public static void PrintUpdateTaskInfo()
         {
             Console.WriteLine();
-            SmartUpdatePrint("UP or DOWN", "HIGHLIGHT", " a value.", ConsoleColor.DarkYellow);
-            SmartUpdatePrint("ENTER", "UPDATE", " a value.", ConsoleColor.Blue);
-            SmartUpdatePrint("ESC", "CANCEL", ".\n", ConsoleColor.DarkGray);
-            Console.WriteLine();
-        }
-
-        public static void SmartUpdatePrint(string key, string action, string ending, ConsoleColor color)
-        {
-            Console.Write("Press ");
-            Console.ForegroundColor = color;
-            Console.Write(key);
-            Console.ResetColor();
-            Console.Write(" to ");
-            Console.ForegroundColor = color;
-            Console.Write(action);
-            Console.ResetColor();
-            Console.WriteLine(ending);
+            PrintWithColor("\n\n\n\n[UP] or [DOWN]", ConsoleColor.DarkYellow, " to ", false);
+            PrintWithColor("HIGHLIGHT", ConsoleColor.DarkYellow, " a value.");
+            PrintWithColor("[ENTER]", ConsoleColor.Blue, " to ", false);
+            PrintWithColor("UPDATE", ConsoleColor.Blue, " a value.");
+            PrintWithColor("[ESC]", ConsoleColor.DarkGray, " to ", false);
+            PrintWithColor("CANCEL", ConsoleColor.DarkGray, ".\n", true);
         }
 
         public static void PrintUpdateTaskFields(string[] fields, Task task, int fieldIndex)
@@ -203,99 +131,57 @@ namespace ToDoLy
                 switch (fields[i])
                 {
                     case "Task Details":
-                        Console.Write("Task Details: ".PadRight(20));
-                        Console.WriteLine($"{task.Details}");
+                        Console.WriteLine($"\n\n\nTask: \t\t{task.Details}");
                         break;
                     case "Project":
-                        Console.Write("Project: ".PadRight(20));
-                        Console.WriteLine($"{task.Project}");
+                        Console.WriteLine($"Project: \t{task.Project}");
                         break;
                     case "Due Date":
-                        Console.Write("Due Date: ".PadRight(20));
-                        Console.WriteLine($"{task.DueDate.ToShortDateString()}");
+                        Console.WriteLine($"Due Date: \t{task.DueDate.ToShortDateString()}");
                         break;
                     case "Completion Status":
                         string status = task.IsCompleted ? "Completed" : "Pending";
-                        Console.Write("Completion Status: ".PadRight(20));
-                        Console.WriteLine($"{status}");
+                        Console.WriteLine($"Status: \t{status}");
                         break;
                 }
                 Console.ResetColor();
             }
         }
 
-        public static void PrintCancel()
-        {
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.Write("\nCancelling... Press any key");
-            Console.ReadKey();
-            Console.ResetColor();
-        }
-
-        public static void PrintAddSuccess()
-        {
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("Task successfully saved... Press any key");
-            Console.ReadKey();
-            Console.ResetColor();
-        }
-
         public static void PrintAreUSure(Task task)
         {
             Console.Write("\nAre you sure you want to ");
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.Write("DELETE");
-            Console.ResetColor();
-            Console.WriteLine(" this task?\n");
-
-            Console.WriteLine(
-                        "Task: " +
-                        $"{task.Details}\n" +
-                        $"Project: {task.Project}\n" +
-                        $"Due: {task.DueDate.ToShortDateString()}\n" +
-                        $"Status: {(task.IsCompleted ? "Completed" : "Pending")}\n");
+            PrintWithColor("DELETE", ConsoleColor.Red, " this task?\n");
+            Console.WriteLine($"\n\nTask: \t\t{task.Details}");
+            Console.WriteLine($"Project: \t{task.Project}");
+            Console.WriteLine($"Due Date: \t{task.DueDate.ToShortDateString()}");
+            Console.WriteLine($"Status: \t{(task.IsCompleted ? "Completed" : "Pending")}");
             Console.WriteLine(new string('-', 50));
             Console.Write("\nPress 'ENTER' to confirm, or any other key to cancel: ");
 
         }
 
-        public static void PrintRemoveSuccess()
-        {
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("Task removed successfully!");
-            Console.ReadKey();
-            Console.ResetColor();
-        }
-
-        public static void PrintRemoveCancelled()
-        {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine("Task was not removed.");
-            Console.ReadKey();
-            Console.ResetColor();
-        }
-
         public static void PrintInvalidDate()
         {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine("\nInvalid date format. Please enter in yyyy-MM-dd format.");
-            Console.ResetColor();
+            PrintInfoManager.PrintWithColor("\nInvalid date format. Please enter in yyyy-MM-dd format.", ConsoleColor.Red);
             Console.ReadKey();
         }
 
         public static void PrintInvalidDateEarly()
         {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine("\nDate is before today. Will not save. Press any key to continue");
-            Console.ResetColor();
+            PrintInfoManager.PrintWithColor("\nDate is before today. Will not save. Press any key to continue", ConsoleColor.Red);
             Console.ReadKey();
         }
 
-        public static void PrintInvalidBool()
+        public static void PrintDeleteCancel()
         {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine("Invalid input. Please enter 'c' for Completed or 'p' for Pending.");
-            Console.ResetColor();
+            PrintInfoManager.PrintWithColor("\nTask was not removed. Press any key...", ConsoleColor.Red);
+            Console.ReadKey();
+        }
+
+        public static void PrintDeleteConfirm()
+        {
+            PrintInfoManager.PrintWithColor("\nTask removed successfully! Press any key...", ConsoleColor.Green);
             Console.ReadKey();
         }
 
@@ -325,7 +211,17 @@ namespace ToDoLy
             }
         }
 
-        
+        public static void PrintWithColor(string s, ConsoleColor cc, string? post = null, bool newLine = true)
+        {
+            Console.ForegroundColor = cc;
+            Console.Write(s);
+            Console.ResetColor();
+            if (post != null)
+                if (newLine)
+                    Console.WriteLine(post);
+                else
+                    Console.Write(post);
+        }
 
     }
 }

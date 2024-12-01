@@ -51,7 +51,8 @@ namespace ToDoLy
             Task task = new Task(details, project, dueDate, false);
             tasks.Add(task);
             fManager.SaveFile("tasks.csv", tasks);
-            PrintInfoManager.PrintAddSuccess();
+            PrintInfoManager.PrintWithColor("Task successfully saved... Press any key", ConsoleColor.Green);
+            Console.ReadKey();
         }
 
         public void UpdateTask()
@@ -171,7 +172,7 @@ namespace ToDoLy
                             filteredTasks = tasks;
                             sortedTasks = tasks;
                             FoundMatches = [];
-                            PrintInfoManager.PrintRemoveSuccess();
+                            PrintInfoManager.PrintDeleteConfirm();
                             if (tasks.Count == 0)
                             {
                                 Console.WriteLine("\nDeleted last task. Go back to main menu by pressing any key...");
@@ -180,7 +181,7 @@ namespace ToDoLy
                             }
                         }
                         else
-                            PrintInfoManager.PrintRemoveCancelled();
+                           PrintInfoManager.PrintDeleteCancel();
                         selectedIndex = 0;
                         currentPage = 0;
                         return true;
@@ -289,13 +290,13 @@ namespace ToDoLy
             while (isUpdating)
             {
                 Console.Clear();
-                PrintInfoManager.PrintHeader($"Updating Task: {task.Details}");
-                PrintInfoManager.PrintUpdateTaskInfo();
+                PrintInfoManager.PrintHeader($"Updating the Task \"{task.Details}\"");
+                
 
                 string[] fields = ["Task Details", "Project", "Due Date", "Completion Status"];
 
                 PrintInfoManager.PrintUpdateTaskFields(fields, task, fieldIndex);
-
+                PrintInfoManager.PrintUpdateTaskInfo();
                 ConsoleKey key = Console.ReadKey(true).Key;
 
                 if (key == ConsoleKey.DownArrow && fieldIndex < fields.Length - 1)
@@ -356,20 +357,20 @@ namespace ToDoLy
                         }
                     }
                     else
+                    {
                         PrintInfoManager.PrintInvalidDate();
+                    }
                     break;
             }
         }
 
         public List<Task> SearchForTask()
         {
-            List<Task> inputMatches = new List<Task>();
             Console.Write("\nPlease enter your search here:");
-            string input = UserInputManager.ReadEveryKey().Trim().ToLower();
-
-            if (input != null)
-                inputMatches = tasks.Where(x => x.Details.Trim().ToLower() == input).ToList();
-            return inputMatches;
+            string input = UserInputManager.ReadEveryKey();
+            if (input == null)
+                return [];
+            return tasks.Where(x => x.Details.Trim().ToLower() == input.Trim().ToLower()).ToList();
         }
 
         public string ShowProjectSelect()

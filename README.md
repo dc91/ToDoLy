@@ -86,7 +86,7 @@ Epic screens showing.
 # UML - Relashionships and associations
 
 1. **TaskManager** _uses_:
-    * **FileManager** to save and load data, with an instance **fManager**. 
+    * **FileManager** to save and load data, with an object. 
     * **PrintInfoManager** to print information, data, user input and output, to console. Without objects.
     * **UserInputManager** to handle user input. Without objects.
 2. **TaskManager** has a composition rellationship with **Task**.Since it manages a list of **Task** objects

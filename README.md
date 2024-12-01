@@ -17,7 +17,12 @@ The code has five classes and a main (Program.cs):
 4. PrintInfoManager.cs
 5. UserInputManager.cs
 
-# Classes
+# Instructions
+This how u u se it...
+Epic screens showing.
+
+
+# UML - Classes
 
 ### 1. TaskManager
   * **Fields**
@@ -78,64 +83,7 @@ The code has five classes and a main (Program.cs):
     * static void PrintProjectList(ref List<string> projects, ref int selectedIndex)
     * static void PrintAreUSure(Task task)
 
-# Relashionships
-1. **TaskManager** → **FileManager** (Composition):
-   * $\color{olive}{\text{TaskManager}}$ directly manages an instance of $\color{olive}{\text{FileManager}}$.
-2. **TaskManager** → **Task** (Aggregation):
-   * $\color{olive}{\text{TaskManager}}$ contains a list of $\color{olive}{\text{Task}}$ objects.
-3. **TaskManager** → **UserInputManager** (Dependency):
-   * $\color{olive}{\text{TaskManager}}$ calls methods from $\color{olive}{\text{UserInputManager}}$.
-4. **TaskManager** → **PrintInfoManager** (Dependency):
-   * $\color{olive}{\text{TaskManager}}$ calls methods from $\color{olive}{\text{PrintInfoManager}}$.
-
-
-<pre>
-+----------------------+        +---------------------+
-|   TaskManager        |        |   FileManager       |
-|----------------------|        |---------------------|
-| + fManager           |        | + SaveFile(...)     |
-| + tasks: List< Task >|        | + LoadTasks(...)    |
-|----------------------|        +---------------------+       
-| + AddTask()          |               ^
-| + UpdateTask()       |               |
-| - SelectTaskToEdit() |               |
-| - EditTaskDetails()  |               |
-| - SearchForTask()    |               |
-| - ShowProjectSelect()|            Composition
-| - CalcPageLayout()   |               |
-| - FilterOptions()    |               |
-| - UserAction()       |               |
-| - HandleEnter()      |               |
-| - HandleDeleteKey()  |               |
-| - HandleFKey()       |               |
-| - HandlePKey()       |               |
-| - HandleAKey()       |               |
-| - HandleSKey()       |               |
-+----------------------+               |
-        |                              |
-        | Aggregation                  |
-        v                              |
-+----------------------+               |
-|      Task            |               |
-|----------------------|               |
-| + Details            |               |
-| + Project            |               |
-| + DueDate            |               |
-| + IsCompleted        |               |
-|----------------------|               |
-|                      |               |
-+----------------------+               |
-        ^                              |
-        | Dependency                   |
-        v                              v
-+----------------------+        +----------------------+
-| UserInputManager     |        | PrintInfoManager     |
-|----------------------|        |----------------------|
-| + GetInput()         |        | + PrintHeader()      |
-| + TrapUntilValid...  |        | + PrintAddTaskInfo   |
-| + ReadEveryKey()     |        | + PrintWithColor()   |
-+----------------------+        | ...                  |
-                                +----------------------+</pre>
+# UML - Relashionships
 
 
 

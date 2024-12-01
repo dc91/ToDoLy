@@ -1,5 +1,3 @@
-![Asset 2](https://github.com/user-attachments/assets/9ffd8b80-6997-4b85-9174-461a69eb08ae)# ToDoLy - A to-do list
-
 This is a simple app that allows users to add/update/remove and save tasks to file.
 
 It consists of three parts:
@@ -94,7 +92,7 @@ Epic screens showing.
 4. **PrintInfoManager** and **UserInputManager** are utility classes.
 5. **PrintInfoManager** and **FileManager** _use_ objects of **Task** to get data.
 
-
+![Alt UML](UML.svg)
 
 
 

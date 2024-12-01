@@ -20,10 +20,10 @@ The code has five classes and a main (Program.cs):
 # Classes
 
 ### 1. TaskManager
-  * Fields
+  * **Fields**
     * FileManager fManager
     * List<Task> tasks
-  * Methods
+  * **Methods**
     * AddTask()
     * UpdateTask()
     * SelectTaskToEdit(Task task, ref string? selectedProject)
@@ -41,25 +41,25 @@ The code has five classes and a main (Program.cs):
     * HandleSKey(...)
 
 ### 2. FileManager
-  * Methods
+  * **Methods**
     * SaveFile(string fileName, List<Task> tasks)
     * LoadTasks(string filePath)
 
 ### 3. Task
-  * Fields
+  * **Fields**
     * **string** _Details_
     * **string** _Project_
     * **DateTime** _DueDate_
     * **bool** _IsCompleted_
 
 ### 4. UserInputManager
-  * Methods
+  * **Methods**
     * static string GetInput(string prompt, string errorMessage, bool allowEmpty)
     * static ConsoleKey TrapUntilValidInput(int mode)
     * static string ReadEveryKey()
 
 ### 5. PrintInfoManager
-  * Methods
+  * **Methods**
     * static string SetBanner(...)
     * static void PrintHeader(string message)
     * void PrintWelcome(int complete, int pending)
@@ -77,7 +77,23 @@ The code has five classes and a main (Program.cs):
     * static void PrintDeleteCancel()
     * static void PrintProjectList(ref List<string> projects, ref int selectedIndex)
     * static void PrintAreUSure(Task task)
-      
+
+# Relashionships
+1. **TaskManager** → **FileManager** (Composition):
+   * $\color{olive}{\text{TaskManager}}$ directly manages an instance of $\color{olive}{\text{FileManager}}$.
+2. **TaskManager** → **Task** (Aggregation):
+   * $\color{olive}{\text{TaskManager}}$ contains a list of $\color{olive}{\text{Task}}$ objects.
+3. **TaskManager** → **UserInputManager** (Dependency):
+   * $\color{olive}{\text{TaskManager}}$ calls methods from $\color{olive}{\text{UserInputManager}}$.
+4. **TaskManager** → **PrintInfoManager** (Dependency):
+   * $\color{olive}{\text{TaskManager}}$ calls methods from $\color{olive}{\text{PrintInfoManager}}$.
+
+
+
+
+
+
+
 # Known buggs
 If the console window is smaller than the content, and the window becomes scrollable, every clear() won't clear everything.
 You will still be able to see everything and use the app. But now you will now be able to scroll up and see the miss-prints (not pretty).

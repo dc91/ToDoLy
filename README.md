@@ -83,8 +83,15 @@ Epic screens showing.
     * static void PrintProjectList(ref List<string> projects, ref int selectedIndex)
     * static void PrintAreUSure(Task task)
 
-# UML - Relashionships
+# UML - Relashionships and associations
 
+1. **TaskManager** _uses_:
+    * **FileManager** to save and load data, with an instance **fManager**. 
+    * **PrintInfoManager** to print information, data, user input and output, to console. Without objects.
+    * **UserInputManager** to handle user input. Without objects.
+2. **TaskManager** has a composition rellationship with **Task**.Since it manages a list of **Task** objects
+3. **Task** is a simple data model class with fields for the task details to be saved.
+4. **PrintInfoManager** and **UserInputManager** are utility classes.
 
 
 # Known buggs

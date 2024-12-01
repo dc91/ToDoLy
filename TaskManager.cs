@@ -54,8 +54,6 @@ namespace ToDoLy
             PrintInfoManager.PrintAddSuccess();
         }
 
-
-
         public void UpdateTask()
         {
             if (tasks.Count == 0)
@@ -146,7 +144,7 @@ namespace ToDoLy
                     case ConsoleKey.Enter:
                         Task task = filteredTasks[selectedIndex + (6 * currentPage)];
                         selectedIndex = 0;
-                        UpdateTaskDetails(task);//if updates give emtpy litst, see all, otherwise stay
+                        UpdateTaskDetails(task, ref selectedProject);//if updates give emtpy litst, see all, otherwise stay
                         List<Task> returnToListAfterUpdate = filteredTasks.Where(t => t != task).ToList();
                         if (returnToListAfterUpdate.Count == 0)
                             showCompletedTasks = true;
@@ -283,7 +281,7 @@ namespace ToDoLy
         }
 
 
-        public void UpdateTaskDetails(Task task)
+        public void UpdateTaskDetails(Task task, ref string? selectedProject)
         {
             int fieldIndex = 0;
             bool isUpdating = true;
@@ -305,14 +303,19 @@ namespace ToDoLy
                 else if (key == ConsoleKey.UpArrow && fieldIndex > 0)
                     fieldIndex--;
                 else if (key == ConsoleKey.Enter)
-                    EditTaskDetails(fieldIndex, task, fields);
+                {
+                    if (fieldIndex == 3)//User just presses enter to toggle complete/pending
+                        task.IsCompleted = !task.IsCompleted;
+                    else
+                        EditTaskDetails(fieldIndex, task, fields, ref selectedProject);
+                }
                 else if (key == ConsoleKey.Escape)
                     isUpdating = false;
             }
             Console.ResetColor();
         }
 
-        public void EditTaskDetails(int fieldIndex, Task task, string[] fields)
+        public void EditTaskDetails(int fieldIndex, Task task, string[] fields, ref string? selectedProject)
         {
             Console.CursorVisible = true;
             Console.Write($"\nEnter new value for {fields[fieldIndex]}: ");
@@ -332,6 +335,7 @@ namespace ToDoLy
                 case "Project":
                     if (!string.IsNullOrEmpty(newValue))
                     {
+                        selectedProject = null;
                         task.Project = newValue;
                         fManager.SaveFile("tasks.csv", tasks);
                     }
@@ -353,22 +357,6 @@ namespace ToDoLy
                     }
                     else
                         PrintInfoManager.PrintInvalidDate();
-                    break;
-                case "Completion Status":
-                    if (string.IsNullOrEmpty(newValue))
-                        break;
-                    else if (newValue.Equals("c", StringComparison.OrdinalIgnoreCase))
-                    {
-                        task.IsCompleted = true;
-                        fManager.SaveFile("tasks.csv", tasks);
-                    }
-                    else if (newValue.Equals("p", StringComparison.OrdinalIgnoreCase))
-                    {
-                        task.IsCompleted = false;
-                        fManager.SaveFile("tasks.csv", tasks);
-                    }
-                    else
-                        PrintInfoManager.PrintInvalidBool();
                     break;
             }
         }
@@ -397,7 +385,7 @@ namespace ToDoLy
             {
                 Console.Clear();
                 PrintInfoManager.PrintHeader("List Of Projects");
-
+                Console.WriteLine();
                 for (int i = 0; i < projects.Count; i++)
                 {
                     if (i == selectedIndex)

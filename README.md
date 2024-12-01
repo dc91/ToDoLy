@@ -89,8 +89,53 @@ The code has five classes and a main (Program.cs):
    * $\color{olive}{\text{TaskManager}}$ calls methods from $\color{olive}{\text{PrintInfoManager}}$.
 
 
-
-
+<pre>
++----------------------+        +---------------------+
+|   TaskManager        |        |   FileManager       |
+|----------------------|        |---------------------|
+| - fManager           |        | + SaveFile(...)     |
+| - tasks: List<Task>  |        | + LoadTasks(...)    |
+|----------------------|        +---------------------+       
+| + AddTask()          |               ^
+| + UpdateTask()       |               |
+| + SelectTaskToEdit() |               |
+| + EditTaskDetails()  |               |
+| + SearchForTask()    |               |
+| + ShowProjectSelect()|            Composition
+| + CalcPageLayout()   |               |
+| + FilterOptions()    |               |
+| + UserAction()       |               |
+| + HandleEnter()      |               |
+| + HandleDeleteKey()  |               |
+| + HandleFKey()       |               |
+| + HandlePKey()       |               |
+| + HandleAKey()       |               |
+| + HandleSKey()       |               |
++----------------------+               |
+        |                              |
+        | Aggregation                  |
+        v                              |
++----------------------+               |
+|      Task            |               |
+|----------------------|               |
+| + Details            |               |
+| + Project            |               |
+| + DueDate            |               |
+| + IsCompleted        |               |
+|----------------------|               |
+|                      |               |
++----------------------+               |
+        ^                              |
+        | Dependency                   |
+        v                              v
++----------------------+        +----------------------+
+| UserInputManager     |        | PrintInfoManager  |
+|----------------------|        |----------------------|
+| + GetInput()         |        | + PrintHeader()      |
+| + TrapUntilValid...  |        | + PrintAddTaskInfo   |
+| + ReadEveryKey()     |        | + PrintWithColor()   |
++----------------------+        | ...                  |
+                                +----------------------+</pre>
 
 
 

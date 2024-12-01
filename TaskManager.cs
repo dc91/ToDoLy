@@ -124,7 +124,7 @@ namespace ToDoLy
         {
             while (true)
             {
-                ConsoleKey key = UserInputManager.TrapUntilValidInput();
+                ConsoleKey key = UserInputManager.TrapUntilValidInput(0);
                 switch (key)
                 {
                     case ConsoleKey.Enter:
@@ -276,9 +276,13 @@ namespace ToDoLy
                 PrintInfoManager.PrintHeader($"Updating the Task \"{task.Details}\"");
                 PrintInfoManager.PrintUpdateTaskFields(fields, task, fieldIndex);
                 PrintInfoManager.PrintUpdateTaskInfo();
-                ConsoleKey key = UserInputManager.TrapUntilValidInput(true);
-
-                if (key == ConsoleKey.DownArrow && fieldIndex < fields.Length - 1)
+            GetKey:;
+                ConsoleKey key = UserInputManager.TrapUntilValidInput(1);
+                if (key == ConsoleKey.DownArrow && fieldIndex >= fields.Length - 1)
+                    goto GetKey;
+                else if (key == ConsoleKey.UpArrow && fieldIndex <= 0)
+                    goto GetKey;
+                else if (key == ConsoleKey.DownArrow && fieldIndex < fields.Length - 1)
                     fieldIndex++;
                 else if (key == ConsoleKey.UpArrow && fieldIndex > 0)
                     fieldIndex--;
@@ -287,7 +291,9 @@ namespace ToDoLy
                 else if (key == ConsoleKey.Enter && fieldIndex == 3)
                     task.IsCompleted = !task.IsCompleted;
                 else if (key == ConsoleKey.Enter)
+                {
                     EditTaskDetails(fieldIndex, task, fields, ref selectedProject);
+                }
             }
         }
 
@@ -296,26 +302,25 @@ namespace ToDoLy
             Console.CursorVisible = true;
             Console.Write($"\nEnter new value for {fields[fieldIndex]}: ");
             string newValue = UserInputManager.ReadEveryKey();
-            // dont check for null since null == no changes
             Console.CursorVisible = false;
-
-            if (fields[fieldIndex] == "Task Details" && !string.IsNullOrEmpty(newValue))
+            
+            if (string.IsNullOrEmpty(newValue))
+                return;
+            if (fields[fieldIndex] == "Task Details")
                 task.Details = newValue;
-            else if (fields[fieldIndex] == "Project" && !string.IsNullOrEmpty(newValue))
-            {
-                //if not null, small farfetched bug appears
-                selectedProject = null;
+            else if (fields[fieldIndex] == "Project")
+            {   //if selectedProject != null, small farfetched bug appears
+                selectedProject = null; 
                 task.Project = newValue;
             }
-            else if (fields[fieldIndex] == "Due Date" && !string.IsNullOrEmpty(newValue))
+            else if (fields[fieldIndex] == "Due Date")
             {
-                if (DateTime.TryParse(newValue, out DateTime newDate))
-                {
-                    if (newDate >= DateTime.Now)
-                        task.DueDate = newDate;
-                    else
-                        PrintInfoManager.PrintInvalidDateEarly();                    
-                }
+                bool rightType = DateTime.TryParse(newValue, out DateTime newDate);
+
+                if (rightType && newDate >= DateTime.Now)
+                    task.DueDate = newDate;
+                else if (rightType && newDate < DateTime.Now)
+                    PrintInfoManager.PrintInvalidDateEarly();
                 else
                     PrintInfoManager.PrintInvalidDate();
             }
@@ -337,26 +342,22 @@ namespace ToDoLy
             string selectedProject = "";
             int selectedIndex = 0;
             ConsoleKey key;
-            
-            while (true)
+            do
             {
                 PrintInfoManager.PrintHeader("List Of Projects");
                 PrintInfoManager.PrintProjectList(ref projects, ref selectedIndex);
 
-                key = UserInputManager.TrapUntilValidInput(true);
+                key = UserInputManager.TrapUntilValidInput(1);
                 if (key == ConsoleKey.UpArrow && selectedIndex > 0)
                     selectedIndex--;
                 else if (key == ConsoleKey.DownArrow && selectedIndex < projects.Count - 1)
                     selectedIndex++;
-                else if (key == ConsoleKey.Enter)
-                {
-                    selectedProject = projects[selectedIndex];
-                    break;
-                }
                 else if (key == ConsoleKey.Escape)
                     return null;
-
-            }
+                else if (key == ConsoleKey.Enter)
+                    selectedProject = projects[selectedIndex];
+            } while (key != ConsoleKey.Enter);
+            
             selectedIndex = 0;
             return selectedProject;
         }

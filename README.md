@@ -93,24 +93,24 @@ The code has five classes and a main (Program.cs):
 +----------------------+        +---------------------+
 |   TaskManager        |        |   FileManager       |
 |----------------------|        |---------------------|
-| - fManager           |        | + SaveFile(...)     |
-| - tasks: List<Task>  |        | + LoadTasks(...)    |
+| + fManager           |        | + SaveFile(...)     |
+| + tasks: List< Task >|        | + LoadTasks(...)    |
 |----------------------|        +---------------------+       
 | + AddTask()          |               ^
 | + UpdateTask()       |               |
-| + SelectTaskToEdit() |               |
-| + EditTaskDetails()  |               |
-| + SearchForTask()    |               |
-| + ShowProjectSelect()|            Composition
-| + CalcPageLayout()   |               |
-| + FilterOptions()    |               |
-| + UserAction()       |               |
-| + HandleEnter()      |               |
-| + HandleDeleteKey()  |               |
-| + HandleFKey()       |               |
-| + HandlePKey()       |               |
-| + HandleAKey()       |               |
-| + HandleSKey()       |               |
+| - SelectTaskToEdit() |               |
+| - EditTaskDetails()  |               |
+| - SearchForTask()    |               |
+| - ShowProjectSelect()|            Composition
+| - CalcPageLayout()   |               |
+| - FilterOptions()    |               |
+| - UserAction()       |               |
+| - HandleEnter()      |               |
+| - HandleDeleteKey()  |               |
+| - HandleFKey()       |               |
+| - HandlePKey()       |               |
+| - HandleAKey()       |               |
+| - HandleSKey()       |               |
 +----------------------+               |
         |                              |
         | Aggregation                  |
@@ -129,7 +129,7 @@ The code has five classes and a main (Program.cs):
         | Dependency                   |
         v                              v
 +----------------------+        +----------------------+
-| UserInputManager     |        | PrintInfoManager  |
+| UserInputManager     |        | PrintInfoManager     |
 |----------------------|        |----------------------|
 | + GetInput()         |        | + PrintHeader()      |
 | + TrapUntilValid...  |        | + PrintAddTaskInfo   |

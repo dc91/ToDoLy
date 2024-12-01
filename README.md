@@ -92,6 +92,7 @@ Epic screens showing.
 2. **TaskManager** has a composition rellationship with **Task**.Since it manages a list of **Task** objects
 3. **Task** is a simple data model class with fields for the task details to be saved.
 4. **PrintInfoManager** and **UserInputManager** are utility classes.
+5. **PrintInfoManager** and **FileManager** _use_ objects of **Task** to get data.
 
 
 # Known buggs

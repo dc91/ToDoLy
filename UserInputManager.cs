@@ -70,8 +70,7 @@ namespace ToDoLy
         {
             // Force a valid input before using keypress
             // Setting 0 - All possible action buttons
-            // Setting 1 - Only arrows and enter + esc
-            // Setting 2 - Only vertical arrows and enter + esc
+            // Setting 1 - Only vertical arrows and enter + esc
             while (true)
             {
                 ConsoleKey tryKey = Console.ReadKey(true).Key;

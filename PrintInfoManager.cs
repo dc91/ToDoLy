@@ -27,6 +27,7 @@ namespace ToDoLy
             string title = section;
             string paddedTitle = title.PadLeft((90 + title.Length) / 2).PadRight(90);
 
+            Console.Clear();
             Console.ForegroundColor = ConsoleColor.DarkYellow;
             Console.WriteLine(border);
             Console.WriteLine();
@@ -34,6 +35,7 @@ namespace ToDoLy
             Console.WriteLine();
             Console.WriteLine(border);
             Console.ResetColor();
+            Console.WriteLine();
         }
 
         public void PrintWelcome(int complete, int pending)
@@ -77,9 +79,9 @@ namespace ToDoLy
 
             PrintWithColor("[3]", ConsoleColor.Blue, " Default", false);
 
-            PrintWithColor("\t\t[A]", ConsoleColor.DarkYellow, " ALL TASKS", false);
+            PrintWithColor("\t\t[A]", ConsoleColor.DarkYellow, " ALL PROJECTS", false);
 
-            PrintWithColor("\t\t\t[DEL]", ConsoleColor.Red, $" DELETE Task");
+            PrintWithColor("\t\t[DEL]", ConsoleColor.Red, $" DELETE Task");
 
             PrintWithColor("\t\t\t[S]", ConsoleColor.DarkYellow, " SEARCH", false);
 
@@ -131,7 +133,7 @@ namespace ToDoLy
                 switch (fields[i])
                 {
                     case "Task Details":
-                        Console.WriteLine($"\n\n\nTask: \t\t{task.Details}");
+                        Console.WriteLine($"\n\nTask: \t\t{task.Details}");
                         break;
                     case "Project":
                         Console.WriteLine($"Project: \t{task.Project}");
@@ -150,7 +152,7 @@ namespace ToDoLy
 
         public static void PrintAreUSure(Task task)
         {
-            Console.Write("\nAre you sure you want to ");
+            Console.Write("Are you sure you want to ");
             PrintWithColor("DELETE", ConsoleColor.Red, " this task?\n");
             Console.WriteLine($"\n\nTask: \t\t{task.Details}");
             Console.WriteLine($"Project: \t{task.Project}");
@@ -187,7 +189,6 @@ namespace ToDoLy
 
         public static void PrintTableHead()
         {
-            Console.WriteLine();
             Console.WriteLine("| {0,-25} | {1,-25} | {2,-12} | {3,-10}",
                       "Task Details", "Project", "Due Date", "Status");
             Console.WriteLine(new string('-', 90));
@@ -208,6 +209,17 @@ namespace ToDoLy
                       task.DueDate.ToShortDateString(),
                       status);
                 Console.ResetColor();
+            }
+        }
+
+        public static void PrintProjectList(ref List<string> projects, ref int selectedIndex)
+        {
+            for (int i = 0; i < projects.Count; i++)
+            {
+                if (i == selectedIndex)
+                    PrintWithColor("> " + projects[i] + "\n", ConsoleColor.DarkYellow);
+                else
+                    Console.WriteLine("  " + projects[i]);
             }
         }
 

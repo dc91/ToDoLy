@@ -16,29 +16,22 @@ namespace ToDoLy
 
         public void AddTask()
         {
-            Console.Clear();// clear after each step so the console doesnt get full of eventual misstakes
             PrintInfoManager.PrintHeader("Add a New Task");
-            Console.WriteLine();
             PrintInfoManager.PrintAddTaskInfo(1);
 
             string details = UserInputManager.GetInput("\nEnter Task Details: ",
                 "Cannot have an empty task. Try again.", false);
             if (details == null) return;
 
-            Console.Clear();
             PrintInfoManager.PrintHeader("Add a New Task");
-            Console.WriteLine();
             PrintInfoManager.PrintAddTaskInfo(2);
-
             Console.WriteLine(details);
 
             string project = UserInputManager.GetInput("\nEnter Project Name: ", 
                 "Cannot have an project name. Try again.", false);
             if (project == null) return;
 
-            Console.Clear();
             PrintInfoManager.PrintHeader("Add a New Task");
-            Console.WriteLine();
             PrintInfoManager.PrintAddTaskInfo(3);
             Console.WriteLine($"{details}\n{project}");
 
@@ -48,7 +41,7 @@ namespace ToDoLy
 
             DateTime dueDate = DateTime.Parse(dueDateString);
 
-            Task task = new Task(details, project, dueDate, false);
+            Task task = new(details, project, dueDate, false);
             tasks.Add(task);
             fManager.SaveFile("tasks.csv", tasks);
             PrintInfoManager.PrintWithColor("Task successfully saved... Press any key", ConsoleColor.Green);
@@ -67,34 +60,28 @@ namespace ToDoLy
             bool showCompletedTasks = true;
             string? selectedProject = null;
             List<Task> FoundMatches = [];
-            
             List<Task> filteredTasks = new List<Task>(tasks);
             List<Task> sortedTasks = new List<Task>(tasks);
             List<Task> projectTasks = new List<Task>();
 
             int currentPage = 0;
             int selectedIndex = 0;
-            const int itemsPerPage = 6;// const so we don't divide by 0 when defining totalPages
-
+            const int itemsPerPage = 6;//Used to divide
+            int totalPages = 0;
+            int startIndex = 0;
+            int endIndex = 0;
             bool keepGoing = true;
+
             while (keepGoing)
             {
-                //Apply any filters
-                filteredTasks = FilterOptions(ref showCompletedTasks, selectedProject, 
-                                              ref FoundMatches, ref sortedTasks, ref projectTasks);
+                filteredTasks = FilterOptions(ref showCompletedTasks, selectedProject, ref FoundMatches, ref sortedTasks, ref projectTasks);
 
-                int totalPages = (int)Math.Ceiling((double)filteredTasks.Count / itemsPerPage);
-                int startIndex = currentPage * itemsPerPage;
-                int endIndex = Math.Min(startIndex + itemsPerPage, filteredTasks.Count);
-
-                //Print header and table
-                Console.Clear();
-                string banner = PrintInfoManager.SetBanner(ref FoundMatches, selectedProject, 
-                                                           ref currentPage, ref totalPages, ref projectTasks);
+                CalcPageLayout(ref totalPages, ref startIndex, ref endIndex, itemsPerPage, ref currentPage, ref filteredTasks);
+                
+                string banner = PrintInfoManager.SetBanner(ref FoundMatches, selectedProject, ref currentPage, ref totalPages, ref projectTasks);
                 PrintInfoManager.PrintHeader(banner);
                 PrintInfoManager.PrintTableHead();
-                PrintInfoManager.PrintTableRows(filteredTasks
-                    .GetRange(startIndex, endIndex - startIndex), selectedIndex);
+                PrintInfoManager.PrintTableRows(filteredTasks.GetRange(startIndex, endIndex - startIndex), selectedIndex);
 
                 //fill with blank lines, if last page not full
                 int remainingLines = itemsPerPage - (endIndex - startIndex);
@@ -102,21 +89,23 @@ namespace ToDoLy
 
                 PrintInfoManager.PrintSortingOptions(showCompletedTasks);
 
-                // Check what key is pressed, act accordingly.. yes it's long
-                keepGoing = UserAction(ref filteredTasks, ref sortedTasks, ref FoundMatches, 
-                                       ref showCompletedTasks, ref selectedProject,
-                                       ref currentPage, ref selectedIndex, startIndex,
-                                       endIndex, totalPages, ref projectTasks);
+                keepGoing = UserAction(ref filteredTasks, ref sortedTasks, ref FoundMatches, ref showCompletedTasks, ref selectedProject,
+                                       ref currentPage, ref selectedIndex, startIndex, endIndex, totalPages, ref projectTasks);
             }
         }
 
-        private static List<Task> FilterOptions(ref bool showCompletedTasks, string? selectedProject, 
-                                                ref List<Task> FoundMatches, ref List<Task> sortedTasks,
-                                                ref List<Task> projectTasks)
+        private static void CalcPageLayout(ref int totalPages, ref int startIndex, ref int endIndex, int itemsPerPage, ref int currentPage, ref List<Task> filteredTasks)
         {
-            List<Task> filteredTasks = showCompletedTasks ? sortedTasks : sortedTasks
-                                       .Where(t => t.IsCompleted == false).ToList();
+            totalPages = (int)Math.Ceiling((double)filteredTasks.Count / itemsPerPage);
+            startIndex = currentPage * itemsPerPage;
+            endIndex = Math.Min(startIndex + itemsPerPage, filteredTasks.Count);
+        }
 
+        private static List<Task> FilterOptions(ref bool showCompletedTasks, string? selectedProject, ref List<Task> FoundMatches, 
+                                                ref List<Task> sortedTasks, ref List<Task> projectTasks)
+        {
+            List<Task> filteredTasks = showCompletedTasks ? sortedTasks : sortedTasks.Where(t => t.IsCompleted == false).ToList();
+            
             projectTasks = new List<Task>();
 
             if (!string.IsNullOrEmpty(selectedProject))
@@ -125,17 +114,13 @@ namespace ToDoLy
             if (projectTasks.Count > 0)//if user deletes last task in project, see all projects
                 filteredTasks = projectTasks;
 
-
-            return FoundMatches.Count == 0
-                   ? filteredTasks
-                   : filteredTasks.Intersect(FoundMatches).ToList();
+            return FoundMatches.Count == 0 ? filteredTasks : filteredTasks.Intersect(FoundMatches).ToList();
         }
 
 
-        public bool UserAction(ref List<Task> filteredTasks, ref List<Task> sortedTasks,
-                               ref List<Task> FoundMatches, ref bool showCompletedTasks, 
-                               ref string? selectedProject, ref int currentPage,ref int selectedIndex, 
-                               int startIndex, int endIndex, int totalPages, ref List<Task> projectTasks)
+        private bool UserAction(ref List<Task> filteredTasks, ref List<Task> sortedTasks,ref List<Task> FoundMatches, ref bool showCompletedTasks, 
+                               ref string? selectedProject, ref int currentPage,ref int selectedIndex, int startIndex, int endIndex, 
+                               int totalPages, ref List<Task> projectTasks)
         {
             while (true)
             {
@@ -145,7 +130,7 @@ namespace ToDoLy
                     case ConsoleKey.Enter:
                         Task task = filteredTasks[selectedIndex + (6 * currentPage)];
                         selectedIndex = 0;
-                        UpdateTaskDetails(task, ref selectedProject);//if updates give emtpy litst, see all, otherwise stay
+                        SelectTaskToEdit(task, ref selectedProject);//if updates give emtpy litst, see all, otherwise stay
                         List<Task> returnToListAfterUpdate = filteredTasks.Where(t => t != task).ToList();
                         if (returnToListAfterUpdate.Count == 0)
                             showCompletedTasks = true;
@@ -158,7 +143,6 @@ namespace ToDoLy
                     case ConsoleKey.Delete:
                         Task taskToDelete = filteredTasks[selectedIndex + (6 * currentPage)];
                         int unsortedIndex = tasks.IndexOf(taskToDelete);
-                        Console.Clear();
                         PrintInfoManager.PrintHeader($"Delete Task: {tasks[unsortedIndex].Details}");
                         PrintInfoManager.PrintAreUSure(tasks[unsortedIndex]);
                         ConsoleKey confirmDelete = Console.ReadKey(true).Key;
@@ -282,89 +266,63 @@ namespace ToDoLy
         }
 
 
-        public void UpdateTaskDetails(Task task, ref string? selectedProject)
+        private void SelectTaskToEdit(Task task, ref string? selectedProject)
         {
             int fieldIndex = 0;
-            bool isUpdating = true;
+            string[] fields = ["Task Details", "Project", "Due Date", "Completion Status"];
 
-            while (isUpdating)
+            while (true)
             {
-                Console.Clear();
                 PrintInfoManager.PrintHeader($"Updating the Task \"{task.Details}\"");
-                
-
-                string[] fields = ["Task Details", "Project", "Due Date", "Completion Status"];
-
                 PrintInfoManager.PrintUpdateTaskFields(fields, task, fieldIndex);
                 PrintInfoManager.PrintUpdateTaskInfo();
-                ConsoleKey key = Console.ReadKey(true).Key;
+                ConsoleKey key = UserInputManager.TrapUntilValidInput(true);
 
                 if (key == ConsoleKey.DownArrow && fieldIndex < fields.Length - 1)
                     fieldIndex++;
                 else if (key == ConsoleKey.UpArrow && fieldIndex > 0)
                     fieldIndex--;
-                else if (key == ConsoleKey.Enter)
-                {
-                    if (fieldIndex == 3)//User just presses enter to toggle complete/pending
-                        task.IsCompleted = !task.IsCompleted;
-                    else
-                        EditTaskDetails(fieldIndex, task, fields, ref selectedProject);
-                }
                 else if (key == ConsoleKey.Escape)
-                    isUpdating = false;
+                    break;
+                else if (key == ConsoleKey.Enter && fieldIndex == 3)
+                    task.IsCompleted = !task.IsCompleted;
+                else if (key == ConsoleKey.Enter)
+                    EditTaskDetails(fieldIndex, task, fields, ref selectedProject);
             }
-            Console.ResetColor();
         }
 
-        public void EditTaskDetails(int fieldIndex, Task task, string[] fields, ref string? selectedProject)
+        private void EditTaskDetails(int fieldIndex, Task task, string[] fields, ref string? selectedProject)
         {
             Console.CursorVisible = true;
             Console.Write($"\nEnter new value for {fields[fieldIndex]}: ");
-            string newValue = UserInputManager.ReadEveryKey();// dont check for null since null == no changes
+            string newValue = UserInputManager.ReadEveryKey();
+            // dont check for null since null == no changes
             Console.CursorVisible = false;
 
-            // Update the task with the new value
-            switch (fields[fieldIndex])
+            if (fields[fieldIndex] == "Task Details" && !string.IsNullOrEmpty(newValue))
+                task.Details = newValue;
+            else if (fields[fieldIndex] == "Project" && !string.IsNullOrEmpty(newValue))
             {
-                case "Task Details":
-                    if (!string.IsNullOrEmpty(newValue))
-                    {
-                        task.Details = newValue;
-                        fManager.SaveFile("tasks.csv", tasks);
-                    }
-                    break;
-                case "Project":
-                    if (!string.IsNullOrEmpty(newValue))
-                    {
-                        selectedProject = null;
-                        task.Project = newValue;
-                        fManager.SaveFile("tasks.csv", tasks);
-                    }
-                    break;
-                case "Due Date":
-                    if (string.IsNullOrEmpty(newValue))
-                        break;
-                    else if (DateTime.TryParse(newValue, out DateTime newDate))
-                    {
-                        if (newDate < DateTime.Now)
-                        {
-                            PrintInfoManager.PrintInvalidDateEarly();
-                        }
-                        else
-                        {
-                            task.DueDate = newDate;
-                            fManager.SaveFile("tasks.csv", tasks);
-                        }
-                    }
-                    else
-                    {
-                        PrintInfoManager.PrintInvalidDate();
-                    }
-                    break;
+                //if not null, small farfetched bug appears
+                selectedProject = null;
+                task.Project = newValue;
             }
+            else if (fields[fieldIndex] == "Due Date" && !string.IsNullOrEmpty(newValue))
+            {
+                if (DateTime.TryParse(newValue, out DateTime newDate))
+                {
+                    if (newDate >= DateTime.Now)
+                        task.DueDate = newDate;
+                    else
+                        PrintInfoManager.PrintInvalidDateEarly();                    
+                }
+                else
+                    PrintInfoManager.PrintInvalidDate();
+            }
+            fManager.SaveFile("tasks.csv", tasks);
         }
 
-        public List<Task> SearchForTask()
+        private List<Task> SearchForTask()
         {
             Console.Write("\nPlease enter your search here:");
             string input = UserInputManager.ReadEveryKey();
@@ -373,57 +331,32 @@ namespace ToDoLy
             return tasks.Where(x => x.Details.Trim().ToLower() == input.Trim().ToLower()).ToList();
         }
 
-        public string ShowProjectSelect()
+        private string ShowProjectSelect()
         {
-            string selectedProject = "";
-
             List<string> projects = tasks.Select(x => x.Project).Distinct().ToList();
+            string selectedProject = "";
             int selectedIndex = 0;
-
             ConsoleKey key;
-
-            do
+            
+            while (true)
             {
-                Console.Clear();
                 PrintInfoManager.PrintHeader("List Of Projects");
-                Console.WriteLine();
-                for (int i = 0; i < projects.Count; i++)
+                PrintInfoManager.PrintProjectList(ref projects, ref selectedIndex);
+
+                key = UserInputManager.TrapUntilValidInput(true);
+                if (key == ConsoleKey.UpArrow && selectedIndex > 0)
+                    selectedIndex--;
+                else if (key == ConsoleKey.DownArrow && selectedIndex < projects.Count - 1)
+                    selectedIndex++;
+                else if (key == ConsoleKey.Enter)
                 {
-                    if (i == selectedIndex)
-                    {
-                        Console.ForegroundColor = ConsoleColor.DarkYellow;
-                        Console.WriteLine("> " + projects[i]);
-                        Console.ResetColor();
-                    }
-                    else
-                    {
-                        Console.WriteLine("  " + projects[i]);
-                    }
+                    selectedProject = projects[selectedIndex];
+                    break;
                 }
+                else if (key == ConsoleKey.Escape)
+                    return null;
 
-                key = Console.ReadKey(true).Key;
-
-                switch (key)
-                {
-                    case ConsoleKey.UpArrow:
-                        if (selectedIndex > 0)
-                            selectedIndex--;
-                        break;
-
-                    case ConsoleKey.DownArrow:
-                        if (selectedIndex < projects.Count - 1)
-                            selectedIndex++;
-                        break;
-                    case ConsoleKey.Enter:
-                        selectedProject = projects[selectedIndex];
-                        break;
-
-                    case ConsoleKey.Escape:
-                        return null;
-                    default:
-                        break;
-                }
-            } while (key != ConsoleKey.Enter);
+            }
             selectedIndex = 0;
             return selectedProject;
         }

@@ -30,8 +30,9 @@ namespace ToDoLy
             string border = new('=', 90);
             string title = section;
             string paddedTitle = title.PadLeft((90 + title.Length) / 2).PadRight(90);
-
+            Console.SetBufferSize(Console.WindowWidth, Console.WindowHeight);
             Console.Clear();
+            Console.SetCursorPosition(0, 0);// try to get focus on top after long print
             Console.ForegroundColor = ConsoleColor.DarkYellow;
             Console.WriteLine(border);
             Console.WriteLine();

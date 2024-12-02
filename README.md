@@ -1,5 +1,3 @@
-# ToDoLy - A to-do list
-
 This is a simple app that allows users to add/update/remove and save tasks to file.
 
 It consists of three parts:
@@ -17,32 +15,85 @@ The code has five classes and a main (Program.cs):
 4. PrintInfoManager.cs
 5. UserInputManager.cs
 
-## Task.cs
-Contains the basic info of a task. It has a constructor so the object can be created faster.
+# Instructions
+This how u u se it...
+Epic screens showing.
 
-**string** Details 
 
-**string** Project name 
+# UML - Classes
 
-**DateTime** Due Date
+### 1. TaskManager
+  * **Fields**
+    * FileManager fManager
+    * List<Task> tasks
+  * **Methods**
+    * AddTask()
+    * UpdateTask()
+    * SelectTaskToEdit(Task task, ref string? selectedProject)
+    * EditTaskDetails(int fieldIndex, Task task, string[] fields, ref string? selectedProject)
+    * SearchForTask()
+    * ShowProjectSelect()
+    * CalcPageLayout(...)
+    * FilterOptions(...)
+    * UserAction(...)
+    * HandleEnter(...)
+    * HandleDeleteKey(...)
+    * HandleFKey(...)
+    * HandlePKey(...)
+    * HandleAKey(...)
+    * HandleSKey(...)
 
-**bool** Completion status.
+### 2. FileManager
+  * **Methods**
+    * SaveFile(string fileName, List<Task> tasks)
+    * LoadTasks(string filePath)
 
-## TaskManager.cs
-This class contains the methods for creating/updating/displaying/removing tasks.
-It is responsible for the bulk of the functionality.
+### 3. Task
+  * **Fields**
+    * **string** _Details_
+    * **string** _Project_
+    * **DateTime** _DueDate_
+    * **bool** _IsCompleted_
 
-## FileManager.cs
-This class contains the methods for loading and creating files. Short and simple.
+### 4. UserInputManager
+  * **Methods**
+    * static string GetInput(string prompt, string errorMessage, bool allowEmpty)
+    * static ConsoleKey TrapUntilValidInput(int mode)
+    * static string ReadEveryKey()
 
-## PrintInfoManager.cs
-This class contains the methods for printing information and instructions to the user. It has more code than it needs, since I wanted to make it colorfull and user friendly.
+### 5. PrintInfoManager
+  * **Methods**
+    * static string SetBanner(...)
+    * static void PrintHeader(string message)
+    * void PrintWelcome(int complete, int pending)
+    * static void PrintOptions()
+    * static void PrintAddTaskInfo(int step)
+    * static void PrintWithColor(string message, ConsoleColor color)
+    * static void PrintTableHead()
+    * static void PrintTableRows(List<Task> tasks, int selectedIndex)
+    * static void PrintSortingOptions(bool showCompletedTasks)
+    * static void PrintUpdateTaskFields(string[] fields, Task task, int fieldIndex)
+    * static void PrintUpdateTaskInfo()
+    * static void PrintInvalidDate()
+    * static void PrintInvalidDateEarly()
+    * static void PrintDeleteConfirm()
+    * static void PrintDeleteCancel()
+    * static void PrintProjectList(ref List<string> projects, ref int selectedIndex)
+    * static void PrintAreUSure(Task task)
 
-## UserInputManager.cs
-This class contains the methods for taking input from user. This class only handles keypresses when user is inputing a string, not when "action keys" are used.
+# UML - Relashionships and associations
 
-The method "ReadEveryKey" builds a string while the user types, making it possible to escape from an active input prompt. 
-Instead of reading the string only after completed input. 
+1. **TaskManager** _uses_:
+    * **FileManager** to save and load data, with an object. 
+    * **PrintInfoManager** to print information, data, user input and output, to console. Without objects.
+    * **UserInputManager** to handle user input. Without objects.
+2. **TaskManager** has a composition rellationship with **Task**.Since it manages a list of **Task** objects
+3. **Task** is a simple data model class with fields for the task details to be saved.
+4. **PrintInfoManager** and **UserInputManager** are utility classes.
+5. **PrintInfoManager** and **FileManager** _use_ objects of **Task** to get data.
+
+![Alt UML](UML.svg)
+
 
 
 # Known buggs

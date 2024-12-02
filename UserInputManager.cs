@@ -30,6 +30,10 @@ namespace ToDoLy
                     input.Remove(input.Length - 1, 1);
                     Console.Write("\b \b");//needs the space to erase
                 }
+                else if (key.KeyChar == '§')
+                {
+                    continue;
+                }
                 else if (!char.IsControl(key.KeyChar))//example of control is \n \t backspace esc etc
                 {//small buggs when typing control char, they are invis but cant be erased like §.
                     input.Append(key.KeyChar);

@@ -11,8 +11,9 @@ namespace ToDoLy
 {
     internal class TaskManager
     {
-        public FileManager fManager = new();
-        public List<Task> tasks = new();
+        private FileManager fManager = new();
+        public List<Task> tasks { get; set; }
+
 
         public void AddTask()
         {

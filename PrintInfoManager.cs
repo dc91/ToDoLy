@@ -14,8 +14,12 @@ namespace ToDoLy
         public static string SetBanner(ref List<Task> FoundMatches, string? selectedProject,
                                  ref int currentPage, ref int totalPages, ref List<Task> projectTasks)
         {
+            
             if (!string.IsNullOrEmpty(selectedProject) && projectTasks.Count > 0)
-                return $"Tasks in Project: {selectedProject}";
+            {
+                string replaceWithShort = (selectedProject.Length > 20) ? selectedProject[..20] : selectedProject;
+                return $"Tasks in Project: {replaceWithShort}";
+            }
             else if (FoundMatches.Count != 0)
                 return "Search Results";
             return $"Your Tasks - Page {currentPage + 1} of {totalPages}";
@@ -133,13 +137,13 @@ namespace ToDoLy
                 switch (fields[i])
                 {
                     case "Task Details":
-                        Console.WriteLine($"\n\nTask: \t\t{task.Details}");
+                        Console.WriteLine($"\n\nTask: \t\t{task.GetLineBreakDetails}");
                         break;
                     case "Project":
-                        Console.WriteLine($"Project: \t{task.Project}");
+                        Console.WriteLine($"Project: \t{task.GetLineBreakProject}");
                         break;
                     case "Due Date":
-                        Console.WriteLine($"Due Date: \t{task.DueDate.ToShortDateString()}");
+                        Console.WriteLine($"Due Date: \t{task.DueDate.ToShortDateString()}\n");
                         break;
                     case "Completion Status":
                         string status = task.IsCompleted ? "Completed" : "Pending";
@@ -204,8 +208,8 @@ namespace ToDoLy
                 if (selectedIndex.HasValue && i == selectedIndex.Value)
                     Console.ForegroundColor = ConsoleColor.DarkYellow;
                 Console.WriteLine("| {0,-25} | {1,-25} | {2,-12} | {3,-10}",
-                      task.Details,
-                      task.Project,
+                      task.GetShortDetails,
+                      task.GetShortProject,
                       task.DueDate.ToShortDateString(),
                       status);
                 Console.ResetColor();

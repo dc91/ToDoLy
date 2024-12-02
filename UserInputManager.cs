@@ -30,7 +30,7 @@ namespace ToDoLy
                     input.Remove(input.Length - 1, 1);
                     Console.Write("\b \b");//needs the space to erase
                 }
-                else if (key.KeyChar == '§')
+                else if (key.KeyChar == '§' || key.KeyChar == '|')// '|' is what separates the columns in the file
                 {
                     continue;
                 }

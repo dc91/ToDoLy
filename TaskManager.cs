@@ -102,7 +102,7 @@ namespace ToDoLy
 
             while (true)
             {
-                PrintInfoManager.PrintHeader($"Updating the Task \"{task.Details}\"");
+                PrintInfoManager.PrintHeader($"Updating the Task \"{task.GetShortDetails}\"");
                 PrintInfoManager.PrintUpdateTaskFields(fields, task, fieldIndex);
                 PrintInfoManager.PrintUpdateTaskInfo();
             GetKey:;

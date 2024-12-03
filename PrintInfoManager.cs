@@ -65,18 +65,16 @@ namespace ToDoLy
             string title = section;
             string paddedTitle = title.PadLeft((Console.WindowWidth + title.Length) / 2).PadRight(Console.WindowWidth);
 
-            if (Console.WindowHeight > 20)
-            {
-                Console.ForegroundColor = ConsoleColor.DarkYellow;
-                Console.WriteLine(border);
-                Console.WriteLine(new string(' ', Console.WindowWidth));
-                Console.WriteLine(paddedTitle);
-                Console.WriteLine(new string(' ', Console.WindowWidth));
-                Console.WriteLine(border);
-                Console.ResetColor();
-                Console.WriteLine(new string(' ', Console.WindowWidth));
-            }
-            
+
+            Console.ForegroundColor = ConsoleColor.DarkYellow;
+            Console.WriteLine(border);
+            Console.WriteLine(new string(' ', Console.WindowWidth));
+            Console.WriteLine(paddedTitle);
+            Console.WriteLine(new string(' ', Console.WindowWidth));
+            Console.WriteLine(border);
+            Console.ResetColor();
+            Console.WriteLine(new string(' ', Console.WindowWidth));
+
             ClearLines();
         }
 
@@ -100,8 +98,6 @@ namespace ToDoLy
         public static void PrintSortingOptions(bool showCompletedTasks = true)
         {
             string toggleSetting = showCompletedTasks ? "Hide" : "Show";
-            
-            Console.SetCursorPosition(0, Console.WindowHeight - 6);
 
             string header = string.Format("| {0,-18} | {1,-18} | {2,-18} | {3,-18} |", "", "", "", "");
             int leftPadding = Math.Max((Console.WindowWidth - header.Length ) / 2, 0);

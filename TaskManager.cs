@@ -11,7 +11,7 @@ namespace ToDoLy
 {
     internal class TaskManager
     {
-        private readonly FileManager fManager = new();
+        private FileManager fManager = new();
         public List<Task> tasks { get; set; }
 
 
@@ -116,7 +116,7 @@ namespace ToDoLy
                 PrintInfoManager.PrintHeader($"Updating the Task \"{task.GetShortDetails}\"");
                 PrintInfoManager.PrintUpdateTaskFields(fields, task, fieldIndex);
                 PrintInfoManager.PrintUpdateTaskInfo();
-            GetKey:;
+
                 ConsoleKey key = UserInputManager.TrapUntilValidInput(1);
                 if (key == ConsoleKey.DownArrow && fieldIndex >= fields.Length - 1)
                     fieldIndex = 0;
@@ -129,7 +129,10 @@ namespace ToDoLy
                 else if (key == ConsoleKey.Escape)
                     break;
                 else if (key == ConsoleKey.Enter && fieldIndex == 3)
+                {
                     task.IsCompleted = !task.IsCompleted;
+                    fManager.SaveFile("tasks.csv", tasks);
+                }
                 else if (key == ConsoleKey.Enter)
                 {
                     EditTaskDetails(fieldIndex, task, fields, ref selectedProject);

@@ -163,17 +163,21 @@ namespace ToDoLy
 
         public static void PrintUpdateTaskInfo()
         {
-            Console.WriteLine();
-            PrintWithColor("\n\n\n\n[UP] or [DOWN]", ConsoleColor.DarkYellow, " to ", false);
-            PrintWithColor("HIGHLIGHT", ConsoleColor.DarkYellow, " a value.");
+            //Console.SetCursorPosition(0, Console.WindowHeight - 2);
+            Console.WriteLine("\n");
+            Console.WriteLine(new string('-', Console.WindowWidth));
+            PrintWithColor("[UP] or [DOWN]", ConsoleColor.DarkYellow, " to ", false);
+            PrintWithColor("HIGHLIGHT", ConsoleColor.DarkYellow, " a value. | ", false);
             PrintWithColor("[ENTER]", ConsoleColor.Blue, " to ", false);
-            PrintWithColor("UPDATE", ConsoleColor.Blue, " a value.");
+            PrintWithColor("UPDATE", ConsoleColor.Blue, " a value. | ", false);
             PrintWithColor("[ESC]", ConsoleColor.DarkGray, " to ", false);
-            PrintWithColor("CANCEL", ConsoleColor.DarkGray, ".", false);
+            PrintWithColor("CANCEL", ConsoleColor.DarkGray, ".\n", false);
         }
 
         public static void PrintUpdateTaskFields(string[] fields, Task task, int fieldIndex)
         {
+            int windowWidth = Console.WindowWidth;
+
             for (int i = 0; i < fields.Length; i++)
             {
                 if (i == fieldIndex)
@@ -184,7 +188,7 @@ namespace ToDoLy
                 switch (fields[i])
                 {
                     case "Task Details":
-                        Console.WriteLine($"Task: \t\t{task.GetLineBreakDetails}");
+                        Console.WriteLine($"\n\nTask: \t\t{task.GetLineBreakDetails}");
                         break;
                     case "Project":
                         Console.WriteLine($"Project: \t{task.GetLineBreakProject}");
@@ -204,13 +208,13 @@ namespace ToDoLy
         public static void PrintAreUSure(Task task)
         {
             Console.Write("Are you sure you want to ");
-            PrintWithColor("DELETE", ConsoleColor.Red, " this task?\n");
+            PrintWithColor("DELETE", ConsoleColor.Red, " this task?");
             Console.WriteLine($"\n\nTask: \t\t{task.GetLineBreakDetails}");
             Console.WriteLine($"Project: \t{task.GetLineBreakProject}");
             Console.WriteLine($"Due Date: \t{task.DueDate.ToShortDateString()}");
-            Console.WriteLine($"\nStatus: \t{(task.IsCompleted ? "Completed" : "Pending")}");
+            Console.WriteLine($"\nStatus: \t{(task.IsCompleted ? "Completed" : "Pending")}\n\n");
             Console.WriteLine(new string('-', 50));
-            Console.Write("\nPress 'ENTER' to confirm, or any other key to cancel: ");
+            Console.Write("Press 'ENTER' to confirm, or any other key to cancel: ");
 
         }
 
@@ -281,7 +285,7 @@ namespace ToDoLy
                 string formatted = FormatLongString(projects[i]);
                 string shortProjectName = projects[i].Length > 50 ? projects[i][..47] + "..." : projects[i];
                 if (i == selectedIndex)
-                    PrintWithColor("\n" + "> ".PadLeft(16) + formatted + "\n", ConsoleColor.DarkYellow);
+                    PrintWithColor("> ".PadLeft(16) + formatted + "\n", ConsoleColor.DarkYellow);
                 else
                     Console.WriteLine("  ".PadLeft(16) + shortProjectName);
             }

@@ -1,20 +1,44 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using static System.Collections.Specialized.BitVector32;
-
+using static System.Net.Mime.MediaTypeNames;
 namespace ToDoLy
 {
     internal class PrintInfoManager
     {
+        public static int lastSize = 0;
+
+        public static void ClearLines()
+        {
+            var currPos = Console.GetCursorPosition();
+            for (int i = 0; i < Console.WindowHeight - currPos.Top - 1; i++)
+            {
+                Console.WriteLine(new string(' ', Console.WindowWidth));
+            }
+            Console.SetCursorPosition(currPos.Left, currPos.Top);
+        }
+
+        public static void ClearConsole()
+        {
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = "cmd.exe",
+                Arguments = "/C cls", // /C runs the command and exits
+                UseShellExecute = false,
+                RedirectStandardOutput = false
+            })?.WaitForExit();
+        }
+
         public static string SetBanner(ref List<Task> FoundMatches, string? selectedProject,
                                  ref int currentPage, ref int totalPages, ref List<Task> projectTasks)
         {
-            
             if (!string.IsNullOrEmpty(selectedProject) && projectTasks.Count > 0)
             {
                 string replaceWithShort = (selectedProject.Length > 20) ? selectedProject[..20] : selectedProject;
@@ -27,20 +51,33 @@ namespace ToDoLy
 
         public static void PrintHeader(string section)
         {
-            string border = new('=', 90);
+            //clear lines in scrollback if lines printed exceed windowHeight
+            int cursPos = Console.CursorTop;
+            int winHeight = Console.WindowHeight;
+
+            if (Console.WindowHeight > 1 && (cursPos >= winHeight - 1 || lastSize != winHeight))
+                ClearConsole();
+            else
+                Console.SetCursorPosition(0, 0);
+            lastSize = winHeight;
+
+            string border = new('=', Console.WindowWidth);
             string title = section;
-            string paddedTitle = title.PadLeft((90 + title.Length) / 2).PadRight(90);
-            Console.SetBufferSize(Console.WindowWidth, Console.WindowHeight);
-            Console.Clear();
-            Console.SetCursorPosition(0, 0);// try to get focus on top after long print
-            Console.ForegroundColor = ConsoleColor.DarkYellow;
-            Console.WriteLine(border);
-            Console.WriteLine();
-            Console.WriteLine(paddedTitle);
-            Console.WriteLine();
-            Console.WriteLine(border);
-            Console.ResetColor();
-            Console.WriteLine();
+            string paddedTitle = title.PadLeft((Console.WindowWidth + title.Length) / 2).PadRight(Console.WindowWidth);
+
+            if (Console.WindowHeight > 20)
+            {
+                Console.ForegroundColor = ConsoleColor.DarkYellow;
+                Console.WriteLine(border);
+                Console.WriteLine(new string(' ', Console.WindowWidth));
+                Console.WriteLine(paddedTitle);
+                Console.WriteLine(new string(' ', Console.WindowWidth));
+                Console.WriteLine(border);
+                Console.ResetColor();
+                Console.WriteLine(new string(' ', Console.WindowWidth));
+            }
+            
+            ClearLines();
         }
 
         public void PrintWelcome(int complete, int pending)
@@ -63,38 +100,47 @@ namespace ToDoLy
         public static void PrintSortingOptions(bool showCompletedTasks = true)
         {
             string toggleSetting = showCompletedTasks ? "Hide" : "Show";
-
-            Console.Write("\nHow would you like to ");
-
-            PrintWithColor("SORT", ConsoleColor.Blue, " or ", false);
-
-            PrintWithColor("FILTER", ConsoleColor.DarkYellow, " the tasks?\n");
-
-            PrintWithColor("[1]", ConsoleColor.Blue, " By DATE", false);
-
-            PrintWithColor("\t\t[F]", ConsoleColor.DarkYellow, $" {toggleSetting} COMPLETED", false);
             
-            PrintWithColor("\t\t[ARROWS]", ConsoleColor.Red, $" NAVIGATE");
+            Console.SetCursorPosition(0, Console.WindowHeight - 6);
 
-            PrintWithColor("[2]", ConsoleColor.Blue, " By PROJECT", false);
+            string header = string.Format("| {0,-18} | {1,-18} | {2,-18} | {3,-18} |", "", "", "", "");
+            int leftPadding = Math.Max((Console.WindowWidth - header.Length ) / 2, 0);
+
+            PrintWithColor(new string(' ', leftPadding) + "SORTING", ConsoleColor.Blue);
+
+            PrintWithColor("\t\tFILTERS/SEARCH", ConsoleColor.DarkYellow);
+
+            PrintWithColor("\t\tACTIONS", ConsoleColor.Red);
+
+            PrintWithColor("\t\t\t[ESC]", ConsoleColor.DarkGray, " to exit." + "\n", false);
+
+            PrintWithColor("[1]".PadLeft(leftPadding + 3), ConsoleColor.Blue, " Default", false);
+
+            PrintWithColor("\t\t" + "[F]", ConsoleColor.DarkYellow, $" {toggleSetting} COMPLETED", false);
+            
+            PrintWithColor("\t" + "[ARROWS]", ConsoleColor.Red, " NAVIGATE");
+
+            PrintWithColor("[2]".PadLeft(leftPadding + 3), ConsoleColor.Blue, " By PROJECT", false);
 
             PrintWithColor("\t\t[P]", ConsoleColor.DarkYellow, " SPECIFIC PROJECT", false);
 
-            PrintWithColor("\t\t[ENTER]", ConsoleColor.Red, $" EDIT Task");
+            PrintWithColor("\t[ENTER]", ConsoleColor.Red, $" EDIT Task");
 
-            PrintWithColor("[3]", ConsoleColor.Blue, " Default", false);
+            PrintWithColor("[3]".PadLeft(leftPadding + 3), ConsoleColor.Blue, " By DATE", false);
 
             PrintWithColor("\t\t[A]", ConsoleColor.DarkYellow, " ALL PROJECTS", false);
 
-            PrintWithColor("\t\t[DEL]", ConsoleColor.Red, $" DELETE Task");
+            PrintWithColor("\t[DEL]", ConsoleColor.Red, $" DELETE Task");
 
-            PrintWithColor("\t\t\t[S]", ConsoleColor.DarkYellow, " SEARCH", false);
+            PrintWithColor("\t\t\t\t[S]".PadLeft(leftPadding), ConsoleColor.DarkYellow, " SEARCH", false);
 
-            PrintWithColor("\n[ESC]", ConsoleColor.DarkGray, " to exit.");
+            
         }
 
         public static void PrintAddTaskInfo(int activeStep = 1)
         {
+            ClearLines();
+
             string[] prompt = ["Enter Task Details", "Enter Project Name", "Enter Due Date"];
 
             for (int step = 1; step <= 3; step++)
@@ -123,7 +169,7 @@ namespace ToDoLy
             PrintWithColor("[ENTER]", ConsoleColor.Blue, " to ", false);
             PrintWithColor("UPDATE", ConsoleColor.Blue, " a value.");
             PrintWithColor("[ESC]", ConsoleColor.DarkGray, " to ", false);
-            PrintWithColor("CANCEL", ConsoleColor.DarkGray, ".\n", true);
+            PrintWithColor("CANCEL", ConsoleColor.DarkGray, ".", false);
         }
 
         public static void PrintUpdateTaskFields(string[] fields, Task task, int fieldIndex)
@@ -138,7 +184,7 @@ namespace ToDoLy
                 switch (fields[i])
                 {
                     case "Task Details":
-                        Console.WriteLine($"\n\nTask: \t\t{task.GetLineBreakDetails}");
+                        Console.WriteLine($"Task: \t\t{task.GetLineBreakDetails}");
                         break;
                     case "Project":
                         Console.WriteLine($"Project: \t{task.GetLineBreakProject}");
@@ -159,10 +205,10 @@ namespace ToDoLy
         {
             Console.Write("Are you sure you want to ");
             PrintWithColor("DELETE", ConsoleColor.Red, " this task?\n");
-            Console.WriteLine($"\n\nTask: \t\t{task.Details}");
-            Console.WriteLine($"Project: \t{task.Project}");
+            Console.WriteLine($"\n\nTask: \t\t{task.GetLineBreakDetails}");
+            Console.WriteLine($"Project: \t{task.GetLineBreakProject}");
             Console.WriteLine($"Due Date: \t{task.DueDate.ToShortDateString()}");
-            Console.WriteLine($"Status: \t{(task.IsCompleted ? "Completed" : "Pending")}");
+            Console.WriteLine($"\nStatus: \t{(task.IsCompleted ? "Completed" : "Pending")}");
             Console.WriteLine(new string('-', 50));
             Console.Write("\nPress 'ENTER' to confirm, or any other key to cancel: ");
 
@@ -194,37 +240,50 @@ namespace ToDoLy
 
         public static void PrintTableHead()
         {
-            Console.WriteLine("| {0,-25} | {1,-25} | {2,-12} | {3,-10}",
-                      "Task Details", "Project", "Due Date", "Status");
-            Console.WriteLine(new string('-', 90));
+            // Define the table header and separator
+            string header = string.Format("| {0,-25} | {1,-25} | {2,-12} | {3,-10} |",
+                                           "Task Details", "Project", "Due Date", "Status");
+            string separator = new('-', header.Length);
+            int leftPadding = Math.Max((Console.WindowWidth - header.Length) / 2, 0);
+
+            Console.WriteLine(new string(' ', leftPadding) + header);
+            Console.WriteLine(new string(' ', leftPadding) + separator);
         }
 
         public static void PrintTableRows(List<Task> originalTasks, int? selectedIndex)
         {
+            lastSize = Console.WindowHeight;
+            string row = "| {0,-25} | {1,-25} | {2,-12} | {3,-10} |";
+            // Need row length based on the format. Using row.Length isnt enough
+            int rowLength = string.Format(row, "", "", "", "").Length;
+
             for (int i = 0; i < originalTasks.Count; i++)
             {
                 Task task = originalTasks[i];
                 string status = task.IsCompleted ? "Completed" : "Pending";
 
+                int leftPadding = Math.Max((Console.WindowWidth - rowLength) / 2, 0);
+
                 if (selectedIndex.HasValue && i == selectedIndex.Value)
                     Console.ForegroundColor = ConsoleColor.DarkYellow;
-                Console.WriteLine("| {0,-25} | {1,-25} | {2,-12} | {3,-10}",
-                      task.GetShortDetails,
-                      task.GetShortProject,
-                      task.DueDate.ToShortDateString(),
-                      status);
+                Console.WriteLine(
+                    new string(' ', leftPadding) +
+                    string.Format(row, task.GetShortDetails, task.GetShortProject, task.DueDate.ToShortDateString(), status));
                 Console.ResetColor();
             }
+            Console.WriteLine(new string(' ', Console.WindowWidth));
         }
 
         public static void PrintProjectList(ref List<string> projects, ref int selectedIndex)
         {
             for (int i = 0; i < projects.Count; i++)
             {
+                string formatted = FormatLongString(projects[i]);
+                string shortProjectName = projects[i].Length > 50 ? projects[i][..47] + "..." : projects[i];
                 if (i == selectedIndex)
-                    PrintWithColor("> " + projects[i] + "\n", ConsoleColor.DarkYellow);
+                    PrintWithColor("\n" + "> ".PadLeft(16) + formatted + "\n", ConsoleColor.DarkYellow);
                 else
-                    Console.WriteLine("  " + projects[i]);
+                    Console.WriteLine("  ".PadLeft(16) + shortProjectName);
             }
         }
 
@@ -240,5 +299,19 @@ namespace ToDoLy
                     Console.Write(post);
         }
 
+
+        public static string FormatLongString(string input)
+        {
+            const int lineLength = 50;
+            string formatted = string.Empty;
+
+            for (int i = 0; i < input.Length; i += lineLength)
+            {
+                int remaning = Math.Min(lineLength, input.Length - i);
+                string segment = input.Substring(i, remaning);
+                formatted += segment.PadRight(lineLength) + Environment.NewLine + "\t\t";
+            }
+            return formatted;
+        }
     }
 }

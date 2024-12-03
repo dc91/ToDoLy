@@ -4,6 +4,8 @@ using System.IO;
 using static System.Collections.Specialized.BitVector32;
 using System.Threading.Tasks;
 using System.Numerics;
+using System.Diagnostics;
+
 
 
 TaskManager tManager = new();
@@ -24,7 +26,7 @@ while (true)
     int pending = tManager.tasks.Count(t => !t.IsCompleted);
     int complete = tManager.tasks.Count(t => t.IsCompleted);
 
-    Console.Clear();
+
     PrintInfoManager.PrintHeader("Welcome to ToDoLy - Main Menu");
     pManager.PrintWelcome(complete, pending);
     Console.WriteLine();

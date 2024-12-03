@@ -35,7 +35,7 @@ namespace ToDoLy
                     continue;
                 }
                 else if (!char.IsControl(key.KeyChar))//example of control is \n \t backspace esc etc
-                {//small buggs when typing control char, they are invis but cant be erased like §.
+                {
                     input.Append(key.KeyChar);
                     Console.Write(key.KeyChar);
                 }

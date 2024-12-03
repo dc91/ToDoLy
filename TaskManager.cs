@@ -11,7 +11,7 @@ namespace ToDoLy
 {
     internal class TaskManager
     {
-        private FileManager fManager = new();
+        private readonly FileManager fManager = new();
         public List<Task> tasks { get; set; }
 
 
@@ -24,6 +24,7 @@ namespace ToDoLy
                 "Cannot have an empty task. Try again.", false);
             if (details == null) return;
 
+            PrintInfoManager.ClearConsole();
             PrintInfoManager.PrintHeader("Add a New Task");
             PrintInfoManager.PrintAddTaskInfo(2);
             Console.WriteLine(details);
@@ -32,6 +33,7 @@ namespace ToDoLy
                 "Cannot have an project name. Try again.", false);
             if (project == null) return;
 
+            PrintInfoManager.ClearConsole();
             PrintInfoManager.PrintHeader("Add a New Task");
             PrintInfoManager.PrintAddTaskInfo(3);
             Console.WriteLine($"{details}\n{project}");
@@ -67,7 +69,9 @@ namespace ToDoLy
 
             int currentPage = 0;
             int selectedIndex = 0;
-            const int itemsPerPage = 6;//Used to divide
+            int linesForInfo = 19;
+            int itemsPerPage = (Console.WindowHeight < 20) ? 1 : Console.WindowHeight - linesForInfo;//Used to divide, make sure its not 0
+            
             int totalPages = 0;
             int startIndex = 0;
             int endIndex = 0;
@@ -75,6 +79,14 @@ namespace ToDoLy
 
             while (keepGoing)
             {
+                if (PrintInfoManager.lastSize != Console.WindowHeight)
+                {
+                    selectedIndex = 0;
+                    currentPage = 0;
+                }
+
+                itemsPerPage = (Console.WindowHeight < 20) ? 1 : Console.WindowHeight - linesForInfo;//Used to divide, make sure its not 0
+
                 filteredTasks = FilterOptions(ref showCompletedTasks, selectedProject, ref foundMatches, ref sortedTasks, ref projectTasks);
 
                 CalcPageLayout(ref totalPages, ref startIndex, ref endIndex, itemsPerPage, ref currentPage, ref filteredTasks);
@@ -86,8 +98,7 @@ namespace ToDoLy
 
                 //fill with blank lines, if last page not full
                 int remainingLines = itemsPerPage - (endIndex - startIndex);
-                for (int i = 0; i < remainingLines; i++) Console.WriteLine();
-
+                for (int i = 0; i < remainingLines; i++) Console.WriteLine(new string(' ', Console.WindowWidth));
                 PrintInfoManager.PrintSortingOptions(showCompletedTasks);
 
                 keepGoing = UserAction(ref filteredTasks, ref sortedTasks, ref foundMatches, ref showCompletedTasks, ref selectedProject,
@@ -108,9 +119,9 @@ namespace ToDoLy
             GetKey:;
                 ConsoleKey key = UserInputManager.TrapUntilValidInput(1);
                 if (key == ConsoleKey.DownArrow && fieldIndex >= fields.Length - 1)
-                    goto GetKey;
+                    fieldIndex = 0;
                 else if (key == ConsoleKey.UpArrow && fieldIndex <= 0)
-                    goto GetKey;
+                    fieldIndex = fields.Length - 1;
                 else if (key == ConsoleKey.DownArrow && fieldIndex < fields.Length - 1)
                     fieldIndex++;
                 else if (key == ConsoleKey.UpArrow && fieldIndex > 0)
@@ -167,7 +178,7 @@ namespace ToDoLy
 
         private string ShowProjectSelect()
         {
-            List<string> projects = tasks.Select(x => x.Project).Distinct().ToList();
+            List<string> projects = tasks.Select(x => x.Project).Distinct().OrderBy(p => p).ToList();
             string selectedProject = "";
             int selectedIndex = 0;
             ConsoleKey key;
@@ -238,7 +249,7 @@ namespace ToDoLy
                                                ref showCompletedTasks, ref selectedIndex, ref currentPage, itemsPerPage);
 
                     case ConsoleKey.D1:
-                        sortedTasks = tasks.OrderBy(t => t.DueDate).ToList();
+                        sortedTasks = new List<Task>(tasks);
                         currentPage = 0;
                         return true;
 
@@ -248,7 +259,7 @@ namespace ToDoLy
                         return true;
 
                     case ConsoleKey.D3:
-                        sortedTasks = new List<Task>(tasks);
+                        sortedTasks = tasks.OrderBy(t => t.DueDate).ToList();
                         currentPage = 0;
                         return true;
 
@@ -267,26 +278,28 @@ namespace ToDoLy
                     case ConsoleKey.A:
                         HandleAKey(ref sortedTasks, ref selectedProject, ref showCompletedTasks);
                         currentPage = 0;
+                        foundMatches.Clear();
                         return true;
 
                     case ConsoleKey.S:
                         HandleSKey(ref foundMatches, ref selectedProject, ref showCompletedTasks);
                         currentPage = 0;
                         selectedIndex = 0;
+                        PrintInfoManager.ClearConsole();
                         return true;
 
                     case ConsoleKey.DownArrow:
                         if (selectedIndex < (endIndex - startIndex - 1))
                             selectedIndex++;
                         else if (selectedIndex >= (endIndex - startIndex - 1))
-                            goto GetKeyAgain;
+                            selectedIndex = 0;
                         return true;
 
                     case ConsoleKey.UpArrow:
                         if (selectedIndex > 0)
                             selectedIndex--;
                         else if (selectedIndex <= 0)
-                            goto GetKeyAgain;
+                            selectedIndex = endIndex - startIndex - 1;
                         return true;
 
                     case ConsoleKey.LeftArrow:
@@ -296,7 +309,10 @@ namespace ToDoLy
                             selectedIndex = 0;
                         }
                         else if (currentPage <= 0)
-                            goto GetKeyAgain;
+                        {
+                            selectedIndex = 0;
+                            currentPage = totalPages - 1;
+                        }
                         return true;
 
                     case ConsoleKey.RightArrow:
@@ -306,7 +322,11 @@ namespace ToDoLy
                             selectedIndex = 0;
                         }
                         else if (currentPage >= totalPages - 1)
-                            goto GetKeyAgain;
+                        {
+                            selectedIndex = 0;
+                            currentPage = 0;
+                        }
+                            
                         return true;
                     default:
                         return true;
@@ -331,7 +351,7 @@ namespace ToDoLy
                                      ref int selectedIndex, ref int currentPage, int itemsPerPage)
         {
             Task taskToDelete = filteredTasks[selectedIndex + (itemsPerPage * currentPage)];
-            PrintInfoManager.PrintHeader($"Delete Task: {taskToDelete.Details}");
+            PrintInfoManager.PrintHeader($"Delete Task: {taskToDelete.GetShortDetails}");
             PrintInfoManager.PrintAreUSure(taskToDelete);
             ConsoleKey confirmDelete = Console.ReadKey(true).Key;
             if (confirmDelete == ConsoleKey.Enter)

@@ -27,9 +27,9 @@ namespace ToDoLy
 
         public string GetShortProject { get => _project.Length > 20 ? _project[..20] + "..." : _project; }
 
-        public string GetLineBreakDetails { get => FormatLongString(_details); }
+        public string GetLineBreakDetails { get => PrintInfoManager.FormatLongString(_details); }
 
-        public string GetLineBreakProject { get => FormatLongString(_project); }
+        public string GetLineBreakProject { get => PrintInfoManager.FormatLongString(_project); }
 
         public DateTime DueDate { get; set; }
         public bool IsCompleted { get; set; }
@@ -42,19 +42,5 @@ namespace ToDoLy
             IsCompleted = complete;
         }
 
-        private string FormatLongString(string input)
-        {
-            const int lineLength = 70;
-            const int paddingRight = 0;
-            string formatted = string.Empty;
-
-            for (int i = 0; i < input.Length; i += lineLength)
-            {
-                int remaning = Math.Min(lineLength, input.Length - i);
-                string segment = input.Substring(i, remaning);
-                formatted += segment.PadRight(lineLength + paddingRight) + Environment.NewLine + "\t\t";
-            }
-            return formatted;
-        }
     }
 }

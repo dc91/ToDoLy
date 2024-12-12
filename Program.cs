@@ -6,7 +6,7 @@ PrintInfoManager pManager = new();
 
 string filePath = "tasks.csv";
 
-if (File.Exists(filePath))
+if (File.Exists(filePath)) // Fix bug with nonexisting file. just loop or something
     tManager.tasks = fManager.LoadTasks(filePath);
 else
 {

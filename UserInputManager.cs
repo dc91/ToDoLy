@@ -4,6 +4,40 @@ namespace ToDoLy
 {
     internal class UserInputManager
     {
+        public static string GetInput(string errMess, bool expectDateTime)
+        {
+            int currentCursor = Console.CursorTop;
+            while (true)
+            {
+                Console.Write("  ");
+                string input = ReadEveryKey();
+
+                if (input == null)
+                {
+                    PrintInfoManager.PrintWithColor("\nCancelling... Press any key", ConsoleColor.Green);
+                    Console.ReadKey();
+                    return null;
+                }
+
+                if (!expectDateTime && !string.IsNullOrWhiteSpace(input))
+                    return input;
+                if (expectDateTime && DateTime.TryParse(input, out DateTime date))
+                {
+                    if (date < DateTime.Now)
+                    {
+                        PrintInfoManager.PrintInvalidDateEarly();
+                        Console.SetCursorPosition(0, currentCursor);
+                        PrintInfoManager.ClearLines();
+                        continue;
+                    }
+                    return date.ToString();
+                }
+                Console.SetCursorPosition(0, currentCursor);
+                PrintInfoManager.ClearLines();
+                PrintInfoManager.PrintWithColor(errMess, ConsoleColor.Red, "", true);
+            }
+        }
+
         public static string ReadEveryKey()
         {// Reads input key-by-key. return null if ESC, or returns full input string
             StringBuilder input = new();
@@ -35,40 +69,6 @@ namespace ToDoLy
                     input.Append(key.KeyChar);
                     Console.Write(key.KeyChar);
                 }
-            }
-        }
-
-        public static string GetInput(string errMess, bool expectDateTime)
-        {
-            int currentCursor = Console.CursorTop;
-            while (true)
-            {
-                Console.Write("  ");
-                string input = ReadEveryKey();
-
-                if (input == null)
-                {
-                    PrintInfoManager.PrintWithColor("\nCancelling... Press any key", ConsoleColor.Green);
-                    Console.ReadKey();
-                    return null;
-                }
-
-                if (!expectDateTime && !string.IsNullOrWhiteSpace(input)) 
-                    return input;
-                if (expectDateTime && DateTime.TryParse(input, out DateTime date))
-                {
-                    if (date < DateTime.Now)
-                    {
-                        PrintInfoManager.PrintInvalidDateEarly();
-                        Console.SetCursorPosition(0, currentCursor);
-                        PrintInfoManager.ClearLines();
-                        continue;
-                    }
-                    return date.ToString();
-                }
-                Console.SetCursorPosition(0, currentCursor);
-                PrintInfoManager.ClearLines();
-                PrintInfoManager.PrintWithColor(errMess, ConsoleColor.Red, "", true);
             }
         }
 

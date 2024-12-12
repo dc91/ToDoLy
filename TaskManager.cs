@@ -334,7 +334,7 @@
             }
         }
 
-        private bool HandleEnter(ref List<Task> filteredTasks, ref int selectedIndex, ref int currentPage, 
+        private bool HandleEnter(ref List<Task> filteredTasks, ref int selectedIndex, ref int currentPage,
                                  int itemsPerPage, ref string? selectedProject, ref bool showCompletedTasks)
         {
             Task task = filteredTasks[selectedIndex + (itemsPerPage * currentPage)];

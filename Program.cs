@@ -11,7 +11,8 @@ if (File.Exists(filePath)) // Fix bug with nonexisting file. just loop or someth
 else
 {
     using StreamWriter sw = new(filePath);
-    sw.WriteLine("Task Name,Project,Due Date,Status");
+    sw.WriteLine("Task Name|Project|Due Date|Status");
+    tManager.tasks = [];
 }
 
 while (true)

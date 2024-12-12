@@ -10,14 +10,22 @@
 
             while (!sr.EndOfStream)
             {
-                string line = sr.ReadLine();
-                string[] parts = line.Split('|');//use pipe so users can type comma
+                try
+                {
+                    string line = sr.ReadLine();
+                    string[] parts = line.Split('|');//use pipe so users can type comma
 
-                string details = parts[0];
-                string project = parts[1];
-                DateTime dueDate = DateTime.Parse(parts[2]);
-                bool completed = parts[3] == "Completed";
-                tasks.Add(new Task(details, project, dueDate, completed));
+                    string details = parts[0];
+                    string project = parts[1];
+                    DateTime dueDate = DateTime.Parse(parts[2]);
+                    bool completed = parts[3] == "Completed";
+                    tasks.Add(new Task(details, project, dueDate, completed));
+                }
+                catch (Exception)
+                {
+                    Console.WriteLine("Warning: Problem with tasks.csv file. Restart application");
+                }
+                
             }
             return tasks;
         }

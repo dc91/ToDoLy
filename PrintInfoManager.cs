@@ -104,57 +104,41 @@ namespace ToDoLy
 
             PrintWithColor(new string(' ', leftPadding) + "SORTING", ConsoleColor.Blue);
 
-            PrintWithColor("\t\tFILTERS/SEARCH", ConsoleColor.DarkYellow);
+            PrintWithColor(new string(' ', 15) + "FILTERS/SEARCH", ConsoleColor.DarkYellow);
 
-            PrintWithColor("\t\tACTIONS", ConsoleColor.Red);
+            PrintWithColor(new string(' ', 15) + "ACTIONS", ConsoleColor.Red);
 
-            PrintWithColor("\t\t\t[ESC]", ConsoleColor.DarkGray, " to exit." + "\n", false);
+            PrintWithColor(new string(' ', 15) + "[ESC]", ConsoleColor.DarkGray, " to exit." + "\n", false);
 
-            PrintWithColor("[1]".PadLeft(leftPadding + 3), ConsoleColor.Blue, " Default", false);
+            PrintWithColor(new string(' ', leftPadding) + "[1]", ConsoleColor.Blue, " Default", false);
 
-            PrintWithColor("\t\t" + "[F]", ConsoleColor.DarkYellow, $" {toggleSetting} COMPLETED", false);
+            PrintWithColor(new string(' ', 11) + "[F]", ConsoleColor.DarkYellow, $" {toggleSetting} COMPLETED", false);
             
-            PrintWithColor("\t" + "[ARROWS]", ConsoleColor.Red, " NAVIGATE");
+            PrintWithColor(new string(' ', 11) + "[ARROWS]", ConsoleColor.Red, " NAVIGATE");
 
-            PrintWithColor("[2]".PadLeft(leftPadding + 3), ConsoleColor.Blue, " By PROJECT", false);
+            PrintWithColor(new string(' ', leftPadding) + "[2]", ConsoleColor.Blue, " By PROJECT", false);
 
-            PrintWithColor("\t\t[P]", ConsoleColor.DarkYellow, " SPECIFIC PROJECT", false);
+            PrintWithColor(new string(' ', 8) + "[P]", ConsoleColor.DarkYellow, " SPECIFIC PROJECT", false);
 
-            PrintWithColor("\t[ENTER]", ConsoleColor.Red, $" EDIT Task");
+            PrintWithColor(new string(' ', 9) + "[ENTER]", ConsoleColor.Red, $" EDIT Task");
 
-            PrintWithColor("[3]".PadLeft(leftPadding + 3), ConsoleColor.Blue, " By DATE", false);
+            PrintWithColor(new string(' ', leftPadding) + "[3]", ConsoleColor.Blue, " By DATE", false);
 
-            PrintWithColor("\t\t[A]", ConsoleColor.DarkYellow, " ALL PROJECTS", false);
+            PrintWithColor(new string(' ', 11) + "[A]", ConsoleColor.DarkYellow, " ALL PROJECTS", false);
 
-            PrintWithColor("\t[DEL]", ConsoleColor.Red, $" DELETE Task");
+            PrintWithColor(new string(' ', 13) + "[DEL]", ConsoleColor.Red, $" DELETE Task");
 
-            PrintWithColor("\t\t\t\t[S]".PadLeft(leftPadding), ConsoleColor.DarkYellow, " SEARCH", false);
-
-            
+            PrintWithColor(new string(' ', 25) + "[S]".PadLeft(leftPadding), ConsoleColor.DarkYellow, " SEARCH", false);
+ 
         }
 
-        public static void PrintAddTaskInfo(int activeStep = 1)
+        public static void PrintAddingInfo(int currentCursor)
         {
-            ClearLines();
-
-            string[] prompt = ["Enter Task Details", "Enter Project Name", "Enter Due Date"];
-
-            for (int step = 1; step <= 3; step++)
-            {
-                string activePrompt = prompt[step-1];
-                if (step == activeStep)
-                {
-                    Console.ForegroundColor = ConsoleColor.DarkYellow;
-                    Console.WriteLine($"> {activePrompt}");
-                    Console.ResetColor();
-                }
-                else
-                {
-                    Console.WriteLine($"  {activePrompt}");
-                }
-            }
-            PrintWithColor("\nESC to CANCEL", ConsoleColor.DarkGray);
-            Console.WriteLine();
+            Console.SetCursorPosition(0, currentCursor);
+            PrintInfoManager.ClearLines();
+            Console.Write("Enter task info below.\nPress ");
+            PrintInfoManager.PrintWithColor("[ESC]", ConsoleColor.DarkGray, null, false);
+            Console.WriteLine(" to cancel.\n");
         }
 
         public static void PrintUpdateTaskInfo()
@@ -217,25 +201,25 @@ namespace ToDoLy
         public static void PrintInvalidDate()
         {
             PrintInfoManager.PrintWithColor("\nInvalid date format. Please enter in yyyy-MM-dd format.", ConsoleColor.Red);
-            Console.ReadKey();
+            Console.ReadKey(intercept: true);
         }
 
         public static void PrintInvalidDateEarly()
         {
-            PrintInfoManager.PrintWithColor("\nDate is before today. Will not save. Press any key to continue", ConsoleColor.Red);
-            Console.ReadKey();
+            PrintInfoManager.PrintWithColor("Date is before today. Will not save. Press any key to continue", ConsoleColor.Red);
+            Console.ReadKey(intercept: true);
         }
 
         public static void PrintDeleteCancel()
         {
             PrintInfoManager.PrintWithColor("\nTask was not removed. Press any key...", ConsoleColor.Red);
-            Console.ReadKey();
+            Console.ReadKey(intercept: true);
         }
 
         public static void PrintDeleteConfirm()
         {
             PrintInfoManager.PrintWithColor("\nTask removed successfully! Press any key...", ConsoleColor.Green);
-            Console.ReadKey();
+            Console.ReadKey(intercept: true);
         }
 
         public static void PrintTableHead()
@@ -298,7 +282,6 @@ namespace ToDoLy
                 else
                     Console.Write(post);
         }
-
 
         public static string FormatLongString(string input)
         {

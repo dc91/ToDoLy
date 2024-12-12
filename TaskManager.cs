@@ -18,37 +18,40 @@ namespace ToDoLy
         public void AddTask()
         {
             PrintInfoManager.PrintHeader("Add a New Task");
-            PrintInfoManager.PrintAddTaskInfo(1);
+            int currentCursor = Console.CursorTop;
+            PrintInfoManager.PrintAddingInfo(currentCursor);
 
-            string details = UserInputManager.GetInput("\nEnter Task Details: ",
-                "Cannot have an empty task. Try again.", false);
+            // Get task details
+            PrintInfoManager.PrintWithColor("> Enter Task Details: ", ConsoleColor.DarkYellow, "", true);
+            string details = UserInputManager.GetInput("Cannot have an empty task. Try again.", false);
             if (details == null) return;
 
-            PrintInfoManager.ClearConsole();
-            PrintInfoManager.PrintHeader("Add a New Task");
-            PrintInfoManager.PrintAddTaskInfo(2);
-            Console.WriteLine(details);
+            // Print the last inputs
+            PrintInfoManager.PrintAddingInfo(currentCursor);
+            Console.WriteLine("  Task details: " + details);
 
-            string project = UserInputManager.GetInput("\nEnter Project Name: ", 
-                "Cannot have an project name. Try again.", false);
+            // Get Project name
+            PrintInfoManager.PrintWithColor("> Enter Project Name: ", ConsoleColor.DarkYellow, "", true);
+            string project = UserInputManager.GetInput("Cannot have an empty project name. Try again.", false);
             if (project == null) return;
 
-            PrintInfoManager.ClearConsole();
-            PrintInfoManager.PrintHeader("Add a New Task");
-            PrintInfoManager.PrintAddTaskInfo(3);
-            Console.WriteLine($"{details}\n{project}");
+            // Print the last inputs
+            PrintInfoManager.PrintAddingInfo(currentCursor);
+            Console.WriteLine($"  Task details: {details}\n  Project name: {project}");
 
-            string dueDateString = UserInputManager.GetInput("\nEnter Due Date (yyyy-mm-dd): ",
-                "Invalid date format. Example (2024-12-25)", true);
+            // Get Due date
+            PrintInfoManager.PrintWithColor("> Enter Due Date Name (yyyy-mm-dd): ", ConsoleColor.DarkYellow, "", true);
+            string dueDateString = UserInputManager.GetInput("Invalid date format. Example (2024-12-25)", true);
             if (dueDateString == null) return;
 
             DateTime dueDate = DateTime.Parse(dueDateString);
 
+            // Create task and Save
             Task task = new(details, project, dueDate, false);
             tasks.Add(task);
             fManager.SaveFile("tasks.csv", tasks);
-            PrintInfoManager.PrintWithColor("Task successfully saved... Press any key", ConsoleColor.Green);
-            Console.ReadKey();
+            PrintInfoManager.PrintWithColor("\nTask successfully saved... Press any key", ConsoleColor.Green);
+            Console.ReadKey(intercept: true);
         }
 
         public void UpdateTask()
@@ -60,32 +63,33 @@ namespace ToDoLy
                 return;
             }
 
+            // Filtering and sort
             bool showCompletedTasks = true;
             string? selectedProject = null;
             List<Task> foundMatches = [];
-            List<Task> filteredTasks = new List<Task>(tasks);
-            List<Task> sortedTasks = new List<Task>(tasks);
-            List<Task> projectTasks = new List<Task>();
+            List<Task> filteredTasks = new(tasks);
+            List<Task> sortedTasks = new(tasks);
+            List<Task> projectTasks = [];
 
+            // Page/nav layout
             int currentPage = 0;
             int selectedIndex = 0;
-            int linesForInfo = 19;
-            int itemsPerPage = (Console.WindowHeight < 20) ? 1 : Console.WindowHeight - linesForInfo;//Used to divide, make sure its not 0
-            
+            const int linesForInfo = 19; // Lines needed for top banner and bottom instructions.
             int totalPages = 0;
             int startIndex = 0;
             int endIndex = 0;
+
             bool keepGoing = true;
 
             while (keepGoing)
             {
-                if (PrintInfoManager.lastSize != Console.WindowHeight)
+                if (PrintInfoManager.lastSize != Console.WindowHeight) // Reset if user changes window size
                 {
                     selectedIndex = 0;
                     currentPage = 0;
                 }
 
-                itemsPerPage = (Console.WindowHeight < 20) ? 1 : Console.WindowHeight - linesForInfo;//Used to divide, make sure its not 0
+                int itemsPerPage = (Console.WindowHeight < linesForInfo + 1) ? 1 : Console.WindowHeight - linesForInfo;//Used to divide, make sure its not 0
 
                 filteredTasks = FilterOptions(ref showCompletedTasks, selectedProject, ref foundMatches, ref sortedTasks, ref projectTasks);
 
@@ -235,7 +239,6 @@ namespace ToDoLy
         {
             while (true)
             {
-            GetKeyAgain:;
                 ConsoleKey key = UserInputManager.TrapUntilValidInput(0);
 
                 switch (key)
@@ -306,6 +309,8 @@ namespace ToDoLy
                         return true;
 
                     case ConsoleKey.LeftArrow:
+                        if (totalPages == 1)
+                            return true;
                         if (currentPage > 0)
                         {
                             currentPage--;
@@ -319,6 +324,8 @@ namespace ToDoLy
                         return true;
 
                     case ConsoleKey.RightArrow:
+                        if (totalPages == 1)
+                            return true;
                         if (currentPage < totalPages - 1)
                         {
                             currentPage++;
@@ -328,8 +335,7 @@ namespace ToDoLy
                         {
                             selectedIndex = 0;
                             currentPage = 0;
-                        }
-                            
+                        }   
                         return true;
                     default:
                         return true;

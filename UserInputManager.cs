@@ -18,7 +18,7 @@ namespace ToDoLy
                 if (key.Key == ConsoleKey.Escape)
                 {
                     Console.WriteLine();
-                    return null;
+                    return null; // Returning null lets us cancel whenever during input
                 }
                 else if (key.Key == ConsoleKey.Enter)
                 {
@@ -42,11 +42,12 @@ namespace ToDoLy
             }
         }
 
-        public static string GetInput(string prompt, string errMess, bool expectDateTime)
+        public static string GetInput(string errMess, bool expectDateTime)
         {
+            int currentCursor = Console.CursorTop;
             while (true)
             {
-                Console.Write(prompt);
+                Console.Write("  ");
                 string input = ReadEveryKey();
 
                 if (input == null)
@@ -56,17 +57,22 @@ namespace ToDoLy
                     return null;
                 }
 
-                if (!expectDateTime && !string.IsNullOrWhiteSpace(input)) return input;
+                if (!expectDateTime && !string.IsNullOrWhiteSpace(input)) 
+                    return input;
                 if (expectDateTime && DateTime.TryParse(input, out DateTime date))
                 {
                     if (date < DateTime.Now)
                     {
                         PrintInfoManager.PrintInvalidDateEarly();
+                        Console.SetCursorPosition(0, currentCursor);
+                        PrintInfoManager.ClearLines();
                         continue;
                     }
                     return date.ToString();
                 }
-                Console.WriteLine(errMess);
+                Console.SetCursorPosition(0, currentCursor);
+                PrintInfoManager.ClearLines();
+                PrintInfoManager.PrintWithColor(errMess, ConsoleColor.Red, "", true);
             }
         }
 

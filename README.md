@@ -91,5 +91,5 @@ Follow instructions in terminal, when running Program.cs.
 4. **PrintInfoManager** and **UserInputManager** are utility classes.
 5. **PrintInfoManager** and **FileManager** _use_ objects of **Task** to get data.
 
-![Alt UML](xAsset.png)
+![Alt UML](xAsset 1.png)
 

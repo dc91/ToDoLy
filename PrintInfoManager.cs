@@ -3,7 +3,7 @@ namespace ToDoLy
 {
     internal class PrintInfoManager
     {
-        public static int lastSize = 0;
+        public static int lastSize;
 
         public static void ClearLines()
         {

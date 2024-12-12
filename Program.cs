@@ -1,10 +1,9 @@
 ﻿using ToDoLy;
 
-
-
 TaskManager tManager = new();
 FileManager fManager = new();
 PrintInfoManager pManager = new();
+
 string filePath = "tasks.csv";
 
 if (File.Exists(filePath))

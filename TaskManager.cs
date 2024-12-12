@@ -238,7 +238,7 @@
                         return false;
 
                     case ConsoleKey.Enter:
-                        return HandleEnter(ref filteredTasks, ref selectedIndex, currentPage,
+                        return HandleEnter(ref filteredTasks, ref selectedIndex, ref currentPage,
                                     itemsPerPage, ref selectedProject, ref showCompletedTasks);
 
                     case ConsoleKey.Delete:
@@ -334,7 +334,7 @@
             }
         }
 
-        private bool HandleEnter(ref List<Task> filteredTasks, ref int selectedIndex, int currentPage, 
+        private bool HandleEnter(ref List<Task> filteredTasks, ref int selectedIndex, ref int currentPage, 
                                  int itemsPerPage, ref string? selectedProject, ref bool showCompletedTasks)
         {
             Task task = filteredTasks[selectedIndex + (itemsPerPage * currentPage)];
@@ -343,6 +343,10 @@
             if (returnToListAfterUpdate.Count == 0)
                 showCompletedTasks = true;
             selectedIndex = 0;
+            if (PrintInfoManager.lastSize != Console.WindowHeight)
+            {
+                currentPage = 0;
+            }
             return true;
         }
         

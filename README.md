@@ -16,7 +16,7 @@ The code has five classes and a main (Program.cs):
 5. UserInputManager.cs
 
 # Instructions
-Follow instructions in terminal.
+Follow instructions in terminal, when running Program.cs.
 
 
 # UML - Classes

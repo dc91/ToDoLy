@@ -16,8 +16,7 @@ The code has five classes and a main (Program.cs):
 5. UserInputManager.cs
 
 # Instructions
-This how u u se it...
-Epic screens showing.
+Follow instructions in terminal, when running Program.cs.
 
 
 # UML - Classes
@@ -92,13 +91,5 @@ Epic screens showing.
 4. **PrintInfoManager** and **UserInputManager** are utility classes.
 5. **PrintInfoManager** and **FileManager** _use_ objects of **Task** to get data.
 
-![Alt UML](UML.svg)
+![Alt UML](UML.png)
 
-
-
-# Known buggs
-If the console window is smaller than the content, and the window becomes scrollable, every clear() won't clear everything.
-You will still be able to see everything and use the app. But now you will now be able to scroll up and see the miss-prints (not pretty).
-The app was not intended to be scrolled in. I want the window size to be static and have the content always fit.
-
-However, if the user doesn't change the window size, we cool.
